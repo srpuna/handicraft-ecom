@@ -352,6 +352,13 @@ class ProductController extends Controller
             return back()->with('error', 'CSV file is empty or invalid.');
         }
 
+        // Strip UTF-8 BOM from the first column name. Excel adds a BOM
+        // (\xEF\xBB\xBF) when saving as UTF-8 CSV, which would make
+        // $data['name'] undefined and cause every row to fail silently.
+        if (!empty($headers[0])) {
+            $headers[0] = ltrim($headers[0], "\xEF\xBB\xBF");
+        }
+
         $imported = 0;
         $updated = 0;
         $failed = 0;
@@ -521,16 +528,29 @@ class ProductController extends Controller
                 $nameWithoutExt = $info['filename'];
                 $extension = $info['extension'];
 
-                // Check if it's main, secondary, or additional image
-                // Format: SKU_N where N is the image number
-                if (strpos($nameWithoutExt, '_') !== false) {
-                    $imageParts = explode('_', $nameWithoutExt);
-                    $sku = $imageParts[0];
-                    $imageNumber = isset($imageParts[1]) ? intval($imageParts[1]) : -1;
-                } else {
-                    // No underscore means it's the main image
-                    $sku = $nameWithoutExt;
-                    $imageNumber = -1; // -1 indicates main image
+                // Determine the SKU and image slot from the filename.
+                //
+                // Convention:
+                //   SKU.ext        → main image
+                //   SKU_0.ext      → secondary image
+                //   SKU_1.ext ...  → additional images
+                //
+                // Strategy: first try the full stem as a SKU (handles SKUs that
+                // contain underscores such as "CH_001"). Only if no product is
+                // found do we strip a trailing numeric segment and retry, so that
+                // "CH_001_0.jpg" is resolved as SKU="CH_001", slot=0.
+                $sku = $nameWithoutExt;
+                $imageNumber = -1; // -1 = main image (will be overridden below if needed)
+
+                // Check whether the stem ends with an underscore + digits.
+                if (preg_match('/^(.+)_(\d+)$/', $nameWithoutExt, $m)) {
+                    // Only treat it as a numbered slot when the prefix part actually
+                    // matches an existing product; otherwise the whole stem is the SKU.
+                    if (!Product::where('sku', $nameWithoutExt)->exists()) {
+                        $sku = $m[1];
+                        $imageNumber = (int) $m[2];
+                    }
+                    // else: the full stem IS the SKU and imageNumber stays -1 (main)
                 }
 
                 // Find product by SKU

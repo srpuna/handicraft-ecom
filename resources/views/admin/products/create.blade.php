@@ -8,6 +8,16 @@
 
 @section('content')
     <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow">
+        @if($errors->any())
+            <div class="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+                <p class="font-semibold mb-1">Please fix the following errors:</p>
+                <ul class="list-disc list-inside text-sm">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
@@ -161,15 +171,22 @@
 
                 <div class="col-span-2">
                     <label class="block text-sm font-medium text-gray-700">Main Image</label>
-                    <input type="file" name="main_image"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 border p-2">
+                    <input type="file" name="main_image" accept="image/*"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 border p-2 @error('main_image') border-red-500 @enderror">
+                    <p class="text-xs text-gray-500 mt-1">Accepted formats: JPG, PNG, GIF, WebP &mdash; max 2 MB</p>
+                    @error('main_image')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div class="col-span-2">
                     <label class="block text-sm font-medium text-gray-700">Additional Images (Multiple)</label>
                     <input type="file" name="images[]" multiple accept="image/*"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 border p-2">
-                    <p class="text-xs text-gray-500 mt-1">You can select multiple images at once</p>
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 border p-2 @error('images') border-red-500 @enderror">
+                    <p class="text-xs text-gray-500 mt-1">You can select multiple images at once &mdash; max 2 MB each</p>
+                    @error('images.*')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div class="col-span-2">
