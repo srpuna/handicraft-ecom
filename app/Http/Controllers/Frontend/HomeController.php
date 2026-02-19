@@ -34,6 +34,15 @@ class HomeController extends Controller
             case 'on-sale':
                 $query->where('is_on_sale', true)->whereNotNull('discount_price')->orderBy('carousel_priority', 'desc');
                 break;
+            case 'discounted':
+                $query->whereNotNull('discount_price')
+                    ->whereColumn('discount_price', '<', 'price')
+                    ->orderBy('carousel_priority', 'desc');
+                break;
+            case 'most-sold':
+                // No orders table exists currently; using inquiries count as a proxy for popularity.
+                $query->withCount('inquiries')->orderByDesc('inquiries_count');
+                break;
             default:
                 // All products - no special filter
                 break;
@@ -63,7 +72,38 @@ class HomeController extends Controller
             });
         }
 
-        $products = $query->latest()->paginate(12);
+        // Sorting
+        $sort = $request->get('sort');
+        if ($sort) {
+            // Ensure sorting is deterministic and overrides any previous ordering.
+            $query->reorder();
+
+            switch ($sort) {
+                case 'price-asc':
+                    $query->orderByRaw('COALESCE(discount_price, price) asc');
+                    break;
+                case 'price-desc':
+                    $query->orderByRaw('COALESCE(discount_price, price) desc');
+                    break;
+                case 'name-asc':
+                    $query->orderBy('name', 'asc');
+                    break;
+                case 'name-desc':
+                    $query->orderBy('name', 'desc');
+                    break;
+                case 'oldest':
+                    $query->orderBy('created_at', 'asc');
+                    break;
+                case 'newest':
+                default:
+                    $query->latest();
+                    break;
+            }
+        } else {
+            $query->latest();
+        }
+
+        $products = $query->paginate(16);
         $categories = Category::with('subCategories')->withCount('products')->get();
 
         return view('frontend.home', compact(

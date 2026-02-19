@@ -19,7 +19,7 @@
                 <input type="hidden" name="shipping_provider_id" value="{{ $rate->shipping_provider_id }}">
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Min Weight (kg)</label>
                     <input type="number" step="0.001" name="min_weight" value="{{ $rate->min_weight }}"

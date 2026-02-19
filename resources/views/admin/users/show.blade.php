@@ -1,14 +1,14 @@
 @extends('admin.layout')
 
 @section('content')
-<div class="p-6">
+<div>
     <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-6">
         <div>
             <h1 class="text-3xl font-bold text-gray-800">Admin User Details</h1>
             <p class="text-gray-600 mt-1">View detailed information about this admin user</p>
         </div>
-        <div class="flex gap-2">
+        <div class="flex flex-col sm:flex-row gap-2">
             <a href="{{ route('admin.users.edit', $user) }}" 
                 class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
                 Edit User
@@ -97,7 +97,7 @@
                 @endphp
 
                 @if($allPermissions->count() > 0)
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     @foreach($allPermissions as $permission)
                     <div class="flex items-center p-3 bg-gray-50 rounded-lg">
                         <svg class="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">

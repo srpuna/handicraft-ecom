@@ -211,7 +211,7 @@
                     <p class="text-sm text-gray-500 mb-4">Select which carousels this product should appear in on the homepage.</p>
                 </div>
 
-                <div class="col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="col-span-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                     <div class="flex items-center">
                         <input type="checkbox" name="is_new_arrival" id="is_new_arrival" value="1"
                             class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"

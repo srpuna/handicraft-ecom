@@ -7,10 +7,10 @@
 @endsection
 
 @section('content')
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-6">
         <h3 class="text-lg font-medium">All Products</h3>
         <a href="{{ route('admin.products.create') }}"
-            class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+            class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-center w-full sm:w-auto">
             + Add New Product
         </a>
     </div>

@@ -64,66 +64,68 @@
     <!-- List -->
     <div class="mt-8 bg-white rounded-lg shadow overflow-hidden">
         <h3 class="text-lg font-medium p-6 border-b">Existing Categories</h3>
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Sub-Categories</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                @foreach($categories as $category)
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
-                            {{ $category->name }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-gray-500">
-                            {{ $category->slug }}
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-500">
-                            @forelse($category->subCategories as $sub)
-                                <div class="inline-flex items-center bg-gray-100 rounded-full px-3 py-1 text-xs font-semibold text-gray-700 mr-2 mb-1">
-                                    <span>{{ $sub->name }}</span>
-                                    <a href="{{ route('admin.subcategories.edit', $sub) }}" 
-                                       class="ml-2 text-indigo-600 hover:text-indigo-900 p-1 rounded-full hover:bg-gray-200" 
-                                       title="Edit">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                        </svg>
-                                    </a>
-                                    <form action="{{ route('admin.subcategories.destroy', $sub) }}" 
-                                          method="POST" 
-                                          class="inline-block ml-1"
-                                          onsubmit="event.preventDefault(); openDeleteModal(this, 'Enter your password to delete this sub-category.');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-gray-200" title="Delete">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                            </svg>
-                                        </button>
-                                    </form>
-                                </div>
-                            @empty
-                                <span class="text-xs text-gray-400">None</span>
-                            @endforelse
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <a href="{{ route('admin.categories.edit', $category) }}"
-                                class="text-indigo-600 hover:text-indigo-900 mr-4">Edit</a>
-                            <form action="{{ route('admin.categories.destroy', $category) }}" method="POST" class="inline-block"
-                                onsubmit="event.preventDefault(); openDeleteModal(this, 'Enter your password to delete this category.');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
-                            </form>
-                        </td>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Sub-Categories</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @foreach($categories as $category)
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
+                                {{ $category->name }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-gray-500">
+                                {{ $category->slug }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">
+                                @forelse($category->subCategories as $sub)
+                                    <div class="inline-flex items-center bg-gray-100 rounded-full px-3 py-1 text-xs font-semibold text-gray-700 mr-2 mb-1">
+                                        <span>{{ $sub->name }}</span>
+                                        <a href="{{ route('admin.subcategories.edit', $sub) }}" 
+                                           class="ml-2 text-indigo-600 hover:text-indigo-900 p-1 rounded-full hover:bg-gray-200" 
+                                           title="Edit">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                            </svg>
+                                        </a>
+                                        <form action="{{ route('admin.subcategories.destroy', $sub) }}" 
+                                              method="POST" 
+                                              class="inline-block ml-1"
+                                              onsubmit="event.preventDefault(); openDeleteModal(this, 'Enter your password to delete this sub-category.');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-gray-200" title="Delete">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
+                                @empty
+                                    <span class="text-xs text-gray-400">None</span>
+                                @endforelse
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <a href="{{ route('admin.categories.edit', $category) }}"
+                                    class="text-indigo-600 hover:text-indigo-900 mr-4">Edit</a>
+                                <form action="{{ route('admin.categories.destroy', $category) }}" method="POST" class="inline-block"
+                                    onsubmit="event.preventDefault(); openDeleteModal(this, 'Enter your password to delete this category.');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
 @endsection

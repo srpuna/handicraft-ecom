@@ -1,5 +1,5 @@
 <?php $__env->startSection('content'); ?>
-    <div class="container mx-auto px-6 py-12">
+    <div class="container mx-auto px-4 sm:px-6 py-12">
 
         <div class="flex flex-col md:flex-row gap-12 bg-white p-8 rounded-2xl shadow-sm">
             <!-- Image Section -->
@@ -138,7 +138,7 @@
 
                 <div class="bg-gray-50 border border-gray-100 rounded-lg p-6 mb-8">
                     <h3 class="font-serif font-bold text-lg mb-4 text-gray-800">Product Specifications</h3>
-                    <dl class="grid grid-cols-2 gap-x-4 gap-y-4 text-sm">
+                    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4 text-sm">
                         <dt class="text-gray-500">Dimensions (L x W x H)</dt>
                         <dd class="font-medium text-gray-900"><?php echo e($product->formatted_length); ?>cm x <?php echo e($product->formatted_width); ?>cm x
                             <?php echo e($product->formatted_height); ?>cm</dd>
@@ -212,7 +212,7 @@
                                 </div>
                                 <input type="text" name="address_line" placeholder="Address Line" required
                                     class="w-full p-3 bg-gray-50 border rounded-lg focus:ring-green-premium focus:border-green-premium">
-                                <div class="grid grid-cols-2 gap-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <input type="text" name="city" placeholder="City"
                                         class="w-full p-3 bg-gray-50 border rounded-lg focus:ring-green-premium focus:border-green-premium">
                                     <input type="text" name="zip_code" placeholder="Zip Code"

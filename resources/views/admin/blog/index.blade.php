@@ -7,9 +7,9 @@
 @endsection
 
 @section('content')
-<div class="flex justify-between items-center mb-6">
+<div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-6">
     <h3 class="text-lg font-medium">All Posts</h3>
-    <a href="{{ route('admin.blog.create') }}" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition flex items-center gap-2">
+    <a href="{{ route('admin.blog.create') }}" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition flex items-center justify-center gap-2 w-full sm:w-auto">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>

@@ -70,10 +70,10 @@
 @endpush
 
 @section('content')
-<article class="container mx-auto px-6 py-12">
+<article class="container mx-auto px-4 sm:px-6 py-12">
     <!-- Breadcrumb -->
     <nav class="mb-8 text-sm">
-        <ol class="flex items-center space-x-2 text-gray-500">
+        <ol class="flex flex-wrap items-center gap-2 text-gray-500">
             <li><a href="{{ route('home') }}" class="hover:text-green-600">Home</a></li>
             <li><span>/</span></li>
             <li><a href="{{ route('blog.index') }}" class="hover:text-green-600">Blog</a></li>
@@ -130,7 +130,7 @@
         <!-- Share Buttons -->
         <div class="mt-12 pt-8 border-t border-gray-200">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Share this article</h3>
-            <div class="flex gap-3">
+            <div class="flex flex-wrap gap-3">
                 <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(route('blog.show', $post->slug)) }}" 
                     target="_blank" rel="noopener noreferrer"
                     class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">

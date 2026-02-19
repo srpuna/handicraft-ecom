@@ -75,7 +75,7 @@
                 </svg>
                 <h2 class="text-xl font-semibold text-gray-800">Bulk Country → Zone Mapping</h2>
             </div>
-            <span class="text-xs text-gray-500">CSV columns: country, zone</span>
+            <span class="text-xs text-gray-500">CSV columns: country (or country_code), zone</span>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Export Mapping -->
@@ -103,7 +103,7 @@
                     <div>
                         <label class="block text-xs font-medium text-gray-600 mb-1">CSV File *</label>
                         <input type="file" name="zones_file" accept=".csv" required class="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-green-100 file:text-green-700 hover:file:bg-green-200">
-                        <p class="text-xs text-gray-500 mt-1">Columns: country, zone (use exact zone name or 1-based index)</p>
+                        <p class="text-xs text-gray-500 mt-1">Columns: country/country_code, zone (use exact zone name or 1-based index). Country code (e.g., US) or full country name both supported.</p>
                     </div>
                     <button type="submit" class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium">Import CSV</button>
                 </div>

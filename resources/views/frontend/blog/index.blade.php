@@ -4,7 +4,7 @@
 @section('meta_description', 'Read our latest blog posts, tips, and insights.')
 
 @section('content')
-<div class="container mx-auto px-6 py-12">
+<div class="container mx-auto px-4 sm:px-6 py-12">
     <!-- Header -->
     <div class="text-center mb-12">
         <h1 class="text-4xl font-serif text-gray-900 mb-4">Our Blog</h1>

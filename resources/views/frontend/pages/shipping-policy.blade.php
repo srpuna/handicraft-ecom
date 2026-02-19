@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container mx-auto px-6 py-12">
+    <div class="container mx-auto px-4 sm:px-6 py-12">
         <div class="max-w-4xl mx-auto">
             <h1 class="text-4xl font-serif font-bold text-gray-900 mb-8">Shipping Policy</h1>
             

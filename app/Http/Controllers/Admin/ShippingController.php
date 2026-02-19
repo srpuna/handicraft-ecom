@@ -347,7 +347,7 @@ class ShippingController extends Controller
 
     /**
      * Import CSV of country → zone mapping.
-     * Accepts columns: country, zone (zone name) or country, zone_index (1-based index by current zone order)
+        * Accepts columns: country/country_name/country_code and zone/zone_name/zone_index
      * For each row: removes country from any existing zone and assigns it to the specified zone.
      */
     public function importZonesCsv(Request $request)
@@ -356,9 +356,54 @@ class ShippingController extends Controller
             'zones_file' => 'required|file|mimes:csv,txt',
         ]);
 
+        $file = $request->file('zones_file');
+        $filePath = $file->getRealPath();
+        $delimiter = $this->detectCsvDelimiter($filePath);
+
+        $handle = fopen($filePath, 'r');
+        if (!$handle) {
+            return back()->with('error', 'Unable to read the uploaded file.');
+        }
+
+        $header = fgetcsv($handle, 0, $delimiter);
+        if (!$header || count($header) < 2) {
+            fclose($handle);
+            return back()->with('error', 'Invalid CSV header. Expected columns: country, zone. Ensure the file is a proper CSV.');
+        }
+
+        $header = array_map(function ($value) {
+            return trim((string) $value);
+        }, $header);
+
+        // Strip UTF-8 BOM from first header cell if present
+        if (isset($header[0])) {
+            $header[0] = preg_replace('/^\xEF\xBB\xBF/', '', $header[0]);
+        }
+
+        // Determine zone column index and name variants
+        $countryIdx = null;
+        $zoneIdx = null;
+        foreach ($header as $i => $col) {
+            $norm = strtolower($col);
+            if ($countryIdx === null && in_array($norm, ['country', 'country_name', 'country_code'])) {
+                $countryIdx = $i;
+            }
+            if ($zoneIdx === null && in_array($norm, ['zone', 'zone_name', 'zoneindex', 'zone_index'])) {
+                $zoneIdx = $i;
+            }
+        }
+        if ($countryIdx === null || $zoneIdx === null) {
+            fclose($handle);
+            return back()->with('error', 'CSV must include columns: country and zone');
+        }
+
+        // Allow first-time import by creating zones from CSV zone column when none exist yet.
+        $this->bootstrapZonesFromCsvIfEmpty($filePath, $delimiter, $zoneIdx);
+
         $zones = ShippingZone::orderBy('id')->get();
         if ($zones->isEmpty()) {
-            return back()->with('error', 'No zones exist. Create zones before importing.');
+            fclose($handle);
+            return back()->with('error', 'Could not initialize zones from CSV.');
         }
 
         // Build lookup by normalized zone name and by order index
@@ -371,39 +416,13 @@ class ShippingController extends Controller
         }, []);
         $zoneOrder = $zones->values(); // 0-based order
 
-        $file = $request->file('zones_file');
-        $handle = fopen($file->getRealPath(), 'r');
-        if (!$handle) {
-            return back()->with('error', 'Unable to read the uploaded file.');
-        }
-
-        $header = fgetcsv($handle);
-        if (!$header || count($header) < 2) {
-            fclose($handle);
-            return back()->with('error', 'Invalid CSV header. Expected columns: country, zone');
-        }
-
-        $header = array_map('trim', $header);
-        // Determine zone column index and name variants
-        $countryIdx = null;
-        $zoneIdx = null;
-        foreach ($header as $i => $col) {
-            $norm = strtolower($col);
-            if ($countryIdx === null && in_array($norm, ['country', 'country_name'])) {
-                $countryIdx = $i;
-            }
-            if ($zoneIdx === null && in_array($norm, ['zone', 'zone_name', 'zoneindex', 'zone_index'])) {
-                $zoneIdx = $i;
-            }
-        }
-        if ($countryIdx === null || $zoneIdx === null) {
-            fclose($handle);
-            return back()->with('error', 'CSV must include columns: country and zone');
-        }
-
         $updated = 0;
         $reassigned = 0;
         $invalidRows = 0;
+        $invalidStructure = 0;
+        $invalidMissingValues = 0;
+        $invalidUnknownZone = 0;
+        $unknownZoneSamples = [];
 
         // Build current countries per zone for quick removal/add
         $zoneCountries = [];
@@ -414,10 +433,11 @@ class ShippingController extends Controller
                 ->all();
         }
 
-        while (($row = fgetcsv($handle)) !== false) {
+        while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
             // Skip empty rows
             if (count($row) < max($countryIdx, $zoneIdx) + 1) {
                 $invalidRows++;
+                $invalidStructure++;
                 continue;
             }
 
@@ -426,6 +446,7 @@ class ShippingController extends Controller
 
             if ($rawCountry === '' || $rawZone === '') {
                 $invalidRows++;
+                $invalidMissingValues++;
                 continue;
             }
 
@@ -446,10 +467,19 @@ class ShippingController extends Controller
                 if ($zoneOrder->has($index)) {
                     $zoneId = $zoneOrder->get($index)->id;
                 }
+            } elseif (preg_match('/^zone\s*[-_]?\s*(\d+)$/i', $rawZone, $matches)) {
+                $index = ((int) $matches[1]) - 1;
+                if ($zoneOrder->has($index)) {
+                    $zoneId = $zoneOrder->get($index)->id;
+                }
             }
 
             if (!$zoneId) {
                 $invalidRows++;
+                $invalidUnknownZone++;
+                if (count($unknownZoneSamples) < 5) {
+                    $unknownZoneSamples[] = $rawZone;
+                }
                 continue;
             }
 
@@ -477,16 +507,123 @@ class ShippingController extends Controller
         }
 
         $message = 'Zones import completed. ' . $updated . ' assigned, ' . $reassigned . ' reassignments, ' . $invalidRows . ' invalid rows.';
+        if ($invalidRows > 0) {
+            $message .= ' Invalid breakdown → wrong columns: ' . $invalidStructure
+                . ', missing country/zone: ' . $invalidMissingValues
+                . ', unknown zone: ' . $invalidUnknownZone . '.';
+
+            if (!empty($unknownZoneSamples)) {
+                $message .= ' Unknown zone samples: ' . implode(', ', array_unique($unknownZoneSamples)) . '.';
+            }
+        }
+
         return back()->with('success', $message);
+    }
+
+    private function bootstrapZonesFromCsvIfEmpty(string $filePath, string $delimiter, int $zoneIdx): void
+    {
+        if (ShippingZone::query()->exists()) {
+            return;
+        }
+
+        $handle = fopen($filePath, 'r');
+        if (!$handle) {
+            return;
+        }
+
+        // Skip header
+        fgetcsv($handle, 0, $delimiter);
+
+        $maxNumericIndex = 0;
+        $zoneNames = [];
+
+        while (($row = fgetcsv($handle, 0, $delimiter)) !== false) {
+            if (!isset($row[$zoneIdx])) {
+                continue;
+            }
+
+            $rawZone = trim((string) $row[$zoneIdx]);
+            if ($rawZone === '') {
+                continue;
+            }
+
+            if (is_numeric($rawZone)) {
+                $maxNumericIndex = max($maxNumericIndex, (int) $rawZone);
+                continue;
+            }
+
+            if (preg_match('/^zone\s*[-_]?\s*(\d+)$/i', $rawZone, $matches)) {
+                $maxNumericIndex = max($maxNumericIndex, (int) $matches[1]);
+                continue;
+            }
+
+            $normalized = strtolower(trim($rawZone));
+            if (!isset($zoneNames[$normalized])) {
+                $zoneNames[$normalized] = $rawZone;
+            }
+        }
+
+        fclose($handle);
+
+        for ($i = 1; $i <= $maxNumericIndex; $i++) {
+            ShippingZone::create([
+                'name' => 'Zone ' . $i,
+                'countries' => [],
+            ]);
+        }
+
+        foreach ($zoneNames as $zoneName) {
+            $exists = ShippingZone::whereRaw('LOWER(name) = ?', [strtolower($zoneName)])->exists();
+            if (!$exists) {
+                ShippingZone::create([
+                    'name' => $zoneName,
+                    'countries' => [],
+                ]);
+            }
+        }
+    }
+
+    private function detectCsvDelimiter(string $filePath): string
+    {
+        $firstLine = '';
+        $handle = fopen($filePath, 'r');
+        if ($handle) {
+            $firstLine = fgets($handle) ?: '';
+            fclose($handle);
+        }
+
+        if ($firstLine === '') {
+            return ',';
+        }
+
+        $candidates = [',', ';', "\t", '|'];
+        $bestDelimiter = ',';
+        $bestCount = 0;
+
+        foreach ($candidates as $candidate) {
+            $columns = str_getcsv($firstLine, $candidate);
+            $count = count($columns);
+            if ($count > $bestCount) {
+                $bestCount = $count;
+                $bestDelimiter = $candidate;
+            }
+        }
+
+        return $bestDelimiter;
     }
 
     private function normalizeCountryName(string $name): string
     {
         $trimmed = trim($name);
-        // Uppercase known 2-letter codes, else title-case
-        if (strlen($trimmed) <= 3 && strtoupper($trimmed) === $trimmed) {
-            return $trimmed; // keep codes like US, UK, UAE
+        if ($trimmed === '') {
+            return '';
         }
+
+        // Normalize short alphabetic country codes (ISO-like) to uppercase, e.g. us -> US
+        if (preg_match('/^[a-zA-Z]{2,3}$/', $trimmed)) {
+            return strtoupper($trimmed);
+        }
+
         return ucwords(strtolower($trimmed));
     }
 
@@ -495,15 +632,26 @@ class ShippingController extends Controller
      */
     public function templateZonesCsv(): StreamedResponse
     {
+        $zones = ShippingZone::orderBy('id')->pluck('name')->values();
         $fileName = 'country_zone_template.csv';
 
-        return response()->streamDownload(function () {
+        return response()->streamDownload(function () use ($zones) {
             $output = fopen('php://output', 'w');
             // Header
             fputcsv($output, ['country', 'zone']);
-            // Optional example rows (can be removed by admin)
-            fputcsv($output, ['United States', 'Zone 1']);
-            fputcsv($output, ['Germany', 'Zone 2']);
+
+            $firstZone = $zones->get(0);
+            $secondZone = $zones->get(1) ?? $firstZone;
+
+            // Optional example rows using existing zone names
+            if ($firstZone) {
+                fputcsv($output, ['US', $firstZone]);
+                fputcsv($output, ['Germany', $secondZone]);
+            } else {
+                fputcsv($output, ['US', 'Existing Zone Name']);
+                fputcsv($output, ['Germany', 'Existing Zone Name']);
+            }
+
             fclose($output);
         }, $fileName, ['Content-Type' => 'text/csv']);
     }

@@ -11,25 +11,7 @@
         <link rel="icon" type="image/x-icon" href="{{ asset('storage/' . $siteSettings['favicon']->value) }}">
     @endif
     @stack('head')
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        cream: '#FDFBF7',
-                        beige: '#F5F5DC',
-                        gold: '#D4AF37',
-                        'green-premium': '#2E594A',
-                    },
-                    fontFamily: {
-                        sans: ['Outfit', 'sans-serif'],
-                        serif: ['Playfair Display', 'serif'],
-                    }
-                }
-            }
-        }
-    </script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@400;600;700&display=swap"
         rel="stylesheet">
@@ -51,7 +33,7 @@
 
     <!-- Header -->
     <header class="bg-cream sticky top-0 z-50 border-b border-gray-100">
-        <div class="container mx-auto px-6 py-4 flex flex-col md:flex-row md:justify-between md:items-center">
+        <div class="container mx-auto px-4 sm:px-6 py-4 flex flex-col gap-3 md:gap-6 md:flex-row md:justify-between md:items-center">
             <div class="flex items-center justify-between w-full md:w-auto">
                 <!-- Logo / Store Name -->
                 <a href="{{ route('home') }}" class="flex items-center space-x-3">
@@ -65,16 +47,31 @@
                         </span>
                     @endif
                 </a>
-                <!-- Mobile menu button could go here if needed -->
+                <!-- Mobile quick actions -->
+                <div class="flex items-center gap-4 md:hidden">
+                    <a href="{{ route('cart.index') }}" class="relative text-gray-600 hover:text-green-premium" aria-label="Cart">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                        </svg>
+                    </a>
+
+                    <a href="{{ route('admin.dashboard') }}" class="text-gray-500 hover:text-green-premium" title="Admin Dashboard" aria-label="Admin">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </a>
+                </div>
             </div>
 
             <!-- Search, Cart, Profile -->
-            <div class="flex-1 flex items-center justify-center px-4 md:px-8">
+            <div class="w-full flex items-center justify-center md:flex-1 md:px-8">
                 <!-- Search Bar -->
                 <div class="w-full max-w-2xl">
                     <form action="{{ route('home') }}" method="GET" class="relative">
                         <input type="text" name="search" placeholder="Search products..." value="{{ request('search') }}"
-                            class="w-full bg-white border-2 border-gray-200 rounded-full py-3 pl-5 pr-12 text-base focus:outline-none focus:border-green-premium focus:ring-2 focus:ring-green-100 shadow-sm transition-all duration-200 placeholder-gray-400">
+                            class="w-full bg-white border-2 border-gray-200 rounded-full py-2.5 sm:py-3 pl-5 pr-12 text-sm sm:text-base focus:outline-none focus:border-green-premium focus:ring-2 focus:ring-green-100 shadow-sm transition-all duration-200 placeholder-gray-400">
                         <button type="submit" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-green-premium transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -85,7 +82,7 @@
             </div>
 
             <!-- Cart & Admin -->
-            <div class="flex items-center justify-end space-x-6 w-full md:w-auto">
+            <div class="hidden md:flex items-center justify-end space-x-6 w-full md:w-auto">
                 <!-- Cart -->
                 <a href="{{ route('cart.index') }}" class="relative text-gray-600 hover:text-green-premium">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,7 +107,7 @@
     <!-- Main Content -->
     <main class="flex-grow">
         @if(session('success'))
-            <div class="bg-green-100 border-l-4 border-green-premium text-green-700 p-4 container mx-auto mt-4"
+            <div class="bg-green-100 border-l-4 border-green-premium text-green-700 p-4 container mx-auto mt-4 px-4 sm:px-6"
                 role="alert">
                 <p class="font-bold">Success</p>
                 <p>{{ session('success') }}</p>
@@ -121,7 +118,7 @@
 
     <!-- Footer -->
     <footer class="bg-green-premium text-white py-12">
-        <div class="container mx-auto px-6">
+        <div class="container mx-auto px-4 sm:px-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
                     @if($siteSettings['footer_logo'] && $siteSettings['footer_logo']->value)

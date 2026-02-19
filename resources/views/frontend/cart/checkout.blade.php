@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container mx-auto px-6 py-12" x-data="checkout()">
+    <div class="container mx-auto px-4 sm:px-6 py-12" x-data="checkout()">
         <h1 class="text-3xl font-serif font-bold text-gray-900 mb-8">Checkout</h1>
 
         <div class="flex flex-col md:flex-row gap-12">
@@ -29,7 +29,7 @@
                         <div class="space-y-4">
                             <input type="text" name="address" value="{{ $inquiry->address_line ?? '' }}"
                                 placeholder="Address" class="w-full p-3 bg-gray-50 border rounded-lg" required>
-                            <div class="grid grid-cols-2 gap-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <input type="text" name="city" value="{{ $inquiry->city ?? '' }}" placeholder="City"
                                     class="w-full p-3 bg-gray-50 border rounded-lg" required>
                                 <input type="text" name="zip_code" value="{{ $inquiry->zip_code ?? '' }}"
