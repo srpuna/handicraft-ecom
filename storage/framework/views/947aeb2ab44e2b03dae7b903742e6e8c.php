@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Under Maintenance - LuxeStore</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Outfit', sans-serif; }
@@ -19,7 +19,8 @@
             We apologize for the inconvenience and appreciate your patience.
         </p>
         <div class="w-16 h-1 bg-[#D4AF37] mx-auto"></div>
-        <p class="mt-8 text-sm text-gray-400">&copy; {{ date('Y') }} Handicraft Nepal</p>
+        <p class="mt-8 text-sm text-gray-400">&copy; <?php echo e(date('Y')); ?> Handicraft Nepal</p>
     </div>
 </body>
 </html>
+<?php /**PATH C:\Users\DELL\Desktop\My Files\Dev\ecom\resources\views/maintenance.blade.php ENDPATH**/ ?>

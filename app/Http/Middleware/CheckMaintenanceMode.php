@@ -18,34 +18,17 @@ class CheckMaintenanceMode
     {
         // Check if maintenance mode is enabled in cache
         if (Cache::get('maintenance_mode')) {
-            // Allow login, logout, and internal routes
-            if ($request->is('login') || $request->is('logout') || $request->is('sanctum/*')) {
+            // Allow admin, login, logout, and internal routes
+            if ($request->is('admin*') || $request->is('login') || $request->is('logout') || $request->is('sanctum/*')) {
                 return $next($request);
             }
 
-            // If route is admin area, allow based on role and intent:
-            if ($request->is('admin*')) {
-                // Allow full admin users to continue working
-                if (auth()->check() && (auth()->user()->is_admin || auth()->user()->isSuperAdmin())) {
-                    return $next($request);
-                }
-
-                // Allow pure viewers read-only access to specific admin pages
-                if (auth()->check() && auth()->user()->hasRole('viewer') && !auth()->user()->hasAnyRole(['admin', 'editor', 'super_admin'])) {
-                    // Only allow safe methods
-                    if (in_array($request->method(), ['GET', 'HEAD'])) {
-                        // Restrict viewer access to the dashboard and inquiries listing/details
-                        if ($request->is('admin') || $request->is('admin/') || $request->is('admin/inquiries*')) {
-                            return $next($request);
-                        }
-                    }
-                }
-
-                // Otherwise block access to admin routes during maintenance
-                return response()->view('maintenance', [], 503);
+            // Allow authenticated users who are admins (double check for safety)
+            if (auth()->check() && auth()->user()->is_admin) {
+                return $next($request);
             }
 
-            // Non-admin routes: show maintenance
+            // Return 503 Maintenance View
             return response()->view('maintenance', [], 503);
         }
 
