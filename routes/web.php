@@ -53,7 +53,7 @@ Route::post('/login', [\App\Http\Controllers\Auth\LoginController::class, 'login
 Route::post('/logout', [\App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');
 
 // Admin
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth','viewer.readonly'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/maintenance/toggle', [DashboardController::class, 'toggleMaintenance'])->name('maintenance.toggle');
     Route::post('/verify-password', [DashboardController::class, 'verifyPassword'])->name('verify-password');
