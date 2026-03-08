@@ -69,9 +69,15 @@ class SiteSetting extends Model
      */
     public function getLogoUrl()
     {
-        if ($this->value && Storage::disk('public')->exists($this->value)) {
-            return Storage::url($this->value);
+        if ($this->value && Storage::disk('s3')->exists($this->value)) {
+            return Storage::disk('s3')->url($this->value);
         }
+        
+        // Fallback to public if it exists there (for migration period)
+        if ($this->value && Storage::disk('public')->exists($this->value)) {
+            return Storage::disk('public')->url($this->value);
+        }
+
         return null;
     }
 }

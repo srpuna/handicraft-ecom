@@ -67,8 +67,8 @@ class BlogController extends Controller
 
         // Handle featured image upload
         if ($request->hasFile('featured_image')) {
-            $path = $request->file('featured_image')->store('blog', 'public');
-            $data['featured_image'] = '/storage/' . $path;
+            $path = $request->file('featured_image')->store('blog', 's3');
+            $data['featured_image'] = Storage::disk('s3')->url($path);
         }
 
         BlogPost::create($data);
@@ -115,17 +115,21 @@ class BlogController extends Controller
         if ($request->hasFile('featured_image')) {
             // Delete old image
             if ($blog->featured_image) {
-                $oldPath = str_replace('/storage/', '', $blog->featured_image);
-                Storage::disk('public')->delete($oldPath);
+                // If it's an S3 URL, we should parse it, but for simplicity we can try to extract the path
+                // This is a naive way to do it
+                $oldPath = str_replace(Storage::disk('s3')->url(''), '', $blog->featured_image);
+                $oldPath = str_replace('/storage/', '', $oldPath);
+                Storage::disk('s3')->delete($oldPath);
             }
-            $path = $request->file('featured_image')->store('blog', 'public');
-            $data['featured_image'] = '/storage/' . $path;
+            $path = $request->file('featured_image')->store('blog', 's3');
+            $data['featured_image'] = Storage::disk('s3')->url($path);
         }
 
         // Handle image removal
         if ($request->has('remove_featured_image') && $blog->featured_image) {
-            $oldPath = str_replace('/storage/', '', $blog->featured_image);
-            Storage::disk('public')->delete($oldPath);
+            $oldPath = str_replace(Storage::disk('s3')->url(''), '', $blog->featured_image);
+            $oldPath = str_replace('/storage/', '', $oldPath);
+            Storage::disk('s3')->delete($oldPath);
             $data['featured_image'] = null;
         }
 
@@ -138,8 +142,9 @@ class BlogController extends Controller
     {
         // Delete featured image
         if ($blog->featured_image) {
-            $oldPath = str_replace('/storage/', '', $blog->featured_image);
-            Storage::disk('public')->delete($oldPath);
+            $oldPath = str_replace(Storage::disk('s3')->url(''), '', $blog->featured_image);
+            $oldPath = str_replace('/storage/', '', $oldPath);
+            Storage::disk('s3')->delete($oldPath);
         }
 
         $blog->delete();

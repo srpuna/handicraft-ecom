@@ -132,11 +132,11 @@ class SiteSettingController extends Controller
         // Delete old logo if exists
         $oldSetting = SiteSetting::where('key', $key)->first();
         if ($oldSetting && $oldSetting->value) {
-            Storage::disk('public')->delete($oldSetting->value);
+            Storage::disk('s3')->delete($oldSetting->value);
         }
 
         // Store new logo
-        $path = $file->store('logos', 'public');
+        $path = $file->store('logos', 's3');
         SiteSetting::set($key, $path, 'image', 'logo');
     }
 
@@ -144,7 +144,7 @@ class SiteSettingController extends Controller
     {
         $setting = SiteSetting::where('key', $key)->first();
         if ($setting && $setting->value) {
-            Storage::disk('public')->delete($setting->value);
+            Storage::disk('s3')->delete($setting->value);
             $setting->update(['value' => null]);
         }
     }

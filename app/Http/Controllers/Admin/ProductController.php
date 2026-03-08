@@ -73,16 +73,16 @@ class ProductController extends Controller
 
         // Main Image Upload
         if ($request->hasFile('main_image')) {
-            $path = $request->file('main_image')->store('products', 'public');
-            $data['main_image'] = '/storage/' . $path;
+            $path = $request->file('main_image')->store('products', 's3');
+            $data['main_image'] = Storage::disk('s3')->url($path);
         }
 
         // Multiple Images Upload
         if ($request->hasFile('images')) {
             $imagePaths = [];
             foreach ($request->file('images') as $image) {
-                $path = $image->store('products', 'public');
-                $imagePaths[] = '/storage/' . $path;
+                $path = $image->store('products', 's3');
+                $imagePaths[] = Storage::disk('s3')->url($path);
             }
             $data['images'] = $imagePaths;
         }
@@ -128,16 +128,16 @@ class ProductController extends Controller
 
         // Main Image Upload
         if ($request->hasFile('main_image')) {
-            $path = $request->file('main_image')->store('products', 'public');
-            $data['main_image'] = '/storage/' . $path;
+            $path = $request->file('main_image')->store('products', 's3');
+            $data['main_image'] = Storage::disk('s3')->url($path);
         }
 
         // Multiple Images Upload
         if ($request->hasFile('images')) {
             $imagePaths = $product->images ?? [];
             foreach ($request->file('images') as $image) {
-                $path = $image->store('products', 'public');
-                $imagePaths[] = '/storage/' . $path;
+                $path = $image->store('products', 's3');
+                $imagePaths[] = Storage::disk('s3')->url($path);
             }
             $data['images'] = $imagePaths;
         }
@@ -568,8 +568,8 @@ class ProductController extends Controller
 
                 // Move image to storage
                 $storagePath = 'products/' . uniqid() . '.' . $extension;
-                Storage::disk('public')->put($storagePath, file_get_contents($filePath));
-                $publicPath = '/storage/' . $storagePath;
+                Storage::disk('s3')->put($storagePath, file_get_contents($filePath));
+                $publicPath = Storage::disk('s3')->url($storagePath);
 
                 // Assign to appropriate field
                 if ($imageNumber === -1) {
