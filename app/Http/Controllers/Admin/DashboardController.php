@@ -17,14 +17,14 @@ class DashboardController extends Controller
     {
         try {
             $totalProducts = Schema::hasTable('products') ? Product::count() : 0;
-            $totalCategories = Schema::hasTable('categories') ? Category::count() : 0;
-            $totalInquiries = Schema::hasTable('inquiries') ? Inquiry::count() : 0;
+            $totalCategories = Schema::hasTable('categories') ? \App\Models\Category::count() : 0;
+            $totalInquiries = Schema::hasTable('orders') ? \App\Models\Order::where('type', 'inquiry')->count() : 0;
         } catch (\Exception $e) {
             $totalProducts = 0;
             $totalCategories = 0;
             $totalInquiries = 0;
         }
-        
+
         return view('admin.dashboard', compact('totalProducts', 'totalCategories', 'totalInquiries'));
     }
 

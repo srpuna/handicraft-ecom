@@ -10,15 +10,18 @@
 
 <?php $__env->startSection('content'); ?>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <a href="<?php echo e(route('admin.products.index')); ?>" class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500 hover:shadow-lg hover:scale-[1.02] transition-all duration-200 block">
+        <a href="<?php echo e(route('admin.products.index')); ?>"
+            class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500 hover:shadow-lg hover:scale-[1.02] transition-all duration-200 block">
             <h3 class="text-gray-500 text-sm font-medium uppercase">Total Products</h3>
             <p class="text-3xl font-bold text-gray-800 mt-2"><?php echo e($totalProducts ?? 0); ?></p>
         </a>
-        <a href="<?php echo e(route('admin.categories.index')); ?>" class="bg-white rounded-lg shadow p-6 border-l-4 border-yellow-500 hover:shadow-lg hover:scale-[1.02] transition-all duration-200 block">
+        <a href="<?php echo e(route('admin.categories.index')); ?>"
+            class="bg-white rounded-lg shadow p-6 border-l-4 border-yellow-500 hover:shadow-lg hover:scale-[1.02] transition-all duration-200 block">
             <h3 class="text-gray-500 text-sm font-medium uppercase">Total Categories</h3>
             <p class="text-3xl font-bold text-gray-800 mt-2"><?php echo e($totalCategories ?? 0); ?></p>
         </a>
-        <a href="<?php echo e(route('admin.inquiries.index')); ?>" class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500 hover:shadow-lg hover:scale-[1.02] transition-all duration-200 block">
+        <a href="<?php echo e(route('admin.orders.index', ['type' => 'inquiry'])); ?>"
+            class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500 hover:shadow-lg hover:scale-[1.02] transition-all duration-200 block">
             <h3 class="text-gray-500 text-sm font-medium uppercase">Total Inquiries</h3>
             <p class="text-3xl font-bold text-gray-800 mt-2"><?php echo e($totalInquiries ?? 0); ?></p>
         </a>
@@ -30,19 +33,21 @@
             <div>
                 <h3 class="text-lg font-medium text-gray-900">System Status</h3>
                 <p class="text-sm text-gray-500 mt-1">
-                    Current Status: 
+                    Current Status:
                     <?php if(Cache::get('maintenance_mode')): ?>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        <span
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                             Maintenance Mode
                         </span>
                     <?php else: ?>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <span
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                             Live
                         </span>
                     <?php endif; ?>
                 </p>
             </div>
-            <button onclick="document.getElementById('maintenanceModal').classList.remove('hidden')" 
+            <button onclick="document.getElementById('maintenanceModal').classList.remove('hidden')"
                 class="bg-gray-800 text-white px-4 py-2 rounded shadow hover:bg-gray-700 transition">
                 <?php echo e(Cache::get('maintenance_mode') ? 'Disable Maintenance' : 'Enable Maintenance'); ?>
 
@@ -64,9 +69,11 @@
                         <input type="password" name="password" placeholder="Confirm Password" required
                             class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 border p-2 mb-4">
                         <div class="flex gap-2 justify-center">
-                             <button type="button" onclick="document.getElementById('maintenanceModal').classList.add('hidden')"
+                            <button type="button"
+                                onclick="document.getElementById('maintenanceModal').classList.add('hidden')"
                                 class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">Cancel</button>
-                            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Confirm</button>
+                            <button type="submit"
+                                class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Confirm</button>
                         </div>
                     </form>
                 </div>

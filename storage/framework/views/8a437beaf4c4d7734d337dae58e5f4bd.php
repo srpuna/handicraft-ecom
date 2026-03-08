@@ -34,14 +34,22 @@
                                     placeholder="Zip Code" class="w-full p-3 bg-gray-50 border rounded-lg" required>
                             </div>
                             <div>
-                                <label class="block text-sm text-gray-600 mb-1">Country (Important for shipping)</label>
-                                <select name="country" x-model="country" @change="fetchShippingRates"
-                                    class="w-full p-3 bg-gray-50 border rounded-lg" required>
-                                    <option value="">Select Country</option>
-                                    <?php $__currentLoopData = $availableCountriesOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $opt): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                        <option value="<?php echo e($opt['value']); ?>" <?php echo e(($inquiry->country ?? '') == $opt['value'] ? 'selected' : ''); ?>><?php echo e($opt['label']); ?></option>
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                </select>
+                                <label class="block text-sm text-gray-600 mb-1">Shipping Destination</label>
+                                <?php if(isset($inquiry) && $inquiry->country): ?>
+                                    <div class="p-3 bg-gray-100 border rounded-lg font-medium text-gray-800">
+                                        <?php echo e($availableCountriesOptions[array_search($inquiry->country, array_column($availableCountriesOptions, 'value'))]['label'] ?? $inquiry->country); ?>
+
+                                    </div>
+                                    <input type="hidden" name="country" x-model="country">
+                                <?php else: ?>
+                                    <select name="country" x-model="country" @change="fetchShippingRates"
+                                        class="w-full p-3 bg-gray-50 border rounded-lg" required>
+                                        <option value="">Select Country</option>
+                                        <?php $__currentLoopData = $availableCountriesOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $opt): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($opt['value']); ?>" <?php echo e(($inquiry->country ?? '') == $opt['value'] ? 'selected' : ''); ?>><?php echo e($opt['label']); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </select>
+                                <?php endif; ?>
                                 <p class="text-xs text-red-500 mt-1" x-show="shippingError" x-text="shippingError"></p>
                             </div>
                         </div>
@@ -94,19 +102,24 @@
                         <?php $__currentLoopData = $items; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <div class="border-b border-gray-100 pb-3">
                                 <div class="flex justify-between text-sm">
-                                    <span class="text-gray-600 font-medium"><?php echo e($item['product']->name); ?> (x<?php echo e($item['quantity']); ?>)</span>
+                                    <span class="text-gray-600 font-medium"><?php echo e($item['product']->name); ?>
+
+                                        (x<?php echo e($item['quantity']); ?>)</span>
                                     <span class="font-medium">$<?php echo e(number_format($item['subtotal'], 2)); ?></span>
                                 </div>
                                 <div class="text-xs text-gray-400 mt-1 flex items-center gap-3">
                                     <span class="inline-flex items-center">
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                                         </svg>
-                                        <?php echo e($item['product']->formatted_length); ?> × <?php echo e($item['product']->formatted_width); ?> × <?php echo e($item['product']->formatted_height); ?> cm
+                                        <?php echo e($item['product']->formatted_length); ?> × <?php echo e($item['product']->formatted_width); ?> ×
+                                        <?php echo e($item['product']->formatted_height); ?> cm
                                     </span>
                                     <span class="inline-flex items-center">
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
                                         </svg>
                                         <?php echo e($item['product']->formatted_weight); ?> kg
                                     </span>
