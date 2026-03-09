@@ -73,16 +73,15 @@ class ProductController extends Controller
 
         // Main Image Upload
         if ($request->hasFile('main_image')) {
-            $path = $request->file('main_image')->store('products', 's3');
-            $data['main_image'] = Storage::disk('s3')->url($path);
+            $path = $request->file('main_image')->store('products', media_disk());
+            $data['main_image'] = $path; // store path; media_url() resolves for display
         }
 
         // Multiple Images Upload
         if ($request->hasFile('images')) {
             $imagePaths = [];
             foreach ($request->file('images') as $image) {
-                $path = $image->store('products', 's3');
-                $imagePaths[] = Storage::disk('s3')->url($path);
+                $imagePaths[] = $image->store('products', media_disk());
             }
             $data['images'] = $imagePaths;
         }
@@ -128,16 +127,18 @@ class ProductController extends Controller
 
         // Main Image Upload
         if ($request->hasFile('main_image')) {
-            $path = $request->file('main_image')->store('products', 's3');
-            $data['main_image'] = Storage::disk('s3')->url($path);
+            $path = $request->file('main_image')->store('products', media_disk());
+            $data['main_image'] = $path;
         }
 
         // Multiple Images Upload
         if ($request->hasFile('images')) {
-            $imagePaths = $product->images ?? [];
+            // Get raw paths from DB (not the URLs from the accessor)
+            $rawImages = $product->getRawOriginal('images');
+            $imagePaths = $rawImages ? (is_string($rawImages) ? json_decode($rawImages, true) : $rawImages) : [];
+            
             foreach ($request->file('images') as $image) {
-                $path = $image->store('products', 's3');
-                $imagePaths[] = Storage::disk('s3')->url($path);
+                $imagePaths[] = $image->store('products', media_disk());
             }
             $data['images'] = $imagePaths;
         }
@@ -566,22 +567,22 @@ class ProductController extends Controller
                     continue;
                 }
 
-                // Move image to storage
+                // Move image to storage (relative path only; media_url() resolves for display)
                 $storagePath = 'products/' . uniqid() . '.' . $extension;
-                Storage::disk('s3')->put($storagePath, file_get_contents($filePath));
-                $publicPath = Storage::disk('s3')->url($storagePath);
+                Storage::disk(media_disk())->put($storagePath, file_get_contents($filePath));
 
                 // Assign to appropriate field
                 if ($imageNumber === -1) {
                     // Main image (SKU.ext)
-                    $product->main_image = $publicPath;
+                    $product->main_image = $storagePath;
                 } elseif ($imageNumber === 0) {
                     // Secondary image (SKU_0.ext)
-                    $product->secondary_image = $publicPath;
+                    $product->secondary_image = $storagePath;
                 } else {
                     // Additional images (SKU_1.ext, SKU_2.ext, etc.)
-                    $images = $product->images ?? [];
-                    $images[] = $publicPath;
+                    $rawImages = $product->getRawOriginal('images');
+                    $images = $rawImages ? (is_string($rawImages) ? json_decode($rawImages, true) : $rawImages) : [];
+                    $images[] = $storagePath;
                     $product->images = $images;
                 }
 

@@ -58,7 +58,7 @@
             "name": {{ json_encode($siteSettings['site_name']) }},
             "logo": {
                 "@@type": "ImageObject",
-                "url": {{ json_encode($siteSettings['navbar_logo'] ? asset('storage/' . $siteSettings['navbar_logo']->value) : '') }}
+                "url": {{ json_encode($siteSettings['navbar_logo_url'] ?? '') }}
             }
         },
         "mainEntityOfPage": {

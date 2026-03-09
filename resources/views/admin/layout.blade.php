@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Admin Dashboard - {{ $siteSettings['site_name'] ?? 'Ecom' }}</title>
-    @if(isset($siteSettings['favicon']) && $siteSettings['favicon']->value)
-        <link rel="icon" type="image/x-icon" href="{{ asset('storage/' . $siteSettings['favicon']->value) }}">
+    @if(!empty($siteSettings['favicon_url']))
+        <link rel="icon" type="image/x-icon" href="{{ $siteSettings['favicon_url'] }}">
     @endif
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -41,8 +41,8 @@
                     </svg>
                 </label>
                 <div class="flex-1 min-w-0 flex justify-center">
-                    @if(isset($siteSettings['navbar_logo']) && $siteSettings['navbar_logo']->value)
-                        <img src="{{ asset('storage/' . $siteSettings['navbar_logo']->value) }}"
+                    @if(!empty($siteSettings['navbar_logo_url']))
+                        <img src="{{ $siteSettings['navbar_logo_url'] }}"
                             alt="{{ $siteSettings['site_name'] ?? 'LuxeStore' }} Admin"
                             class="h-10 w-auto max-w-full object-contain">
                     @else

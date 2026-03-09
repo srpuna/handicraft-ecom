@@ -105,6 +105,42 @@ class Product extends Model
         return $this->weight == floor($this->weight) ? (int)$this->weight : rtrim(rtrim(number_format($this->weight, 3), '0'), '.');
     }
 
+    /**
+     * Accessor for main_image to ensure it returns a full URL.
+     */
+    public function getMainImageAttribute($value)
+    {
+        return media_url($value);
+    }
+
+    /**
+     * Accessor for secondary_image to ensure it returns a full URL.
+     */
+    public function getSecondaryImageAttribute($value)
+    {
+        return media_url($value);
+    }
+
+    /**
+     * Accessor for images array to ensure each item returns a full URL.
+     */
+    public function getImagesAttribute($value)
+    {
+        if (!$value) {
+            return [];
+        }
+
+        $images = is_string($value) ? json_decode($value, true) : $value;
+        
+        if (!is_array($images)) {
+            return [];
+        }
+
+        return array_map(function ($image) {
+            return media_url($image);
+        }, $images);
+    }
+
     public function category()
     {
         return $this->belongsTo(Category::class);

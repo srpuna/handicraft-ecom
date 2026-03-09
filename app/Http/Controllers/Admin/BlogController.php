@@ -67,8 +67,8 @@ class BlogController extends Controller
 
         // Handle featured image upload
         if ($request->hasFile('featured_image')) {
-            $path = $request->file('featured_image')->store('blog', 's3');
-            $data['featured_image'] = Storage::disk('s3')->url($path);
+            $path = $request->file('featured_image')->store('blog', media_disk());
+            $data['featured_image'] = $path; // store path; media_url() resolves for display
         }
 
         BlogPost::create($data);
@@ -113,23 +113,21 @@ class BlogController extends Controller
 
         // Handle featured image upload
         if ($request->hasFile('featured_image')) {
-            // Delete old image
-            if ($blog->featured_image) {
-                // If it's an S3 URL, we should parse it, but for simplicity we can try to extract the path
-                // This is a naive way to do it
-                $oldPath = str_replace(Storage::disk('s3')->url(''), '', $blog->featured_image);
-                $oldPath = str_replace('/storage/', '', $oldPath);
-                Storage::disk('s3')->delete($oldPath);
+            // Delete old image if it exists and is a relative path (not a legacy full URL)
+            $rawPath = $blog->getRawOriginal('featured_image');
+            if ($rawPath && ! filter_var($rawPath, FILTER_VALIDATE_URL)) {
+                Storage::disk(media_disk())->delete($rawPath);
             }
-            $path = $request->file('featured_image')->store('blog', 's3');
-            $data['featured_image'] = Storage::disk('s3')->url($path);
+            $path = $request->file('featured_image')->store('blog', media_disk());
+            $data['featured_image'] = $path;
         }
 
         // Handle image removal
-        if ($request->has('remove_featured_image') && $blog->featured_image) {
-            $oldPath = str_replace(Storage::disk('s3')->url(''), '', $blog->featured_image);
-            $oldPath = str_replace('/storage/', '', $oldPath);
-            Storage::disk('s3')->delete($oldPath);
+        if ($request->has('remove_featured_image')) {
+            $rawPath = $blog->getRawOriginal('featured_image');
+            if ($rawPath && ! filter_var($rawPath, FILTER_VALIDATE_URL)) {
+                Storage::disk(media_disk())->delete($rawPath);
+            }
             $data['featured_image'] = null;
         }
 
@@ -140,11 +138,10 @@ class BlogController extends Controller
 
     public function destroy(BlogPost $blog)
     {
-        // Delete featured image
-        if ($blog->featured_image) {
-            $oldPath = str_replace(Storage::disk('s3')->url(''), '', $blog->featured_image);
-            $oldPath = str_replace('/storage/', '', $oldPath);
-            Storage::disk('s3')->delete($oldPath);
+        // Delete featured image if it's a relative path (not a legacy full URL)
+        $rawPath = $blog->getRawOriginal('featured_image');
+        if ($rawPath && ! filter_var($rawPath, FILTER_VALIDATE_URL)) {
+            Storage::disk(media_disk())->delete($rawPath);
         }
 
         $blog->delete();

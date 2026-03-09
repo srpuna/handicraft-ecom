@@ -132,11 +132,13 @@ class SiteSettingController extends Controller
         // Delete old logo if exists
         $oldSetting = SiteSetting::where('key', $key)->first();
         if ($oldSetting && $oldSetting->value) {
-            Storage::disk('s3')->delete($oldSetting->value);
+            Storage::disk(media_disk())->delete($oldSetting->value);
         }
 
-        // Store new logo
-        $path = $file->store('logos', 's3');
+        // Store new logo on the environment-appropriate disk.
+        // Stores the relative path only (not the full URL) so that getLogoUrl()
+        // can rebuild the correct URL for both local and production environments.
+        $path = $file->store('logos', media_disk());
         SiteSetting::set($key, $path, 'image', 'logo');
     }
 
@@ -144,7 +146,7 @@ class SiteSettingController extends Controller
     {
         $setting = SiteSetting::where('key', $key)->first();
         if ($setting && $setting->value) {
-            Storage::disk('s3')->delete($setting->value);
+            Storage::disk(media_disk())->delete($setting->value);
             $setting->update(['value' => null]);
         }
     }

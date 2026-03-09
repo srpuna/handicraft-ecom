@@ -53,7 +53,7 @@
                         
                         @if($navbarLogo && $navbarLogo->value)
                             <div class="mb-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                                <img src="{{ asset('storage/' . $navbarLogo->value) }}" 
+                                <img src="{{ $navbarLogo->getLogoUrl() }}" 
                                      alt="Current Navbar Logo" 
                                      class="h-16 w-auto object-contain mb-2">
                                 <label class="flex items-center text-sm text-red-600 cursor-pointer">
@@ -86,7 +86,7 @@
                         
                         @if($footerLogo && $footerLogo->value)
                             <div class="mb-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                                <img src="{{ asset('storage/' . $footerLogo->value) }}" 
+                                <img src="{{ $footerLogo->getLogoUrl() }}" 
                                      alt="Current Footer Logo" 
                                      class="h-16 w-auto object-contain mb-2 bg-gray-800 p-2 rounded">
                                 <label class="flex items-center text-sm text-red-600 cursor-pointer">
@@ -122,7 +122,7 @@
                         @if($favicon && $favicon->value)
                             <div class="mb-3 p-4 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-between">
                                 <div class="flex items-center">
-                                    <img src="{{ asset('storage/' . $favicon->value) }}" 
+                                    <img src="{{ $favicon->getLogoUrl() }}" 
                                          alt="Current Favicon" 
                                          class="h-8 w-8 object-contain mr-3">
                                     <span class="text-sm text-gray-600">Current favicon</span>
@@ -183,7 +183,7 @@
                         <div class="mb-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center">
-                                    <img src="{{ asset('storage/' . $footerQrCode->value) }}" 
+                                    <img src="{{ $footerQrCode->getLogoUrl() }}" 
                                          alt="Current QR Code" 
                                          class="w-24 h-24 object-contain border border-gray-300 rounded mr-4 bg-white p-2">
                                     <span class="text-sm text-gray-600">Current QR Code</span>
