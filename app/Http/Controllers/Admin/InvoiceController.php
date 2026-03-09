@@ -79,8 +79,8 @@ class InvoiceController extends Controller
             $invoice->save();
         }
 
-        return response()->download(
-            storage_path('app/' . $invoice->pdf_path),
+        return Storage::disk('local')->download(
+            $invoice->pdf_path,
             "{$invoice->invoice_number}.pdf"
         );
     }
