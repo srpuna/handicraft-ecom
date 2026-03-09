@@ -15,6 +15,9 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\BlogController as AdminBlogController;
 use App\Http\Controllers\Frontend\BlogController;
+use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\ClientController;
+use App\Http\Controllers\Admin\InvoiceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,14 +56,14 @@ Route::post('/login', [\App\Http\Controllers\Auth\LoginController::class, 'login
 Route::post('/logout', [\App\Http\Controllers\Auth\LoginController::class, 'logout'])->name('logout');
 
 // Admin
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'viewer.readonly'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/maintenance/toggle', [DashboardController::class, 'toggleMaintenance'])->name('maintenance.toggle');
     Route::post('/verify-password', [DashboardController::class, 'verifyPassword'])->name('verify-password');
 
     // Categories
     Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
-    
+
     // Sub-Categories
     Route::get('subcategories/{subcategory}/edit', [\App\Http\Controllers\Admin\CategoryController::class, 'editSubCategory'])->name('subcategories.edit');
     Route::put('subcategories/{subcategory}', [\App\Http\Controllers\Admin\CategoryController::class, 'updateSubCategory'])->name('subcategories.update');
@@ -78,6 +81,24 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('inquiries/{inquiry}', [AdminInquiryController::class, 'show'])->name('inquiries.show');
     Route::post('inquiries/{inquiry}/reply', [AdminInquiryController::class, 'reply'])->name('inquiries.reply');
     Route::post('inquiries/{inquiry}/send-checkout', [AdminInquiryController::class, 'sendCheckout'])->name('inquiries.send-checkout');
+
+    // Clients
+    Route::resource('clients', ClientController::class);
+
+    // Orders
+    Route::post('orders/calculate-shipping', [OrderController::class, 'calculateShipping'])->name('orders.calculate-shipping');
+    Route::resource('orders', OrderController::class);
+    Route::post('orders/merge', [OrderController::class, 'merge'])->name('orders.merge');
+    Route::post('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
+    Route::post('orders/{order}/mark-paid', [OrderController::class, 'markPaid'])->name('orders.mark-paid');
+    Route::post('orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+
+    // Invoices
+    Route::post('orders/{order}/invoices', [InvoiceController::class, 'store'])->name('invoices.store');
+    Route::get('invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
+    Route::post('invoices/{invoice}/issue', [InvoiceController::class, 'issue'])->name('invoices.issue');
+    Route::post('invoices/{invoice}/void', [InvoiceController::class, 'void'])->name('invoices.void');
+    Route::get('invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('invoices.download');
 
     // Shipping
     Route::get('shipping', [ShippingController::class, 'index'])->name('shipping.index');

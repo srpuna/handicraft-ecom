@@ -65,13 +65,22 @@ class SiteSetting extends Model
     }
 
     /**
-     * Get logo URL
+     * Get logo URL — works on both localhost ('public' disk) and
+     * Laravel Cloud ('s3' disk) via the media_disk() helper.
      */
-    public function getLogoUrl()
+    public function getLogoUrl(): ?string
     {
-        if ($this->value && Storage::disk('public')->exists($this->value)) {
-            return Storage::url($this->value);
+        if (! $this->value) {
+            return null;
         }
-        return null;
+
+        // We use rescue to prevent any S3 initialization error from crashing the site
+        return rescue(function() {
+            if (filter_var($this->value, FILTER_VALIDATE_URL)) {
+                return $this->value;
+            }
+            $disk = Product::mediaDisk();
+            return \Illuminate\Support\Facades\Storage::disk($disk)->url($this->value);
+        }, fn() => asset('storage/' . $this->value));
     }
 }

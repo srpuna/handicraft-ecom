@@ -1,0 +1,27 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration {
+    public function up(): void
+    {
+        Schema::create('order_notifications', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
+            $table->string('notifiable_email')->nullable();
+            $table->string('channel')->default('email'); // email, sms, whatsapp
+            $table->string('event_type'); // quotation_sent, processed, dispatched, delivered
+            $table->enum('status', ['sent', 'failed'])->default('sent');
+            $table->timestamp('sent_at')->nullable();
+            $table->text('error_message')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('order_notifications');
+    }
+};

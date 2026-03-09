@@ -67,8 +67,8 @@ class BlogController extends Controller
 
         // Handle featured image upload
         if ($request->hasFile('featured_image')) {
-            $path = $request->file('featured_image')->store('blog', 'public');
-            $data['featured_image'] = '/storage/' . $path;
+            $path = $request->file('featured_image')->store('blog', \App\Models\Product::mediaDisk());
+            $data['featured_image'] = $path; // store path; media_url() resolves for display
         }
 
         BlogPost::create($data);
@@ -113,19 +113,21 @@ class BlogController extends Controller
 
         // Handle featured image upload
         if ($request->hasFile('featured_image')) {
-            // Delete old image
-            if ($blog->featured_image) {
-                $oldPath = str_replace('/storage/', '', $blog->featured_image);
-                Storage::disk('public')->delete($oldPath);
+            // Delete old image if it exists and is a relative path (not a legacy full URL)
+            $rawPath = $blog->getRawOriginal('featured_image');
+            if ($rawPath && ! filter_var($rawPath, FILTER_VALIDATE_URL)) {
+                Storage::disk(\App\Models\Product::mediaDisk())->delete($rawPath);
             }
-            $path = $request->file('featured_image')->store('blog', 'public');
-            $data['featured_image'] = '/storage/' . $path;
+            $path = $request->file('featured_image')->store('blog', \App\Models\Product::mediaDisk());
+            $data['featured_image'] = $path;
         }
 
         // Handle image removal
-        if ($request->has('remove_featured_image') && $blog->featured_image) {
-            $oldPath = str_replace('/storage/', '', $blog->featured_image);
-            Storage::disk('public')->delete($oldPath);
+        if ($request->has('remove_featured_image')) {
+            $rawPath = $blog->getRawOriginal('featured_image');
+            if ($rawPath && ! filter_var($rawPath, FILTER_VALIDATE_URL)) {
+                Storage::disk(\App\Models\Product::mediaDisk())->delete($rawPath);
+            }
             $data['featured_image'] = null;
         }
 
@@ -136,10 +138,10 @@ class BlogController extends Controller
 
     public function destroy(BlogPost $blog)
     {
-        // Delete featured image
-        if ($blog->featured_image) {
-            $oldPath = str_replace('/storage/', '', $blog->featured_image);
-            Storage::disk('public')->delete($oldPath);
+        // Delete featured image if it's a relative path (not a legacy full URL)
+        $rawPath = $blog->getRawOriginal('featured_image');
+        if ($rawPath && ! filter_var($rawPath, FILTER_VALIDATE_URL)) {
+            Storage::disk(\App\Models\Product::mediaDisk())->delete($rawPath);
         }
 
         $blog->delete();

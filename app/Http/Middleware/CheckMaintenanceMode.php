@@ -22,10 +22,10 @@ class CheckMaintenanceMode
             if ($request->is('admin*') || $request->is('login') || $request->is('logout') || $request->is('sanctum/*')) {
                 return $next($request);
             }
-            
+
             // Allow authenticated users who are admins (double check for safety)
             if (auth()->check() && auth()->user()->is_admin) {
-                 return $next($request);
+                return $next($request);
             }
 
             // Return 503 Maintenance View

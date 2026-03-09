@@ -19,7 +19,7 @@
             We apologize for the inconvenience and appreciate your patience.
         </p>
         <div class="w-16 h-1 bg-[#D4AF37] mx-auto"></div>
-        <p class="mt-8 text-sm text-gray-400">&copy; {{ date('Y') }} LuxeStore</p>
+        <p class="mt-8 text-sm text-gray-400">&copy; {{ date('Y') }} Handicraft Nepal</p>
     </div>
 </body>
 </html>

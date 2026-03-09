@@ -1,0 +1,7 @@
+[33m0e065bb[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m feat: Enhance maintenance mode handling and update branding in maintenance views
+[33m3d17657[m feat: Implement viewer read-only access for admin pages and enhance maintenance mode handling
+[33m3c67bb8[m feat: Add base application layout with dynamic header, search, cart, and footer sections.
+[33m9ede5ea[m feat: add new Blade components for exception rendering and styling
+[33m0c964de[m Updated setup guide
+[33m63a3753[m Remove unused Blade view files related to error rendering components in Laravel framework
+[33made53ac[m Add new components for exception rendering, product management, and shipping services

@@ -19,6 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \App\Http\Middleware\CheckPermission::class,
             'super_admin' => \App\Http\Middleware\IsSuperAdmin::class,
             'admin' => \App\Http\Middleware\IsAdmin::class,
+            // Allow viewers to access read-only admin pages
+            'viewer.readonly' => \App\Http\Middleware\ViewerReadOnly::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

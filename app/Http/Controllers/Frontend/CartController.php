@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Inquiry;
+use App\Models\Order;
 use App\Models\ShippingZone;
 use App\Services\ShippingService;
 
@@ -66,17 +67,34 @@ class CartController extends Controller
         $subtotal = 0;
 
         if ($token) {
-            // Inquiry Checkout Flow
-            $inquiry = Inquiry::where('checkout_token', $token)->firstOrFail();
+            // CheckOMS Order flow first
+            $omsOrder = Order::where('checkout_token', $token)->where('type', 'inquiry')->first();
 
-            if ($inquiry->product) {
-                $qty = $inquiry->product->min_quantity; // Default to min quantity or 1?
-                $items[] = [
-                    'product' => $inquiry->product,
-                    'quantity' => $qty,
-                    'subtotal' => $inquiry->product->effective_price * $qty
-                ];
-                $subtotal += ($inquiry->product->effective_price * $qty);
+            if ($omsOrder) {
+                // Return entirely different view or load items
+                $omsOrder->load('items.product');
+                foreach ($omsOrder->items as $item) {
+                    $items[] = [
+                        'product' => $item->product,
+                        'quantity' => $item->quantity,
+                        'subtotal' => $item->line_total
+                    ];
+                    $subtotal += $item->line_total;
+                }
+                $inquiry = $omsOrder; // Pass OMS order as inquiry variable for now
+            } else {
+                // Inquiry Checkout Flow (Legacy)
+                $inquiry = Inquiry::where('checkout_token', $token)->firstOrFail();
+
+                if ($inquiry->product) {
+                    $qty = $inquiry->product->min_quantity ?? 1; // Default to min quantity or 1?
+                    $items[] = [
+                        'product' => $inquiry->product,
+                        'quantity' => $qty,
+                        'subtotal' => $inquiry->product->effective_price * $qty
+                    ];
+                    $subtotal += ($inquiry->product->effective_price * $qty);
+                }
             }
         } else {
             // Standard Cart Flow
@@ -101,7 +119,9 @@ class CartController extends Controller
             ->pluck('countries')
             ->flatten()
             ->filter()
-            ->map(function ($c) { return is_string($c) ? $c : strval($c); })
+            ->map(function ($c) {
+                return is_string($c) ? $c : strval($c);
+            })
             ->unique()
             ->values();
 
@@ -153,7 +173,7 @@ class CartController extends Controller
     public function updateQuantity(Request $request)
     {
         $productId = $request->product_id;
-        $quantity = max(1, (int)$request->quantity); // Ensure at least 1
+        $quantity = max(1, (int) $request->quantity); // Ensure at least 1
 
         $cart = session()->get('cart', []);
 

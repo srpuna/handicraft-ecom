@@ -102,4 +102,12 @@ class BlogPost extends Model
     {
         return $this->meta_description ?: $this->short_excerpt;
     }
+
+    /**
+     * Accessor for featured_image to ensure it returns a full URL.
+     */
+    public function getFeaturedImageAttribute($value)
+    {
+        return Product::mediaUrl($value);
+    }
 }

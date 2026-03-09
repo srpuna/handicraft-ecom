@@ -105,6 +105,65 @@ class Product extends Model
         return $this->weight == floor($this->weight) ? (int)$this->weight : rtrim(rtrim(number_format($this->weight, 3), '0'), '.');
     }
 
+    /**
+     * Accessor for main_image to ensure it returns a full URL.
+     */
+    public function getMainImageAttribute($value)
+    {
+        return self::mediaUrl($value);
+    }
+
+    /**
+     * Accessor for secondary_image to ensure it returns a full URL.
+     */
+    public function getSecondaryImageAttribute($value)
+    {
+        return self::mediaUrl($value);
+    }
+
+    /**
+     * Accessor for images array to ensure each item returns a full URL.
+     */
+    public function getImagesAttribute($value)
+    {
+        if (!$value) {
+            return [];
+        }
+
+        $images = is_string($value) ? json_decode($value, true) : $value;
+        
+        if (!is_array($images)) {
+            return [];
+        }
+
+        return array_map(function ($image) {
+            return self::mediaUrl($image);
+        }, $images);
+    }
+
+    /**
+     * Helper to resolve media URLs. Replaces global helper for cloud reliability.
+     */
+    public static function mediaUrl(?string $path): string
+    {
+        if (empty($path)) return '';
+        if (filter_var($path, FILTER_VALIDATE_URL)) return $path;
+
+        return rescue(function() use ($path) {
+            $disk = self::mediaDisk();
+            return \Illuminate\Support\Facades\Storage::disk($disk)->url($path);
+        }, fn() => asset('storage/' . $path));
+    }
+
+    /**
+     * Helper to determine media disk. Replaces global helper for cloud reliability.
+     */
+    public static function mediaDisk(): string
+    {
+        $default = config('filesystems.default', 'local');
+        return ($default === 'local' || $default === 'public') ? 'public' : $default;
+    }
+
     public function category()
     {
         return $this->belongsTo(Category::class);
