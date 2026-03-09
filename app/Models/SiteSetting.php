@@ -74,6 +74,13 @@ class SiteSetting extends Model
             return null;
         }
 
-        return media_url($this->value);
+        // We use rescue to prevent any S3 initialization error from crashing the site
+        return rescue(function() {
+            if (filter_var($this->value, FILTER_VALIDATE_URL)) {
+                return $this->value;
+            }
+            $disk = Product::mediaDisk();
+            return \Illuminate\Support\Facades\Storage::disk($disk)->url($this->value);
+        }, fn() => asset('storage/' . $this->value));
     }
 }

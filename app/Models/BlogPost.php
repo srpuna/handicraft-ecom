@@ -108,6 +108,6 @@ class BlogPost extends Model
      */
     public function getFeaturedImageAttribute($value)
     {
-        return media_url($value);
+        return Product::mediaUrl($value);
     }
 }

@@ -73,7 +73,7 @@ class ProductController extends Controller
 
         // Main Image Upload
         if ($request->hasFile('main_image')) {
-            $path = $request->file('main_image')->store('products', media_disk());
+            $path = $request->file('main_image')->store('products', Product::mediaDisk());
             $data['main_image'] = $path; // store path; media_url() resolves for display
         }
 
@@ -81,7 +81,7 @@ class ProductController extends Controller
         if ($request->hasFile('images')) {
             $imagePaths = [];
             foreach ($request->file('images') as $image) {
-                $imagePaths[] = $image->store('products', media_disk());
+                $imagePaths[] = $image->store('products', Product::mediaDisk());
             }
             $data['images'] = $imagePaths;
         }
@@ -127,7 +127,7 @@ class ProductController extends Controller
 
         // Main Image Upload
         if ($request->hasFile('main_image')) {
-            $path = $request->file('main_image')->store('products', media_disk());
+            $path = $request->file('main_image')->store('products', Product::mediaDisk());
             $data['main_image'] = $path;
         }
 
@@ -138,7 +138,7 @@ class ProductController extends Controller
             $imagePaths = $rawImages ? (is_string($rawImages) ? json_decode($rawImages, true) : $rawImages) : [];
             
             foreach ($request->file('images') as $image) {
-                $imagePaths[] = $image->store('products', media_disk());
+                $imagePaths[] = $image->store('products', Product::mediaDisk());
             }
             $data['images'] = $imagePaths;
         }
@@ -569,7 +569,7 @@ class ProductController extends Controller
 
                 // Move image to storage (relative path only; media_url() resolves for display)
                 $storagePath = 'products/' . uniqid() . '.' . $extension;
-                Storage::disk(media_disk())->put($storagePath, file_get_contents($filePath));
+                Storage::disk(Product::mediaDisk())->put($storagePath, file_get_contents($filePath));
 
                 // Assign to appropriate field
                 if ($imageNumber === -1) {

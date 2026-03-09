@@ -110,7 +110,7 @@ class Product extends Model
      */
     public function getMainImageAttribute($value)
     {
-        return media_url($value);
+        return self::mediaUrl($value);
     }
 
     /**
@@ -118,7 +118,7 @@ class Product extends Model
      */
     public function getSecondaryImageAttribute($value)
     {
-        return media_url($value);
+        return self::mediaUrl($value);
     }
 
     /**
@@ -137,8 +137,31 @@ class Product extends Model
         }
 
         return array_map(function ($image) {
-            return media_url($image);
+            return self::mediaUrl($image);
         }, $images);
+    }
+
+    /**
+     * Helper to resolve media URLs. Replaces global helper for cloud reliability.
+     */
+    public static function mediaUrl(?string $path): string
+    {
+        if (empty($path)) return '';
+        if (filter_var($path, FILTER_VALIDATE_URL)) return $path;
+
+        return rescue(function() use ($path) {
+            $disk = self::mediaDisk();
+            return \Illuminate\Support\Facades\Storage::disk($disk)->url($path);
+        }, fn() => asset('storage/' . $path));
+    }
+
+    /**
+     * Helper to determine media disk. Replaces global helper for cloud reliability.
+     */
+    public static function mediaDisk(): string
+    {
+        $default = config('filesystems.default', 'local');
+        return ($default === 'local' || $default === 'public') ? 'public' : $default;
     }
 
     public function category()
