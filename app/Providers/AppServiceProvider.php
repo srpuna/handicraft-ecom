@@ -69,8 +69,8 @@ class AppServiceProvider extends ServiceProvider
                         'footer_hours'       => '',
                     ]);
                 }
-            } catch (\Exception $e) {
-                // Fallback to defaults if any database error occurs
+            } catch (\Throwable $e) {
+                // Fallback to defaults if any database or logic error occurs
                 $view->with('siteSettings', [
                     'site_name'          => 'LuxeStore',
                     'navbar_logo'        => null,
