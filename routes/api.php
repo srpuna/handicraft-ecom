@@ -17,3 +17,9 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+use App\Http\Controllers\Api\PayPalController;
+
+// Postman test routes for PayPal Backend Processing
+Route::post('/paypal/orders', [PayPalController::class, 'createOrder']);
+Route::post('/paypal/orders/{orderId}/capture', [PayPalController::class, 'capturePayment']);
