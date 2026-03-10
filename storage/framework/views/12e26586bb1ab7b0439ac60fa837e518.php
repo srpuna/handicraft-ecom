@@ -34,14 +34,22 @@
                                     placeholder="Zip Code" class="w-full p-3 bg-gray-50 border rounded-lg" required>
                             </div>
                             <div>
-                                <label class="block text-sm text-gray-600 mb-1">Country (Important for shipping)</label>
-                                <select name="country" x-model="country" @change="fetchShippingRates"
-                                    class="w-full p-3 bg-gray-50 border rounded-lg" required>
-                                    <option value="">Select Country</option>
-                                    <?php $__currentLoopData = $availableCountriesOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $opt): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                        <option value="<?php echo e($opt['value']); ?>" <?php echo e(($inquiry->country ?? '') == $opt['value'] ? 'selected' : ''); ?>><?php echo e($opt['label']); ?></option>
-                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                </select>
+                                <label class="block text-sm text-gray-600 mb-1">Shipping Destination</label>
+                                <?php if(isset($inquiry) && $inquiry->country): ?>
+                                    <div class="p-3 bg-gray-100 border rounded-lg font-medium text-gray-800">
+                                        <?php echo e($availableCountriesOptions[array_search($inquiry->country, array_column($availableCountriesOptions, 'value'))]['label'] ?? $inquiry->country); ?>
+
+                                    </div>
+                                    <input type="hidden" name="country" x-model="country">
+                                <?php else: ?>
+                                    <select name="country" x-model="country" @change="fetchShippingRates"
+                                        class="w-full p-3 bg-gray-50 border rounded-lg" required>
+                                        <option value="">Select Country</option>
+                                        <?php $__currentLoopData = $availableCountriesOptions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $opt): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($opt['value']); ?>" <?php echo e(($inquiry->country ?? '') == $opt['value'] ? 'selected' : ''); ?>><?php echo e($opt['label']); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </select>
+                                <?php endif; ?>
                                 <p class="text-xs text-red-500 mt-1" x-show="shippingError" x-text="shippingError"></p>
                             </div>
                         </div>
@@ -71,17 +79,18 @@
                         </div>
                     </div>
 
-                    <!-- Payment (Mock) -->
+                    <!-- Payment (PayPal integration) -->
                     <div class="bg-white p-6 rounded-lg shadow mb-6">
                         <h2 class="text-xl font-bold mb-4">Payment</h2>
-                        <p class="text-gray-500 text-sm mb-4">Payment providers configured by admin.</p>
-                        <div class="border p-4 rounded bg-gray-50 text-center text-gray-500 italic">
-                            Payment Form Placeholder
-                        </div>
+                        <p class="text-gray-500 text-sm mb-4">Please complete the form and select shipping before paying.</p>
+                        
+                        <!-- The PayPal buttons will render securely inside this container -->
+                        <div id="paypal-button-container" class="mt-4"></div>
+                        <div id="paypal-feedback" class="text-sm text-green-600 hidden my-2 font-bold">Processing payment... Please wait.</div>
                     </div>
 
-                    <button type="submit"
-                        class="w-full bg-green-premium text-white text-lg font-bold py-4 rounded-lg hover:bg-green-800 transition">Place
+                    <button type="submit" id="native-submit"
+                        class="w-full bg-green-premium text-white text-lg font-bold py-4 rounded-lg hover:bg-green-800 transition hidden">Place
                         Order</button>
                 </form>
             </div>
@@ -94,19 +103,24 @@
                         <?php $__currentLoopData = $items; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <div class="border-b border-gray-100 pb-3">
                                 <div class="flex justify-between text-sm">
-                                    <span class="text-gray-600 font-medium"><?php echo e($item['product']->name); ?> (x<?php echo e($item['quantity']); ?>)</span>
+                                    <span class="text-gray-600 font-medium"><?php echo e($item['product']->name); ?>
+
+                                        (x<?php echo e($item['quantity']); ?>)</span>
                                     <span class="font-medium">$<?php echo e(number_format($item['subtotal'], 2)); ?></span>
                                 </div>
                                 <div class="text-xs text-gray-400 mt-1 flex items-center gap-3">
                                     <span class="inline-flex items-center">
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                                         </svg>
-                                        <?php echo e($item['product']->formatted_length); ?> × <?php echo e($item['product']->formatted_width); ?> × <?php echo e($item['product']->formatted_height); ?> cm
+                                        <?php echo e($item['product']->formatted_length); ?> × <?php echo e($item['product']->formatted_width); ?> ×
+                                        <?php echo e($item['product']->formatted_height); ?> cm
                                     </span>
                                     <span class="inline-flex items-center">
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
                                         </svg>
                                         <?php echo e($item['product']->formatted_weight); ?> kg
                                     </span>
@@ -188,5 +202,75 @@
         }
     </script>
     <script src="//unpkg.com/alpinejs" defer></script>
+
+    <?php
+        $clientId = env('PAYPAL_CLIENT_ID') ?: config('services.paypal.client_id');
+    ?>
+    <!-- PayPal JavaScript SDK -->
+    <script src="https://www.paypal.com/sdk/js?client-id=<?php echo e(trim($clientId)); ?>&currency=USD&intent=capture&components=buttons"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            paypal.Buttons({
+                // Create the order by calling our laravel backend API
+                createOrder: function(data, actions) {
+                    
+                    // Direct Alpine state object bridge access inside checkout logic, otherwise fallback to vanilla subtotal
+                    let alpineTotalStr = document.querySelector('[x-text="\'$\' + (parseFloat(<?php echo e($subtotal); ?>) + parseFloat(shippingCost)).toFixed(2)"]');
+                    let rawCost = alpineTotalStr ? alpineTotalStr.innerText.replace('$', '') : '<?php echo e($subtotal); ?>';
+                    
+                    if (!rawCost || rawCost === 'NaN' || rawCost === '--') {
+                        rawCost = '<?php echo e($subtotal); ?>';
+                    }
+
+                    // Format specifically to exactly two decimal strings (e.g. "120.00" or "50.00")
+                    let parsedAmount = parseFloat(rawCost).toFixed(2);
+
+                    return fetch('/api/paypal/orders', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            amount: parsedAmount
+                        })
+                    }).then(function(res) {
+                        return res.json();
+                    }).then(function(orderData) {
+                        if(orderData.error) {
+                            console.error('PayPal API Error:', orderData.error);
+                            alert('Payment Error: ' + orderData.error);
+                        }
+                        // Return the PayPal order ID to launch the popup
+                        return orderData.id;
+                    }).catch(function(error) {
+                        console.error('Network Error:', error);
+                    });
+                },
+                
+                // Finalize the transaction
+                onApprove: function(data, actions) {
+                    document.getElementById('paypal-button-container').classList.add('hidden');
+                    document.getElementById('paypal-feedback').classList.remove('hidden');
+
+                    return fetch('/api/paypal/orders/' + data.orderID + '/capture', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                        }
+                    }).then(function(res) {
+                        return res.json();
+                    }).then(function(orderData) {
+                        // Successful capture! 
+                        document.getElementById('paypal-feedback').innerText = "Payment Successful! Thank you.";
+                        
+                        // You can submit the native form now to save the order locally
+                        // document.getElementById('checkout-form').submit();
+                    });
+                }
+            }).render('#paypal-button-container');
+        });
+    </script>
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\handmade handicraft\Desktop\Dev\ecom\resources\views/frontend/cart/checkout.blade.php ENDPATH**/ ?>

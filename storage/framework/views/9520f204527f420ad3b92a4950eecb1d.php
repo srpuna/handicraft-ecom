@@ -7,8 +7,8 @@
     <title><?php echo $__env->yieldContent('title', $siteSettings['site_name'] . ' - Premium Ecommerce'); ?></title>
     <meta name="description" content="<?php echo $__env->yieldContent('meta_description', 'Premium curated products for your lifestyle'); ?>">
     <meta name="keywords" content="<?php echo $__env->yieldContent('meta_keywords', 'ecommerce, products, shopping'); ?>">
-    <?php if($siteSettings['favicon'] && $siteSettings['favicon']->value): ?>
-        <link rel="icon" type="image/x-icon" href="<?php echo e(asset('storage/' . $siteSettings['favicon']->value)); ?>">
+    <?php if(!empty($siteSettings['favicon_url'])): ?>
+        <link rel="icon" type="image/x-icon" href="<?php echo e($siteSettings['favicon_url']); ?>">
     <?php endif; ?>
     <?php echo $__env->yieldPushContent('head'); ?>
     <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
@@ -38,8 +38,8 @@
             <div class="flex items-center justify-between w-full md:w-auto">
                 <!-- Logo / Store Name -->
                 <a href="<?php echo e(route('home')); ?>" class="flex items-center space-x-3">
-                    <?php if($siteSettings['navbar_logo'] && $siteSettings['navbar_logo']->value): ?>
-                        <img src="<?php echo e(asset('storage/' . $siteSettings['navbar_logo']->value)); ?>"
+                    <?php if(!empty($siteSettings['navbar_logo_url'])): ?>
+                        <img src="<?php echo e($siteSettings['navbar_logo_url']); ?>"
                             alt="<?php echo e($siteSettings['site_name']); ?>" class="h-12 w-auto object-contain">
                     <?php else: ?>
                         <span class="text-2xl font-bold font-serif text-green-premium tracking-wide">
@@ -132,8 +132,8 @@
         <div class="container mx-auto px-4 sm:px-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
-                    <?php if($siteSettings['footer_logo'] && $siteSettings['footer_logo']->value): ?>
-                        <img src="<?php echo e(asset('storage/' . $siteSettings['footer_logo']->value)); ?>"
+                    <?php if(!empty($siteSettings['footer_logo_url'])): ?>
+                        <img src="<?php echo e($siteSettings['footer_logo_url']); ?>"
                             alt="<?php echo e($siteSettings['site_name']); ?>" class="h-16 w-auto object-contain mb-4">
                     <?php else: ?>
                         <h3 class="text-xl font-serif mb-4"><?php echo e($siteSettings['site_name']); ?></h3>
@@ -216,7 +216,7 @@
                             ?>
                             <a href="<?php echo e($whatsappLink); ?>" target="_blank" rel="noopener noreferrer"
                                 title="Chat on WhatsApp">
-                                <img src="<?php echo e(asset('storage/' . $siteSettings['footer_qr_code']->value)); ?>"
+                                <img src="<?php echo e($siteSettings['footer_qr_code_url']); ?>"
                                     alt="WhatsApp QR Code"
                                     class="w-32 h-32 object-contain bg-white p-2 rounded hover:shadow-lg transition cursor-pointer">
                             </a>

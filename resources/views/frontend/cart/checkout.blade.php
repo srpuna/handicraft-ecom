@@ -80,17 +80,18 @@
                         </div>
                     </div>
 
-                    <!-- Payment (Mock) -->
+                    <!-- Payment (PayPal integration) -->
                     <div class="bg-white p-6 rounded-lg shadow mb-6">
                         <h2 class="text-xl font-bold mb-4">Payment</h2>
-                        <p class="text-gray-500 text-sm mb-4">Payment providers configured by admin.</p>
-                        <div class="border p-4 rounded bg-gray-50 text-center text-gray-500 italic">
-                            Payment Form Placeholder
-                        </div>
+                        <p class="text-gray-500 text-sm mb-4">Please complete the form and select shipping before paying.</p>
+                        
+                        <!-- The PayPal buttons will render securely inside this container -->
+                        <div id="paypal-button-container" class="mt-4"></div>
+                        <div id="paypal-feedback" class="text-sm text-green-600 hidden my-2 font-bold">Processing payment... Please wait.</div>
                     </div>
 
-                    <button type="submit"
-                        class="w-full bg-green-premium text-white text-lg font-bold py-4 rounded-lg hover:bg-green-800 transition">Place
+                    <button type="submit" id="native-submit"
+                        class="w-full bg-green-premium text-white text-lg font-bold py-4 rounded-lg hover:bg-green-800 transition hidden">Place
                         Order</button>
                 </form>
             </div>
@@ -201,4 +202,74 @@
         }
     </script>
     <script src="//unpkg.com/alpinejs" defer></script>
+
+    @php
+        $clientId = env('PAYPAL_CLIENT_ID') ?: config('services.paypal.client_id');
+    @endphp
+    <!-- PayPal JavaScript SDK -->
+    <script src="https://www.paypal.com/sdk/js?client-id={{ trim($clientId) }}&currency=USD&intent=capture&components=buttons"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            paypal.Buttons({
+                // Create the order by calling our laravel backend API
+                createOrder: function(data, actions) {
+                    
+                    // Direct Alpine state object bridge access inside checkout logic, otherwise fallback to vanilla subtotal
+                    let alpineTotalStr = document.querySelector('[x-text="\'$\' + (parseFloat({{ $subtotal }}) + parseFloat(shippingCost)).toFixed(2)"]');
+                    let rawCost = alpineTotalStr ? alpineTotalStr.innerText.replace('$', '') : '{{ $subtotal }}';
+                    
+                    if (!rawCost || rawCost === 'NaN' || rawCost === '--') {
+                        rawCost = '{{ $subtotal }}';
+                    }
+
+                    // Format specifically to exactly two decimal strings (e.g. "120.00" or "50.00")
+                    let parsedAmount = parseFloat(rawCost).toFixed(2);
+
+                    return fetch('/api/paypal/orders', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            amount: parsedAmount
+                        })
+                    }).then(function(res) {
+                        return res.json();
+                    }).then(function(orderData) {
+                        if(orderData.error) {
+                            console.error('PayPal API Error:', orderData.error);
+                            alert('Payment Error: ' + orderData.error);
+                        }
+                        // Return the PayPal order ID to launch the popup
+                        return orderData.id;
+                    }).catch(function(error) {
+                        console.error('Network Error:', error);
+                    });
+                },
+                
+                // Finalize the transaction
+                onApprove: function(data, actions) {
+                    document.getElementById('paypal-button-container').classList.add('hidden');
+                    document.getElementById('paypal-feedback').classList.remove('hidden');
+
+                    return fetch('/api/paypal/orders/' + data.orderID + '/capture', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                        }
+                    }).then(function(res) {
+                        return res.json();
+                    }).then(function(orderData) {
+                        // Successful capture! 
+                        document.getElementById('paypal-feedback').innerText = "Payment Successful! Thank you.";
+                        
+                        // You can submit the native form now to save the order locally
+                        // document.getElementById('checkout-form').submit();
+                    });
+                }
+            }).render('#paypal-button-container');
+        });
+    </script>
 @endsection
