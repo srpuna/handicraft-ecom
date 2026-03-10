@@ -131,35 +131,74 @@ class Product extends Model
         }
 
         $images = is_string($value) ? json_decode($value, true) : $value;
-        
+
         if (!is_array($images)) {
             return [];
         }
 
-        return array_map(function ($image) {
-            return self::mediaUrl($image);
-        }, $images);
+        // Filter out any false/null/non-string entries that may have been saved
+        // from a CSV import or earlier bug, then resolve each to a full URL.
+        return array_values(array_filter(
+            array_map(function ($image) {
+                if (!is_string($image) || $image === '') {
+                    return null;
+                }
+                return self::mediaUrl($image);
+            }, $images),
+            fn($url) => $url !== null && $url !== ''
+        ));
     }
 
     /**
-     * Helper to resolve media URLs. Replaces global helper for cloud reliability.
+     * Helper to resolve media URLs.
+     *
+     * On localhost  (MEDIA_DISK=public): uses the local public disk URL (http://localhost/storage/...).
+     *               storage:link must be in place.
+     * On production (MEDIA_DISK=s3):    builds URL from AWS_URL (CDN base) → no SDK needed.
+     *
+     * No AWS_URL fallback on the local public disk — that caused localhost to silently
+     * serve images from production storage, mixing environments.
      */
     public static function mediaUrl(?string $path): string
     {
         if (empty($path)) return '';
         if (filter_var($path, FILTER_VALIDATE_URL)) return $path;
 
-        return rescue(function() use ($path) {
-            $disk = self::mediaDisk();
-            return \Illuminate\Support\Facades\Storage::disk($disk)->url($path);
-        }, fn() => asset('storage/' . $path));
+        $disk = self::mediaDisk();
+
+        // S3/R2 disk: build URL directly from AWS_URL (CDN base), skipping the SDK entirely.
+        if ($disk === 's3') {
+            $baseUrl = config('filesystems.disks.s3.url') ?: config('filesystems.disks.s3.endpoint');
+            if ($baseUrl) {
+                return rtrim($baseUrl, '/') . '/' . ltrim($path, '/');
+            }
+        }
+
+        // Local public disk: serve via storage:link. No production URL fallback.
+        return rescue(
+            fn() => \Illuminate\Support\Facades\Storage::disk($disk)->url($path),
+            fn() => asset('storage/' . $path)
+        );
     }
 
     /**
-     * Helper to determine media disk. Replaces global helper for cloud reliability.
+     * Determine which filesystem disk to use for media uploads and URL generation.
+     *
+     * - Localhost:   MEDIA_DISK=public (set in .env) → 'public' disk, no AWS credentials needed.
+     * - Production:  MEDIA_DISK=s3    (set in production env) → 's3' disk, credentials from env.
+     *
+     * Falls back to FILESYSTEM_DISK if MEDIA_DISK is not set:
+     *   'local' or 'public' → uses 'public' disk.
+     *   anything else (e.g. 's3') → uses that disk.
      */
     public static function mediaDisk(): string
     {
+        // MEDIA_DISK explicit override takes priority.
+        $mediaDisk = config('media.disk') ?: env('MEDIA_DISK');
+        if ($mediaDisk) {
+            return $mediaDisk;
+        }
+
         $default = config('filesystems.default', 'local');
         return ($default === 'local' || $default === 'public') ? 'public' : $default;
     }

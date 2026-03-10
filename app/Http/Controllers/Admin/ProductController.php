@@ -135,8 +135,13 @@ class ProductController extends Controller
         if ($request->hasFile('images')) {
             // Get raw paths from DB (not the URLs from the accessor)
             $rawImages = $product->getRawOriginal('images');
-            $imagePaths = $rawImages ? (is_string($rawImages) ? json_decode($rawImages, true) : $rawImages) : [];
-            
+            $existing = $rawImages ? (is_string($rawImages) ? json_decode($rawImages, true) : $rawImages) : [];
+            // Strip any false/null/non-string entries accumulated from previous saves.
+            $imagePaths = array_values(array_filter(
+                is_array($existing) ? $existing : [],
+                fn($p) => is_string($p) && $p !== ''
+            ));
+
             foreach ($request->file('images') as $image) {
                 $imagePaths[] = $image->store('products', Product::mediaDisk());
             }

@@ -26,10 +26,16 @@ return [
     |
     | Supported drivers: "local", "ftp", "sftp", "s3"
     |
-    | The 'media' disk is the single abstraction used for all product/media
-    | uploads. On localhost it resolves to 'public' (local storage with
-    | storage:link). On Laravel Cloud it resolves to 's3' (object storage).
-    | Set MEDIA_DISK=public on localhost and MEDIA_DISK=s3 in production.
+    | Storage strategy (controlled by MEDIA_DISK / FILESYSTEM_DISK env vars):
+    |
+    | Localhost   → FILESYSTEM_DISK=local, MEDIA_DISK=public (defaults)
+    |              Files go to storage/app/public/ and are served via storage:link.
+    |              Do NOT set AWS_URL locally — it has no effect and can cause confusion.
+    |              No AWS credentials needed. No production storage is touched.
+    |
+    | Production  → FILESYSTEM_DISK=s3, MEDIA_DISK=s3 (set in production env only)
+    |              Files go to the S3/R2 bucket. AWS_* credentials set in production env.
+    |              storage:link is not used.
     |
     */
 
@@ -54,12 +60,12 @@ return [
 
         's3' => [
             'driver' => 's3',
-            'key' => env('AWS_ACCESS_KEY_ID') ?: env('S3_KEY') ?: env('BUCKET_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY') ?: env('S3_SECRET') ?: env('BUCKET_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION') ?: env('S3_REGION') ?: env('BUCKET_REGION', 'us-east-1'),
-            'bucket' => env('AWS_BUCKET') ?: env('S3_BUCKET') ?: env('BUCKET_NAME'),
-            'url' => env('AWS_URL') ?: env('S3_URL') ?: env('BUCKET_URL'),
-            'endpoint' => env('AWS_ENDPOINT') ?: env('S3_ENDPOINT') ?: env('BUCKET_ENDPOINT'),
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+            'bucket' => env('AWS_BUCKET'),
+            'url' => env('AWS_URL'),
+            'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'visibility' => 'public',
             'throw' => false,
@@ -77,8 +83,9 @@ return [
     | `storage:link` Artisan command is executed. The array keys should be
     | the locations of the links and the values should be their targets.
     |
-    | Note: storage:link is only required on localhost. Laravel Cloud uses
-    | object storage (S3) directly, so no symlink is needed there.
+    | On localhost (MEDIA_DISK=public), run `php artisan storage:link` once
+    | so that files in storage/app/public/ are served via /storage/... URLs.
+    | Production (MEDIA_DISK=s3) uses object storage directly — no symlink needed.
     |
     */
 
