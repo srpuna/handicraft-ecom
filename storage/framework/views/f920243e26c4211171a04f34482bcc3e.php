@@ -85,4 +85,4 @@
         </div>
     </nav>
 <?php endif; ?>
-<?php /**PATH C:\Users\DELL\Desktop\My Files\Dev\ecom\resources\views/vendor/pagination/tailwind.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\Users\handmade handicraft\Desktop\Dev\ecom\resources\views/vendor/pagination/tailwind.blade.php ENDPATH**/ ?>

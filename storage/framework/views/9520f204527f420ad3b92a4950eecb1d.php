@@ -233,4 +233,4 @@
 
 </body>
 
-</html><?php /**PATH C:\Users\DELL\Desktop\My Files\Dev\ecom\resources\views/layouts/app.blade.php ENDPATH**/ ?>
+</html><?php /**PATH C:\Users\handmade handicraft\Desktop\Dev\ecom\resources\views/layouts/app.blade.php ENDPATH**/ ?>

@@ -1,0 +1,41 @@
+{
+    "id": "6E614197RV5307114",
+    "intent": "CAPTURE",
+    "status": "CREATED",
+    "purchase_units": [
+        {
+            "reference_id": "69af0e9255c81",
+            "amount": {
+                "currency_code": "USD",
+                "value": "61.00"
+            },
+            "payee": {
+                "email_address": "sb-eunyx49705714@business.example.com",
+                "merchant_id": "LMQE8SDGCWG8N"
+            }
+        }
+    ],
+    "create_time": "2026-03-09T18:16:52Z",
+    "links": [
+        {
+            "href": "https:\/\/api.sandbox.paypal.com\/v2\/checkout\/orders\/6E614197RV5307114",
+            "rel": "self",
+            "method": "GET"
+        },
+        {
+            "href": "https:\/\/www.sandbox.paypal.com\/checkoutnow?token=6E614197RV5307114",
+            "rel": "approve",
+            "method": "GET"
+        },
+        {
+            "href": "https:\/\/api.sandbox.paypal.com\/v2\/checkout\/orders\/6E614197RV5307114",
+            "rel": "update",
+            "method": "PATCH"
+        },
+        {
+            "href": "https:\/\/api.sandbox.paypal.com\/v2\/checkout\/orders\/6E614197RV5307114\/capture",
+            "rel": "capture",
+            "method": "POST"
+        }
+    ]
+}
