@@ -38,6 +38,23 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+
+                    <!-- WhatsApp Message Template -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">WhatsApp Inquiry Message Template</label>
+                        <p class="text-xs text-gray-500 mb-2">
+                            Use placeholders: <code class="bg-gray-100 px-1 rounded">{product_name}</code>,
+                            <code class="bg-gray-100 px-1 rounded">{sku}</code>,
+                            <code class="bg-gray-100 px-1 rounded">{price}</code>,
+                            <code class="bg-gray-100 px-1 rounded">{url}</code>
+                        </p>
+                        <textarea name="whatsapp_message_template" rows="3"
+                            placeholder="Hi! I am interested in: {product_name} (SKU: {sku} | Price: ${price}) — {url}"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">{{ old('whatsapp_message_template', $whatsappMessageTemplate->value ?? '') }}</textarea>
+                        @error('whatsapp_message_template')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
             </div>
 

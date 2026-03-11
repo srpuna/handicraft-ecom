@@ -21,6 +21,7 @@ class SiteSettingController extends Controller
         $favicon = SiteSetting::where('key', 'favicon')->first();
         $footerQrCode = SiteSetting::where('key', 'footer_qr_code')->first();
         $whatsappNumber = SiteSetting::where('key', 'whatsapp_number')->first();
+        $whatsappMessageTemplate = SiteSetting::where('key', 'whatsapp_message_template')->first();
         $shippingPolicy = SiteSetting::where('key', 'shipping_policy')->first();
         $footerAddress = SiteSetting::where('key', 'footer_address')->first();
         $footerPhone = SiteSetting::where('key', 'footer_phone')->first();
@@ -35,6 +36,7 @@ class SiteSettingController extends Controller
             'favicon', 
             'footerQrCode',
             'whatsappNumber',
+            'whatsappMessageTemplate',
             'shippingPolicy',
             'footerAddress',
             'footerPhone',
@@ -47,7 +49,8 @@ class SiteSettingController extends Controller
     {
         $validated = $request->validate([
             'site_name' => 'nullable|string|max:255',
-            'whatsapp_number' => 'nullable|string|max:20',
+            'whatsapp_number'           => 'nullable|string|max:20',
+            'whatsapp_message_template' => 'nullable|string|max:500',
             'shipping_policy' => 'nullable|string',
             'navbar_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'footer_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
@@ -63,6 +66,11 @@ class SiteSettingController extends Controller
         // Update WhatsApp number
         if ($request->has('whatsapp_number')) {
             SiteSetting::set('whatsapp_number', $request->whatsapp_number, 'text', 'contact');
+        }
+
+        // Update WhatsApp message template
+        if ($request->has('whatsapp_message_template')) {
+            SiteSetting::set('whatsapp_message_template', $request->whatsapp_message_template, 'text', 'contact');
         }
 
         // Update Shipping Policy
