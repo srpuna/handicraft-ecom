@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Services\InvoiceService;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -11,8 +12,10 @@ use Illuminate\Support\Facades\Log;
 
 class PayPalController extends Controller
 {
-    public function __construct(protected OrderService $orderService)
-    {
+    public function __construct(
+        protected OrderService $orderService,
+        protected InvoiceService $invoiceService,
+    ) {
     }
 
     private function getAccessToken(): ?string
@@ -131,12 +134,38 @@ class PayPalController extends Controller
             return response()->json(['error' => 'Payment was not completed by PayPal.'], 422);
         }
 
-        // Mark order as paid and lock financials (uses a system actor since no logged-in user)
+        // Mark order as paid and lock financials
         $order->is_paid = true;
         $order->financial_locked_at = now();
         $order->save();
 
-        // Clear the session cart after a successful purchase
+        // Transition status → processed (payment received online)
+        try {
+            $this->orderService->changeStatus(
+                $order,
+                Order::STATUS_PROCESSED,
+                null, // system action – no logged-in user
+                [],
+                true  // override any transition guard
+            );
+        } catch (\Exception $e) {
+            Log::warning('PayPal: could not transition order status after payment', [
+                'order_id' => $order->id,
+                'error'    => $e->getMessage(),
+            ]);
+        }
+
+        // Auto-generate and immediately issue an invoice
+        try {
+            $this->invoiceService->generateInvoice($order, null, 'issued');
+        } catch (\Exception $e) {
+            Log::warning('PayPal: could not auto-generate invoice after payment', [
+                'order_id' => $order->id,
+                'error'    => $e->getMessage(),
+            ]);
+        }
+
+        // Clear the session cart
         session()->forget('cart');
 
         return response()->json([

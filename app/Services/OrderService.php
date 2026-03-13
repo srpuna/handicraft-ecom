@@ -207,7 +207,7 @@ class OrderService
     /**
      * Change order status with validation.
      */
-    public function changeStatus(Order $order, string $newStatus, User $user, array $context = [], bool $override = false): Order
+    public function changeStatus(Order $order, string $newStatus, ?User $user, array $context = [], bool $override = false): Order
     {
         $oldStatus = $order->status;
 
@@ -235,7 +235,7 @@ class OrderService
 
         if ($newStatus === Order::STATUS_CANCELLED) {
             $order->cancelled_at = now();
-            $order->cancelled_by = $user->id;
+            $order->cancelled_by = $user?->id;
             $order->cancellation_reason = $context['cancellation_reason'] ?? null;
         }
 

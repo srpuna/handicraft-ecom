@@ -13,12 +13,12 @@ class InvoiceService
     /**
      * Generate a new invoice for an order.
      */
-    public function generateInvoice(Order $order, User $user, string $status = 'draft'): Invoice
+    public function generateInvoice(Order $order, ?User $user, string $status = 'draft'): Invoice
     {
         $invoice = Invoice::create([
             'invoice_number' => Invoice::generateInvoiceNumber(),
             'order_id' => $order->id,
-            'generated_by' => $user->id,
+            'generated_by' => $user?->id,
             'status' => $status,
             'client_snapshot' => $order->client_snapshot ?? ($order->client ? app(OrderService::class)->buildClientSnapshot($order->client) : null),
             'financial_snapshot' => $this->buildFinancialSnapshot($order),
