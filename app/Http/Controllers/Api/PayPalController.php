@@ -172,6 +172,45 @@ class PayPalController extends Controller
             'success'      => true,
             'order_number' => $order->order_number,
             'message'      => 'Payment successful. Your order has been placed.',
+            'redirect_url' => route('checkout.success', ['orderNumber' => $order->order_number]),
         ]);
+    }
+
+    /**
+     * Cancel a pending (unpaid) order when the user closes the PayPal popup.
+     * This is a public endpoint — no auth required — but only cancels orders
+     * that are: not paid, of TYPE_ORDER, and not already cancelled.
+     */
+    public function cancelPending(Request $request, Order $order)
+    {
+        if ($order->is_paid) {
+            return response()->json(['error' => 'Cannot cancel a paid order.'], 422);
+        }
+
+        if ($order->type !== Order::TYPE_ORDER) {
+            return response()->json(['error' => 'Invalid order.'], 422);
+        }
+
+        if ($order->status === Order::STATUS_CANCELLED) {
+            return response()->json(['success' => true, 'message' => 'Order already cancelled.']);
+        }
+
+        try {
+            $this->orderService->changeStatus(
+                $order,
+                Order::STATUS_CANCELLED,
+                null,
+                ['notes' => 'Cancelled by buyer — PayPal popup closed before payment.'],
+                true
+            );
+        } catch (\Exception $e) {
+            Log::warning('cancelPending: could not cancel order', [
+                'order_id' => $order->id,
+                'error'    => $e->getMessage(),
+            ]);
+            return response()->json(['error' => 'Failed to cancel order.'], 500);
+        }
+
+        return response()->json(['success' => true]);
     }
 }

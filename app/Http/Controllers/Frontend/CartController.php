@@ -323,4 +323,16 @@ class CartController extends Controller
             'grand_total' => number_format((float) $order->grand_total, 2, '.', ''),
         ]);
     }
+
+    /**
+     * Show the order success / thank-you page after PayPal payment.
+     */
+    public function orderSuccess(string $orderNumber)
+    {
+        $order = Order::where('order_number', $orderNumber)
+            ->where('is_paid', true)
+            ->firstOrFail();
+
+        return view('frontend.cart.order-success', compact('order'));
+    }
 }

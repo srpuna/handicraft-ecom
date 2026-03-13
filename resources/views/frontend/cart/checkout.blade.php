@@ -354,8 +354,11 @@
                                 throw new Error(result.error || 'Payment capture failed.');
                             }
 
-                            feedbackEl.innerText = '✓ Payment successful! Order #' + result.order_number + ' has been placed. Thank you!';
+                            feedbackEl.innerText = '✓ Payment successful! Redirecting…';
                             feedbackEl.classList.add('text-green-700');
+
+                            // Redirect to the order confirmation page
+                            window.location.href = result.redirect_url;
 
                         } catch (err) {
                             showPayPalError('Payment failed: ' + err.message);
@@ -364,10 +367,28 @@
                         }
                     },
 
-                    onCancel: function () {
-                        // User closed the PayPal popup — reset feedback
+                    onCancel: async function () {
+                        // User closed the PayPal popup — cancel the pending DB order to avoid orphans
+                        const cancelledId = localOrderId;
+                        localOrderId = null;
+
+                        if (cancelledId) {
+                            try {
+                                await fetch('/api/orders/' + cancelledId + '/cancel-pending', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json',
+                                    },
+                                });
+                            } catch (e) {
+                                console.warn('Could not cancel pending order:', e);
+                            }
+                        }
+
                         const feedbackEl = document.getElementById('paypal-feedback');
                         feedbackEl.classList.add('hidden');
+                        document.getElementById('paypal-button-container').classList.remove('hidden');
                     },
 
                     onError: function (err) {

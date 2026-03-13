@@ -23,3 +23,4 @@ use App\Http\Controllers\Api\PayPalController;
 // Postman test routes for PayPal Backend Processing
 Route::post('/paypal/orders', [PayPalController::class, 'createOrder']);
 Route::post('/paypal/orders/{orderId}/capture', [PayPalController::class, 'capturePayment']);
+Route::post('/orders/{order}/cancel-pending', [PayPalController::class, 'cancelPending']);
