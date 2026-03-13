@@ -41,8 +41,14 @@ php artisan storage:link
 echo "✓ Storage link created"
 echo ""
 
-# 6. Set proper permissions
+# 6. Ensure required storage directories exist and have correct permissions
 echo "6. Setting directory permissions..."
+mkdir -p storage/framework/views
+mkdir -p storage/framework/cache/data
+mkdir -p storage/framework/sessions
+mkdir -p storage/logs
+mkdir -p bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 echo "✓ Permissions set"
 echo ""
