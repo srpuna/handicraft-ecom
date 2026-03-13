@@ -204,7 +204,8 @@
     <script src="//unpkg.com/alpinejs" defer></script>
 
     @php
-        $clientId = env('PAYPAL_CLIENT_ID') ?: config('services.paypal.client_id');
+        // Always use config() — env() returns null when config is cached in production
+        $clientId = config('services.paypal.client_id');
     @endphp
     <!-- PayPal JavaScript SDK -->
     <script src="https://www.paypal.com/sdk/js?client-id={{ trim($clientId) }}&currency=USD&intent=capture&components=buttons"></script>
@@ -218,6 +219,13 @@
          * Laravel creates a pending Order and returns { order_id, grand_total }.
          * Returns the local order ID on success, throws on failure.
          */
+        function showPayPalError(msg) {
+            const el = document.getElementById('paypal-feedback');
+            el.innerText = msg;
+            el.classList.remove('hidden', 'text-green-600', 'text-green-700');
+            el.classList.add('text-red-600');
+        }
+
         async function initOrder() {
             const form = document.getElementById('checkout-form');
             const data = new FormData(form);
@@ -225,9 +233,7 @@
             // Append checkout token if present
             data.append('token', '{{ $token ?? '' }}');
 
-            // Append selected shipping cost from Alpine state
-            const shippingCostEl = document.querySelector('[x-text]');
-            // We read it from the hidden input that Alpine keeps in sync, or fall back
+            // Append selected shipping cost from the checked radio
             const shippingInput = document.querySelector('input[name="shipping_rate"]:checked');
             data.append('shipping_cost', shippingInput ? shippingInput.value : '0');
 
@@ -243,7 +249,11 @@
             const result = await response.json();
 
             if (!response.ok) {
-                throw new Error(result.message || result.error || 'Could not create order.');
+                // Show each validation field error if available
+                const fieldErrors = result.errors
+                    ? Object.values(result.errors).flat().join(' ')
+                    : null;
+                throw new Error(fieldErrors || result.message || result.error || 'Could not create order.');
             }
 
             localOrderId = result.order_id;
@@ -253,36 +263,52 @@
         window.addEventListener('DOMContentLoaded', function () {
 
             if (typeof paypal === 'undefined') {
-                document.getElementById('paypal-feedback').classList.remove('hidden');
-                document.getElementById('paypal-feedback').classList.add('text-red-600');
-                document.getElementById('paypal-feedback').innerText = 'PayPal failed to load. Please refresh the page.';
+                showPayPalError('PayPal failed to load. Please refresh the page.');
                 return;
             }
 
-            paypal.Buttons({
-                // Force the standard PayPal button — always shown, including in sandbox
-                fundingSource: paypal.FUNDING.PAYPAL,
+            try {
+                paypal.Buttons({
+                    // Force the standard PayPal button — always shown, including in sandbox
+                    fundingSource: paypal.FUNDING.PAYPAL,
 
-                style: {
-                    layout: 'vertical',
-                    color:  'gold',
-                    shape:  'rect',
-                    label:  'paypal',
-                    height: 45,
-                },
+                    style: {
+                        layout: 'vertical',
+                        color:  'gold',
+                        shape:  'rect',
+                        label:  'paypal',
+                        height: 45,
+                    },
 
-                /**
-                 * Step 1 + 2 – Init local order then create PayPal order with the
-                 * server-generated amount (never from the browser).
-                 */
-                createOrder: async function (data, actions) {
-                    const feedbackEl = document.getElementById('paypal-feedback');
-                    feedbackEl.classList.remove('hidden');
-                    feedbackEl.innerText = 'Preparing your order…';
+                    /**
+                     * Step 1 – Validate form + shipping.
+                     * Step 2 – Create pending DB order, then create PayPal order from server amount.
+                     */
+                    createOrder: async function (data, actions) {
+                        const feedbackEl = document.getElementById('paypal-feedback');
 
-                    try {
+                        // 1. Native HTML5 form validation (required fields, email format, etc.)
+                        const form = document.getElementById('checkout-form');
+                        if (!form.checkValidity()) {
+                            form.reportValidity();
+                            throw new Error('Please fill in all required fields before paying.');
+                        }
+
+                        // 2. Shipping must be selected
+                        const shippingInput = document.querySelector('input[name="shipping_rate"]:checked');
+                        if (!shippingInput) {
+                            showPayPalError('Please select a shipping method before paying.');
+                            throw new Error('Please select a shipping method before paying.');
+                        }
+
+                        feedbackEl.innerText = 'Preparing your order…';
+                        feedbackEl.classList.remove('hidden', 'text-red-600');
+                        feedbackEl.classList.add('text-green-600');
+
+                        // 3. Create pending order in DB
                         const orderId = await initOrder();
 
+                        // 4. Create PayPal order using server-side amount
                         const response = await fetch('/api/paypal/orders', {
                             method: 'POST',
                             headers: {
@@ -294,72 +320,70 @@
 
                         const orderData = await response.json();
 
-                        if (orderData.error || !orderData.id) {
+                        if (!response.ok || orderData.error || !orderData.id) {
                             throw new Error(orderData.error || 'PayPal order creation failed.');
                         }
 
                         feedbackEl.classList.add('hidden');
                         return orderData.id;
+                    },
 
-                    } catch (err) {
-                        feedbackEl.innerText = err.message;
-                        feedbackEl.classList.remove('hidden');
-                        console.error(err);
-                        return undefined;
-                    }
-                },
+                    /**
+                     * Step 3 – Capture PayPal payment, then mark local order as paid.
+                     */
+                    onApprove: async function (data, actions) {
+                        const feedbackEl = document.getElementById('paypal-feedback');
+                        document.getElementById('paypal-button-container').classList.add('hidden');
+                        feedbackEl.innerText = 'Processing payment… Please wait.';
+                        feedbackEl.classList.remove('hidden', 'text-red-600');
+                        feedbackEl.classList.add('text-green-600');
 
-                /**
-                 * Step 3 – Capture PayPal payment, then mark local order as paid.
-                 */
-                onApprove: async function (data, actions) {
-                    const feedbackEl = document.getElementById('paypal-feedback');
-                    document.getElementById('paypal-button-container').classList.add('hidden');
-                    feedbackEl.classList.remove('hidden');
-                    feedbackEl.innerText = 'Processing payment… Please wait.';
+                        try {
+                            const response = await fetch('/api/paypal/orders/' + data.orderID + '/capture', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                },
+                                body: JSON.stringify({ order_id: localOrderId }),
+                            });
 
-                    try {
-                        const response = await fetch('/api/paypal/orders/' + data.orderID + '/capture', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                            },
-                            body: JSON.stringify({ order_id: localOrderId }),
-                        });
+                            const result = await response.json();
 
-                        const result = await response.json();
+                            if (!response.ok || !result.success) {
+                                throw new Error(result.error || 'Payment capture failed.');
+                            }
 
-                        if (!response.ok || !result.success) {
-                            throw new Error(result.error || 'Payment capture failed.');
+                            feedbackEl.innerText = '✓ Payment successful! Order #' + result.order_number + ' has been placed. Thank you!';
+                            feedbackEl.classList.add('text-green-700');
+
+                        } catch (err) {
+                            showPayPalError('Payment failed: ' + err.message);
+                            document.getElementById('paypal-button-container').classList.remove('hidden');
+                            console.error(err);
                         }
+                    },
 
-                        feedbackEl.innerText = '✓ Payment successful! Order #' + result.order_number + ' has been placed. Thank you!';
-                        feedbackEl.classList.add('text-green-700');
+                    onCancel: function () {
+                        // User closed the PayPal popup — reset feedback
+                        const feedbackEl = document.getElementById('paypal-feedback');
+                        feedbackEl.classList.add('hidden');
+                    },
 
-                    } catch (err) {
-                        feedbackEl.innerText = 'Payment failed: ' + err.message;
-                        feedbackEl.classList.add('text-red-600');
-                        document.getElementById('paypal-button-container').classList.remove('hidden');
-                        console.error(err);
-                    }
-                },
+                    onError: function (err) {
+                        console.error('PayPal SDK error:', err);
+                        showPayPalError('A PayPal error occurred. Please try again.');
+                    },
 
-                onError: function (err) {
-                    console.error('PayPal error:', err);
-                    const feedbackEl = document.getElementById('paypal-feedback');
-                    feedbackEl.innerText = 'A PayPal error occurred. Please try again.';
-                    feedbackEl.classList.remove('hidden');
-                    feedbackEl.classList.add('text-red-600');
-                },
+                }).render('#paypal-button-container').catch(function (err) {
+                    console.error('PayPal render error:', err);
+                    showPayPalError('Could not load the PayPal button. Error: ' + (err.message || err));
+                });
 
-            }).render('#paypal-button-container').catch(function (err) {
-                console.error('PayPal render error:', err);
-                const feedbackEl = document.getElementById('paypal-feedback');
-                feedbackEl.innerText = 'Could not load payment button: ' + (err.message || err);
-                feedbackEl.classList.remove('hidden');
-                feedbackEl.classList.add('text-red-600');
-            });
+            } catch (err) {
+                console.error('PayPal init error:', err);
+                showPayPalError('PayPal initialization failed: ' + err.message);
+            }
 
         }); // end DOMContentLoaded
     </script>
