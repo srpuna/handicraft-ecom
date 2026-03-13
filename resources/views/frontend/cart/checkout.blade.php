@@ -86,7 +86,7 @@
                         <p class="text-gray-500 text-sm mb-4">Please complete the form and select shipping before paying.</p>
                         
                         <!-- The PayPal buttons will render securely inside this container -->
-                        <div id="paypal-button-container" class="mt-4"></div>
+                        <div id="paypal-button-container" class="mt-4" style="min-height:50px"></div>
                         <div id="paypal-feedback" class="text-sm text-green-600 hidden my-2 font-bold">Processing payment... Please wait.</div>
                     </div>
 
@@ -209,67 +209,158 @@
     <!-- PayPal JavaScript SDK -->
     <script src="https://www.paypal.com/sdk/js?client-id={{ trim($clientId) }}&currency=USD&intent=capture&components=buttons"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            paypal.Buttons({
-                // Create the order by calling our laravel backend API
-                createOrder: function(data, actions) {
-                    
-                    // Direct Alpine state object bridge access inside checkout logic, otherwise fallback to vanilla subtotal
-                    let alpineTotalStr = document.querySelector('[x-text="\'$\' + (parseFloat({{ $subtotal }}) + parseFloat(shippingCost)).toFixed(2)"]');
-                    let rawCost = alpineTotalStr ? alpineTotalStr.innerText.replace('$', '') : '{{ $subtotal }}';
-                    
-                    if (!rawCost || rawCost === 'NaN' || rawCost === '--') {
-                        rawCost = '{{ $subtotal }}';
-                    }
+        // Holds the local DB order ID returned by /checkout/init-order
+        let localOrderId = null;
+        let orderInitialised = false;
 
-                    // Format specifically to exactly two decimal strings (e.g. "120.00" or "50.00")
-                    let parsedAmount = parseFloat(rawCost).toFixed(2);
+        /**
+         * Step 1 – Validate form, POST customer + cart data to Laravel.
+         * Laravel creates a pending Order and returns { order_id, grand_total }.
+         * Returns the local order ID on success, throws on failure.
+         */
+        async function initOrder() {
+            const form = document.getElementById('checkout-form');
+            const data = new FormData(form);
 
-                    return fetch('/api/paypal/orders', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            amount: parsedAmount
-                        })
-                    }).then(function(res) {
-                        return res.json();
-                    }).then(function(orderData) {
-                        if(orderData.error) {
-                            console.error('PayPal API Error:', orderData.error);
-                            alert('Payment Error: ' + orderData.error);
-                        }
-                        // Return the PayPal order ID to launch the popup
-                        return orderData.id;
-                    }).catch(function(error) {
-                        console.error('Network Error:', error);
-                    });
+            // Append checkout token if present
+            data.append('token', '{{ $token ?? '' }}');
+
+            // Append selected shipping cost from Alpine state
+            const shippingCostEl = document.querySelector('[x-text]');
+            // We read it from the hidden input that Alpine keeps in sync, or fall back
+            const shippingInput = document.querySelector('input[name="shipping_rate"]:checked');
+            data.append('shipping_cost', shippingInput ? shippingInput.value : '0');
+
+            const response = await fetch('{{ route("checkout.init-order") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
                 },
-                
-                // Finalize the transaction
-                onApprove: function(data, actions) {
-                    document.getElementById('paypal-button-container').classList.add('hidden');
-                    document.getElementById('paypal-feedback').classList.remove('hidden');
+                body: data,
+            });
 
-                    return fetch('/api/paypal/orders/' + data.orderID + '/capture', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || result.error || 'Could not create order.');
+            }
+
+            localOrderId = result.order_id;
+            return result.order_id;
+        }
+
+        window.addEventListener('DOMContentLoaded', function () {
+
+            if (typeof paypal === 'undefined') {
+                document.getElementById('paypal-feedback').classList.remove('hidden');
+                document.getElementById('paypal-feedback').classList.add('text-red-600');
+                document.getElementById('paypal-feedback').innerText = 'PayPal failed to load. Please refresh the page.';
+                return;
+            }
+
+            paypal.Buttons({
+                // Force the standard PayPal button — always shown, including in sandbox
+                fundingSource: paypal.FUNDING.PAYPAL,
+
+                style: {
+                    layout: 'vertical',
+                    color:  'gold',
+                    shape:  'rect',
+                    label:  'paypal',
+                    height: 45,
+                },
+
+                /**
+                 * Step 1 + 2 – Init local order then create PayPal order with the
+                 * server-generated amount (never from the browser).
+                 */
+                createOrder: async function (data, actions) {
+                    const feedbackEl = document.getElementById('paypal-feedback');
+                    feedbackEl.classList.remove('hidden');
+                    feedbackEl.innerText = 'Preparing your order…';
+
+                    try {
+                        const orderId = await initOrder();
+
+                        const response = await fetch('/api/paypal/orders', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                            },
+                            body: JSON.stringify({ order_id: orderId }),
+                        });
+
+                        const orderData = await response.json();
+
+                        if (orderData.error || !orderData.id) {
+                            throw new Error(orderData.error || 'PayPal order creation failed.');
                         }
-                    }).then(function(res) {
-                        return res.json();
-                    }).then(function(orderData) {
-                        // Successful capture! 
-                        document.getElementById('paypal-feedback').innerText = "Payment Successful! Thank you.";
-                        
-                        // You can submit the native form now to save the order locally
-                        // document.getElementById('checkout-form').submit();
-                    });
-                }
-            }).render('#paypal-button-container');
-        });
+
+                        feedbackEl.classList.add('hidden');
+                        return orderData.id;
+
+                    } catch (err) {
+                        feedbackEl.innerText = err.message;
+                        feedbackEl.classList.remove('hidden');
+                        console.error(err);
+                        return undefined;
+                    }
+                },
+
+                /**
+                 * Step 3 – Capture PayPal payment, then mark local order as paid.
+                 */
+                onApprove: async function (data, actions) {
+                    const feedbackEl = document.getElementById('paypal-feedback');
+                    document.getElementById('paypal-button-container').classList.add('hidden');
+                    feedbackEl.classList.remove('hidden');
+                    feedbackEl.innerText = 'Processing payment… Please wait.';
+
+                    try {
+                        const response = await fetch('/api/paypal/orders/' + data.orderID + '/capture', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                            },
+                            body: JSON.stringify({ order_id: localOrderId }),
+                        });
+
+                        const result = await response.json();
+
+                        if (!response.ok || !result.success) {
+                            throw new Error(result.error || 'Payment capture failed.');
+                        }
+
+                        feedbackEl.innerText = '✓ Payment successful! Order #' + result.order_number + ' has been placed. Thank you!';
+                        feedbackEl.classList.add('text-green-700');
+
+                    } catch (err) {
+                        feedbackEl.innerText = 'Payment failed: ' + err.message;
+                        feedbackEl.classList.add('text-red-600');
+                        document.getElementById('paypal-button-container').classList.remove('hidden');
+                        console.error(err);
+                    }
+                },
+
+                onError: function (err) {
+                    console.error('PayPal error:', err);
+                    const feedbackEl = document.getElementById('paypal-feedback');
+                    feedbackEl.innerText = 'A PayPal error occurred. Please try again.';
+                    feedbackEl.classList.remove('hidden');
+                    feedbackEl.classList.add('text-red-600');
+                },
+
+            }).render('#paypal-button-container').catch(function (err) {
+                console.error('PayPal render error:', err);
+                const feedbackEl = document.getElementById('paypal-feedback');
+                feedbackEl.innerText = 'Could not load payment button: ' + (err.message || err);
+                feedbackEl.classList.remove('hidden');
+                feedbackEl.classList.add('text-red-600');
+            });
+
+        }); // end DOMContentLoaded
     </script>
 @endsection

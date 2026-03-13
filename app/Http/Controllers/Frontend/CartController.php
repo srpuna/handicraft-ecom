@@ -4,19 +4,23 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Client;
 use App\Models\Product;
 use App\Models\Inquiry;
 use App\Models\Order;
 use App\Models\ShippingZone;
+use App\Services\OrderService;
 use App\Services\ShippingService;
 
 class CartController extends Controller
 {
     protected $shippingService;
+    protected $orderService;
 
-    public function __construct(ShippingService $shippingService)
+    public function __construct(ShippingService $shippingService, OrderService $orderService)
     {
         $this->shippingService = $shippingService;
+        $this->orderService = $orderService;
     }
 
     // Add to Cart (Session based for guests)
@@ -148,9 +152,20 @@ class CartController extends Controller
         // Reconstruct Items
         $items = [];
         if ($token) {
-            $inquiry = Inquiry::where('checkout_token', $token)->first();
-            if ($inquiry && $inquiry->product) {
-                $items[] = ['product' => $inquiry->product, 'quantity' => $inquiry->product->min_quantity];
+            // Try OMS order first, then legacy inquiry
+            $omsOrder = Order::where('checkout_token', $token)->where('type', 'inquiry')->first();
+            if ($omsOrder) {
+                $omsOrder->load('items.product');
+                foreach ($omsOrder->items as $item) {
+                    if ($item->product) {
+                        $items[] = ['product' => $item->product, 'quantity' => $item->quantity];
+                    }
+                }
+            } else {
+                $inquiry = Inquiry::where('checkout_token', $token)->first();
+                if ($inquiry && $inquiry->product) {
+                    $items[] = ['product' => $inquiry->product, 'quantity' => $inquiry->product->min_quantity];
+                }
             }
         } else {
             $cart = session()->get('cart', []);
@@ -197,5 +212,115 @@ class CartController extends Controller
         }
 
         return redirect()->route('cart.index')->with('success', 'Item removed from cart!');
+    }
+
+    /**
+     * Called by the checkout page JS before PayPal is initialised.
+     * Creates a pending (unpaid) order in the DB so the authoritative
+     * amount lives on the server, not in the browser.
+     * Returns JSON { order_id, grand_total }.
+     */
+    public function initOrder(Request $request)
+    {
+        $validated = $request->validate([
+            'name'          => ['required', 'string', 'max:255'],
+            'email'         => ['required', 'email', 'max:255'],
+            'phone'         => ['nullable', 'string', 'max:50'],
+            'address'       => ['required', 'string', 'max:500'],
+            'city'          => ['required', 'string', 'max:100'],
+            'zip_code'      => ['nullable', 'string', 'max:20'],
+            'country'       => ['required', 'string', 'max:10'],
+            'shipping_cost' => ['required', 'numeric', 'min:0'],
+            'token'         => ['nullable', 'string'],
+        ]);
+
+        $token = $validated['token'] ?? null;
+
+        // ----- Build item list -----
+        $items = [];
+
+        if ($token) {
+            $omsOrder = Order::where('checkout_token', $token)->where('type', 'inquiry')->first();
+
+            if ($omsOrder) {
+                $omsOrder->load('items.product');
+                foreach ($omsOrder->items as $item) {
+                    $items[] = [
+                        'product_id'        => $item->product_id,
+                        'quantity'          => $item->quantity,
+                        'unit_price'        => $item->unit_price,
+                        'weight_kg'         => $item->weight_kg ?? ($item->product?->weight ?? 0),
+                        'item_discount_type' => $item->item_discount_type ?? 'none',
+                        'item_discount_value' => $item->item_discount_value ?? 0,
+                    ];
+                }
+            } else {
+                // Legacy Inquiry flow (single product)
+                $inquiry = Inquiry::where('checkout_token', $token)->first();
+                if ($inquiry && $inquiry->product) {
+                    $product = $inquiry->product;
+                    $qty = $product->min_quantity ?? 1;
+                    $items[] = [
+                        'product_id'        => $product->id,
+                        'quantity'          => $qty,
+                        'unit_price'        => $product->effective_price,
+                        'weight_kg'         => $product->weight ?? 0,
+                        'item_discount_type' => 'none',
+                        'item_discount_value' => 0,
+                    ];
+                }
+            }
+        } else {
+            $cart = session()->get('cart', []);
+            if (empty($cart)) {
+                return response()->json(['error' => 'Your cart is empty.'], 422);
+            }
+            $products = Product::whereIn('id', array_keys($cart))->get()->keyBy('id');
+            foreach ($cart as $productId => $qty) {
+                $product = $products[$productId] ?? null;
+                if (!$product) continue;
+                $items[] = [
+                    'product_id'        => $product->id,
+                    'quantity'          => $qty,
+                    'unit_price'        => $product->effective_price,
+                    'weight_kg'         => $product->weight ?? 0,
+                    'item_discount_type' => 'none',
+                    'item_discount_value' => 0,
+                ];
+            }
+        }
+
+        if (empty($items)) {
+            return response()->json(['error' => 'No items found for this order.'], 422);
+        }
+
+        // ----- Find or create Client -----
+        $client = Client::where('email', $validated['email'])->first();
+
+        if (!$client) {
+            $client = Client::create([
+                'buyer_id'     => Client::generateBuyerId(),
+                'name'         => $validated['name'],
+                'email'        => $validated['email'],
+                'phone'        => $validated['phone'] ?? null,
+                'address_line' => $validated['address'],
+                'city'         => $validated['city'],
+                'zip_code'     => $validated['zip_code'] ?? null,
+                'country'      => $validated['country'],
+            ]);
+        }
+
+        // ----- Create pending order -----
+        $order = $this->orderService->createOrder([
+            'type'          => Order::TYPE_ORDER,
+            'client_id'     => $client->id,
+            'shipping_cost' => $validated['shipping_cost'],
+            'items'         => $items,
+        ]);
+
+        return response()->json([
+            'order_id'    => $order->id,
+            'grand_total' => number_format((float) $order->grand_total, 2, '.', ''),
+        ]);
     }
 }

@@ -44,6 +44,7 @@ Route::post('/cart/update', [CartController::class, 'updateQuantity'])->name('ca
 Route::post('/cart/remove', [CartController::class, 'removeItem'])->name('cart.remove');
 Route::get('/checkout/{token?}', [CartController::class, 'checkout'])->name('checkout'); // Token for inquiries
 Route::post('/checkout/calculate-shipping', [CartController::class, 'calculateShipping'])->name('checkout.calculate-shipping');
+Route::post('/checkout/init-order', [CartController::class, 'initOrder'])->name('checkout.init-order');
 
 // Inquiry
 Route::post('/products/{product}/inquire', [FrontendInquiryController::class, 'store'])->name('inquiry.store');
