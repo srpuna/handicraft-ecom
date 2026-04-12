@@ -56,10 +56,13 @@ class Invoice extends Model
      */
     public static function generateInvoiceNumber(): string
     {
+        // lockForUpdate() serialises concurrent inserts under InnoDB (gap lock on last row).
+        // Must be called within an open DB::transaction.
         $year = now()->year;
         $last = static::withTrashed()
             ->where('invoice_number', 'like', "INV-{$year}-%")
             ->orderByDesc('id')
+            ->lockForUpdate()
             ->first();
         $nextNum = $last ? ((int) substr($last->invoice_number, -5)) + 1 : 1;
         return "INV-{$year}-" . str_pad($nextNum, 5, '0', STR_PAD_LEFT);

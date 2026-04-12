@@ -1,7 +1,7 @@
-@extends('admin.layout')
+﻿@extends('admin.layout')
 
 @section('header')
-    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+    <h2 class="font-semibold text-xl text-truffle-extra-dark leading-tight">
         Manage Blog Posts
     </h2>
 @endsection
@@ -9,7 +9,7 @@
 @section('content')
 <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-6">
     <h3 class="text-lg font-medium">All Posts</h3>
-    <a href="{{ route('admin.blog.create') }}" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition flex items-center justify-center gap-2 w-full sm:w-auto">
+    <a href="{{ route('admin.blog.create') }}" class="bg-green-premium text-white px-4 py-2 rounded-lg hover:bg-green-800 transition flex items-center justify-center gap-2 w-full sm:w-auto">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
@@ -17,27 +17,27 @@
     </a>
 </div>
 
-<div class="bg-white rounded-lg shadow-sm">
+<div class="bg-cream rounded-lg shadow-sm">
     <!-- Filters -->
-    <div class="p-4 border-b border-gray-200">
+    <div class="p-4 border-b border-truffle-medium/30">
         <form action="{{ route('admin.blog.index') }}" method="GET" class="flex flex-wrap gap-4">
             <div class="flex-1 min-w-[200px]">
                 <input type="text" name="search" value="{{ request('search') }}" 
                     placeholder="Search posts..."
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                    class="w-full px-4 py-2 border border-truffle-medium/30 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
             </div>
             <div>
-                <select name="status" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                <select name="status" class="px-4 py-2 border border-truffle-medium/30 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
                     <option value="">All Status</option>
                     <option value="published" {{ request('status') == 'published' ? 'selected' : '' }}>Published</option>
                     <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
                 </select>
             </div>
-            <button type="submit" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition">
+            <button type="submit" class="bg-[#F5F2EA] text-truffle-extra-dark px-4 py-2 rounded-lg hover:bg-[#E8E2D2] transition">
                 Filter
             </button>
             @if(request()->hasAny(['search', 'status']))
-                <a href="{{ route('admin.blog.index') }}" class="text-gray-500 px-4 py-2 hover:text-gray-700">Clear</a>
+                <a href="{{ route('admin.blog.index') }}" class="text-truffle-extra-dark px-4 py-2 hover:text-truffle-extra-dark">Clear</a>
             @endif
         </form>
     </div>
@@ -45,56 +45,56 @@
     <!-- Posts Table -->
     <div class="overflow-x-auto">
         <table class="w-full">
-            <thead class="bg-gray-50">
+            <thead class="bg-[#F5F2EA]">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Post</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Author</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Published</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-truffle-extra-dark uppercase tracking-wider">Post</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-truffle-extra-dark uppercase tracking-wider">Author</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-truffle-extra-dark uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-truffle-extra-dark uppercase tracking-wider">Published</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-truffle-extra-dark uppercase tracking-wider">Priority</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-truffle-extra-dark uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
                 @forelse($posts as $post)
-                    <tr class="hover:bg-gray-50">
+                    <tr class="hover:bg-[#F5F2EA]">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-4">
                                 @if($post->featured_image)
                                     <img src="{{ $post->featured_image }}" alt="" class="w-16 h-12 object-cover rounded">
                                 @else
-                                    <div class="w-16 h-12 bg-gray-200 rounded flex items-center justify-center">
-                                        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="w-16 h-12 bg-[#E8E2D2] rounded flex items-center justify-center">
+                                        <svg class="w-6 h-6 text-truffle-extra-dark/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                         </svg>
                                     </div>
                                 @endif
                                 <div>
-                                    <h3 class="font-medium text-gray-900">{{ Str::limit($post->title, 50) }}</h3>
-                                    <p class="text-sm text-gray-500">{{ Str::limit($post->short_excerpt, 60) }}</p>
+                                    <h3 class="font-medium text-truffle-extra-dark">{{ Str::limit($post->title, 50) }}</h3>
+                                    <p class="text-sm text-truffle-extra-dark">{{ Str::limit($post->short_excerpt, 60) }}</p>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-600">
+                        <td class="px-6 py-4 text-sm text-truffle-extra-dark">
                             {{ $post->author->name ?? 'Unknown' }}
                         </td>
                         <td class="px-6 py-4">
                             @if($post->is_published)
-                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Published</span>
+                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-premium/20 text-green-800">Published</span>
                             @else
                                 <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">Draft</span>
                             @endif
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-600">
+                        <td class="px-6 py-4 text-sm text-truffle-extra-dark">
                             {{ $post->published_at ? $post->published_at->format('M d, Y') : '-' }}
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-600">
+                        <td class="px-6 py-4 text-sm text-truffle-extra-dark">
                             {{ $post->priority }}
                         </td>
                         <td class="px-6 py-4 text-right">
                             <div class="flex justify-end gap-2">
                                 <a href="{{ route('blog.show', $post->slug) }}" target="_blank" 
-                                    class="text-gray-500 hover:text-gray-700" title="View">
+                                    class="text-truffle-extra-dark hover:text-truffle-extra-dark" title="View">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -121,12 +121,12 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                        <td colspan="6" class="px-6 py-12 text-center text-truffle-extra-dark">
                             <svg class="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
                             </svg>
                             <p>No blog posts found.</p>
-                            <a href="{{ route('admin.blog.create') }}" class="text-green-600 hover:underline mt-2 inline-block">Create your first post</a>
+                            <a href="{{ route('admin.blog.create') }}" class="text-green-premium hover:underline mt-2 inline-block">Create your first post</a>
                         </td>
                     </tr>
                 @endforelse
@@ -136,7 +136,7 @@
 
     <!-- Pagination -->
     @if($posts->hasPages())
-        <div class="p-4 border-t border-gray-200">
+        <div class="p-4 border-t border-truffle-medium/30">
             {{ $posts->links() }}
         </div>
     @endif
@@ -144,13 +144,13 @@
 
 <!-- Delete Confirmation Modal -->
 <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-lg p-6 max-w-sm mx-4">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Delete Blog Post</h3>
-        <p class="text-gray-600 mb-4">Enter your password to confirm deletion:</p>
-        <input type="password" id="deletePassword" class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4" placeholder="Your password">
+    <div class="bg-cream rounded-lg p-6 max-w-sm mx-4">
+        <h3 class="text-lg font-semibold text-truffle-extra-dark mb-4">Delete Blog Post</h3>
+        <p class="text-truffle-extra-dark mb-4">Enter your password to confirm deletion:</p>
+        <input type="password" id="deletePassword" class="w-full px-4 py-2 border border-truffle-medium/30 rounded-lg mb-4" placeholder="Your password">
         <p id="deleteError" class="text-red-500 text-sm mb-4 hidden">Invalid password</p>
         <div class="flex justify-end gap-3">
-            <button onclick="closeDeleteModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800">Cancel</button>
+            <button onclick="closeDeleteModal()" class="px-4 py-2 text-truffle-extra-dark hover:text-truffle-extra-dark">Cancel</button>
             <button onclick="submitDelete()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Delete</button>
         </div>
     </div>

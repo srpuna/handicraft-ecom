@@ -6,12 +6,21 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
-    --font-serif: 'Playfair Display', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+    --font-serif: 'Noto Serif', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
 
-    --color-cream: #FDFBF7;
-    --color-beige: #F5F5DC;
-    --color-gold: #D4AF37;
-    --color-green-premium: #2E594A;
+    --color-truffle-dark: #1A3326;
+    --color-truffle-medium: #C5A059;
+    --color-truffle-light: #E8E2D2;
+    --color-truffle-extra-dark: #2D4B36;
+    --color-cream: #F5F5EA;
+    --color-beige: #E8E2D2;
+    --color-gold: #C5A059;
+    --color-green-premium: #2D4B36;
 }
+
+/* Hide number input spinners */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }

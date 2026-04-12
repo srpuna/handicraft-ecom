@@ -1,30 +1,30 @@
-@extends('admin.layout')
+﻿@extends('admin.layout')
 
 @section('header')
-    <h2 class="text-2xl font-semibold text-gray-900">Edit Role</h2>
+    <h2 class="text-2xl font-semibold text-truffle-extra-dark">Edit Role</h2>
 @endsection
 
 @section('content')
 <div class="max-w-4xl">
-    <div class="bg-white rounded-lg shadow-sm">
+    <div class="bg-cream rounded-lg shadow-sm">
         <form action="{{ route('admin.roles.update', $role) }}" method="POST">
             @csrf
             @method('PUT')
 
             <!-- Role Information -->
-            <div class="p-6 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Role Information</h3>
+            <div class="p-6 border-b border-truffle-medium/30">
+                <h3 class="text-lg font-semibold text-truffle-extra-dark mb-4">Role Information</h3>
                 
                 <div class="space-y-4">
                     <!-- Display Name -->
                     <div>
-                        <label for="display_name" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="display_name" class="block text-sm font-medium text-truffle-extra-dark mb-2">
                             Display Name <span class="text-red-500">*</span>
                         </label>
                         <input type="text" name="display_name" id="display_name" 
                             value="{{ old('display_name', $role->display_name) }}"
                             required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('display_name') border-red-500 @enderror">
+                            class="w-full px-4 py-2 border border-truffle-medium/30 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('display_name') border-red-500 @enderror">
                         @error('display_name')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -32,23 +32,23 @@
 
                     <!-- System Name (Read-only) -->
                     <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="name" class="block text-sm font-medium text-truffle-extra-dark mb-2">
                             System Name
                         </label>
                         <input type="text" id="name" 
                             value="{{ $role->name }}"
                             disabled
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed">
-                        <p class="mt-1 text-xs text-gray-500">System name cannot be changed</p>
+                            class="w-full px-4 py-2 border border-truffle-medium/30 rounded-lg bg-[#F5F2EA] text-truffle-extra-dark cursor-not-allowed">
+                        <p class="mt-1 text-xs text-truffle-extra-dark">System name cannot be changed</p>
                     </div>
 
                     <!-- Description -->
                     <div>
-                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="description" class="block text-sm font-medium text-truffle-extra-dark mb-2">
                             Description
                         </label>
                         <textarea name="description" id="description" rows="3"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('description') border-red-500 @enderror">{{ old('description', $role->description) }}</textarea>
+                            class="w-full px-4 py-2 border border-truffle-medium/30 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('description') border-red-500 @enderror">{{ old('description', $role->description) }}</textarea>
                         @error('description')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -57,33 +57,33 @@
             </div>
 
             <!-- Permissions -->
-            <div class="p-6 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Permissions</h3>
-                <p class="text-sm text-gray-600 mb-4">Select the permissions this role should have</p>
+            <div class="p-6 border-b border-truffle-medium/30">
+                <h3 class="text-lg font-semibold text-truffle-extra-dark mb-4">Permissions</h3>
+                <p class="text-sm text-truffle-extra-dark mb-4">Select the permissions this role should have</p>
                 
                 @if($permissions->count() > 0)
                 <div class="space-y-3 max-h-96 overflow-y-auto">
                     @foreach($permissions as $permission)
-                    <label class="flex items-start p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-green-50 hover:border-green-300 cursor-pointer transition-colors">
+                    <label class="flex items-start p-3 bg-[#F5F2EA] rounded-lg border border-truffle-medium/30 hover:bg-green-premium/10 hover:border-green-300 cursor-pointer transition-colors">
                         <input type="checkbox" name="permissions[]" value="{{ $permission->id }}"
                             {{ $role->permissions->contains($permission->id) ? 'checked' : '' }}
-                            class="mt-1 rounded border-gray-300 text-green-600 focus:ring-green-500">
+                            class="mt-1 rounded border-truffle-medium/30 text-green-premium focus:ring-green-500">
                         <div class="ml-3 flex-1">
-                            <div class="text-sm font-medium text-gray-900">{{ $permission->display_name }}</div>
+                            <div class="text-sm font-medium text-truffle-extra-dark">{{ $permission->display_name }}</div>
                             @if($permission->description)
-                            <div class="text-xs text-gray-600 mt-1">{{ $permission->description }}</div>
+                            <div class="text-xs text-truffle-extra-dark mt-1">{{ $permission->description }}</div>
                             @endif
-                            <div class="text-xs text-gray-500 mt-1 font-mono">{{ $permission->name }}</div>
+                            <div class="text-xs text-truffle-extra-dark mt-1 font-mono">{{ $permission->name }}</div>
                         </div>
                     </label>
                     @endforeach
                 </div>
                 @else
-                <div class="text-center py-8 bg-gray-50 rounded-lg">
-                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="text-center py-8 bg-[#F5F2EA] rounded-lg">
+                    <svg class="mx-auto h-12 w-12 text-truffle-extra-dark/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                     </svg>
-                    <p class="mt-2 text-sm text-gray-500">No permissions available in the system.</p>
+                    <p class="mt-2 text-sm text-truffle-extra-dark">No permissions available in the system.</p>
                 </div>
                 @endif
 
@@ -93,13 +93,13 @@
             </div>
 
             <!-- Actions -->
-            <div class="p-6 bg-gray-50 flex items-center justify-between">
+            <div class="p-6 bg-[#F5F2EA] flex items-center justify-between">
                 <a href="{{ route('admin.roles.show', $role) }}" 
-                    class="px-4 py-2 text-gray-700 hover:text-gray-900 transition-colors">
+                    class="px-4 py-2 text-truffle-extra-dark hover:text-truffle-extra-dark transition-colors">
                     Cancel
                 </a>
                 <button type="submit" 
-                    class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
+                    class="px-6 py-2 bg-green-premium text-white rounded-lg hover:bg-green-800 transition-colors font-medium">
                     Update Role
                 </button>
             </div>

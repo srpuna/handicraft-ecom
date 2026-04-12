@@ -169,10 +169,13 @@ class Order extends Model
      */
     public static function generateOrderNumber(): string
     {
+        // lockForUpdate() serialises concurrent inserts under InnoDB (gap lock on last row).
+        // Must be called within an open DB::transaction.
         $year = now()->year;
         $last = static::withTrashed()
             ->where('order_number', 'like', "ORD-{$year}-%")
             ->orderByDesc('id')
+            ->lockForUpdate()
             ->first();
         $nextNum = $last ? ((int) substr($last->order_number, -5)) + 1 : 1;
         return "ORD-{$year}-" . str_pad($nextNum, 5, '0', STR_PAD_LEFT);

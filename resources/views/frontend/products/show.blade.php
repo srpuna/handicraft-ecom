@@ -1,25 +1,25 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
     <div class="container mx-auto px-4 sm:px-6 py-12">
 
-        <div class="flex flex-col md:flex-row gap-12 bg-white p-8 rounded-2xl shadow-sm">
+        <div class="flex flex-col md:flex-row gap-12 bg-cream p-8 rounded-2xl shadow-sm">
             <!-- Image Section -->
             <div class="md:w-1/2">
                 <!-- Main Image Display -->
                 <!-- Main Image Display -->
                 <div class="relative z-10">
-                    <div id="imageContainer" class="rounded-xl overflow-hidden mb-4 bg-gray-50 h-[50vh] md:h-[90vh] flex items-center justify-center relative cursor-crosshair">
+                    <div id="imageContainer" class="rounded-xl overflow-hidden mb-4 bg-[#F5F2EA] h-[50vh] md:h-[90vh] flex items-center justify-center relative cursor-crosshair">
                         @if($product->main_image)
                             <img src="{{ $product->main_image }}" alt="{{ $product->name }}"
                                 class="max-h-full max-w-full object-contain" id="mainProductImage">
                         @else
-                            <span class="text-gray-400 text-lg">No Image</span>
+                            <span class="text-truffle-extra-dark/70 text-lg">No Image</span>
                         @endif
                     </div>
                 
                     <!-- Zoom Result Container (Side View) -->
-                    <div id="zoomResult" class="hidden fixed md:absolute left-0 md:left-[105%] top-0 md:top-0 w-full md:w-[500px] h-[500px] bg-white border border-gray-200 shadow-2xl z-50 rounded-lg overflow-hidden"></div>
+                    <div id="zoomResult" class="hidden fixed md:absolute left-0 md:left-[105%] top-0 md:top-0 w-full md:w-[500px] h-[500px] bg-cream border border-truffle-medium/30 shadow-2xl z-50 rounded-lg overflow-hidden"></div>
                 </div>
 
                 <script>
@@ -99,14 +99,14 @@
                             @if($product->secondary_image)
                                 <img src="{{ $product->secondary_image }}" 
                                     onclick="document.getElementById('mainProductImage').src='{{ $product->secondary_image }}'"
-                                    class="h-20 w-20 object-cover rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-premium hover:opacity-75 transition flex-shrink-0"
+                                    class="h-20 w-20 object-cover rounded-lg border-2 border-truffle-medium/30 cursor-pointer hover:border-green-premium hover:opacity-75 transition flex-shrink-0"
                                     alt="Secondary">
                             @endif
                             <!-- Additional images -->
                             @foreach($product->images ?? [] as $image)
                                 <img src="{{ $image }}" 
                                     onclick="document.getElementById('mainProductImage').src='{{ $image }}'"
-                                    class="h-20 w-20 object-cover rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-premium hover:opacity-75 transition flex-shrink-0"
+                                    class="h-20 w-20 object-cover rounded-lg border-2 border-truffle-medium/30 cursor-pointer hover:border-green-premium hover:opacity-75 transition flex-shrink-0"
                                     alt="Product image">
                             @endforeach
                         </div>
@@ -118,14 +118,14 @@
             <div class="md:w-1/2">
                 <div class="mb-4">
                     <span
-                        class="text-gray-500 uppercase tracking-widest text-sm font-semibold">{{ $product->category->name ?? 'Uncategorized' }}</span>
+                        class="text-truffle-extra-dark uppercase tracking-widest text-sm font-semibold">{{ $product->category->name ?? 'Uncategorized' }}</span>
                 </div>
 
-                <h1 class="text-4xl font-serif font-bold text-gray-900 mb-4">{{ $product->name }}</h1>
+                <h1 class="text-4xl font-serif font-bold text-truffle-extra-dark mb-4">{{ $product->name }}</h1>
 
                 <div class="text-3xl font-bold text-green-premium mb-6">
                     @if($product->discount_price)
-                        <span class="text-gray-400 line-through text-xl mr-2">${{ number_format($product->price, 2) }}</span>
+                        <span class="text-truffle-extra-dark/70 line-through text-xl mr-2">${{ number_format($product->price, 2) }}</span>
                         <span>${{ number_format($product->discount_price, 2) }}</span>
                     @else
                         <span>${{ number_format($product->price, 2) }}</span>
@@ -133,26 +133,26 @@
                 </div>
 
                 @if($product->description)
-                    <div class="prose text-gray-600 mb-8 max-w-none">
+                    <div class="prose text-truffle-extra-dark mb-8 max-w-none">
                         <p>{{ $product->description }}</p>
                     </div>
                 @endif
 
-                <div class="bg-gray-50 border border-gray-100 rounded-lg p-6 mb-8">
-                    <h3 class="font-serif font-bold text-lg mb-4 text-gray-800">Product Specifications</h3>
+                <div class="mb-8">
+                    <h3 class="font-serif font-bold text-lg mb-4 text-truffle-extra-dark">Product Specifications</h3>
                     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4 text-sm">
-                        <dt class="text-gray-500">Dimensions (L x W x H)</dt>
-                        <dd class="font-medium text-gray-900">{{ $product->formatted_length }}cm x {{ $product->formatted_width }}cm x
+                        <dt class="text-truffle-extra-dark">Dimensions (L x W x H)</dt>
+                        <dd class="font-medium text-truffle-extra-dark">{{ $product->formatted_length }}cm x {{ $product->formatted_width }}cm x
                             {{ $product->formatted_height }}cm</dd>
 
-                        <dt class="text-gray-500">Weight</dt>
-                        <dd class="font-medium text-gray-900">{{ $product->formatted_weight }} kg</dd>
+                        <dt class="text-truffle-extra-dark">Weight</dt>
+                        <dd class="font-medium text-truffle-extra-dark">{{ $product->formatted_weight }} kg</dd>
 
-                        <dt class="text-gray-500">Material</dt>
-                        <dd class="font-medium text-gray-900">{{ $product->material ?? 'N/A' }}</dd>
+                        <dt class="text-truffle-extra-dark">Material</dt>
+                        <dd class="font-medium text-truffle-extra-dark">{{ $product->material ?? 'N/A' }}</dd>
 
-                        <dt class="text-gray-500">SKU</dt>
-                        <dd class="font-medium text-gray-900">{{ $product->sku ?? 'N/A' }}</dd>
+                        <dt class="text-truffle-extra-dark">SKU</dt>
+                        <dd class="font-medium text-truffle-extra-dark">{{ $product->sku ?? 'N/A' }}</dd>
                     </dl>
                 </div>
 
@@ -163,15 +163,21 @@
                             @csrf
                             <input type="hidden" name="product_id" value="{{ $product->id }}">
                             <div class="flex items-center gap-4 mb-4">
-                                <label class="font-medium text-gray-700">Quantity:</label>
-                                <input type="number" name="quantity" value="{{ $product->min_quantity }}"
-                                    min="{{ $product->min_quantity }}" class="w-20 border rounded p-2 text-center">
+                                <label class="font-medium text-truffle-extra-dark">Quantity:</label>
+                                <div class="flex items-center border border-truffle-medium/30 rounded-full overflow-hidden" x-data="{ qty: {{ $product->min_quantity }}, min: {{ $product->min_quantity }} }">
+                                    <button type="button" @click="qty = Math.max(min, qty - 1)"
+                                        class="w-9 h-9 flex items-center justify-center text-truffle-extra-dark hover:text-truffle-extra-dark hover:bg-[#F5F2EA] transition text-lg leading-none select-none">âˆ’</button>
+                                    <input type="number" name="quantity" x-model="qty" :min="min"
+                                        class="w-10 text-center text-sm font-medium bg-transparent border-none focus:outline-none">
+                                    <button type="button" @click="qty++"
+                                        class="w-9 h-9 flex items-center justify-center text-truffle-extra-dark hover:text-truffle-extra-dark hover:bg-[#F5F2EA] transition text-lg leading-none select-none">+</button>
+                                </div>
                             </div>
                             <button type="submit"
                                 class="w-full bg-green-premium text-white text-lg font-bold py-4 rounded-full shadow-lg hover:bg-green-800 transition transform hover:-translate-y-1">
                                 Add to Cart
                             </button>
-                            <p class="text-xs text-center text-gray-500 mt-2">Free shipping calculation at checkout.</p>
+                            <p class="text-xs text-center text-truffle-extra-dark mt-2">Free shipping calculation at checkout.</p>
                         </form>
                     @endif
 
@@ -179,7 +185,7 @@
                     <div x-data="{ open: false }" class="mt-4">
                         @php
                             $waNumber = preg_replace('/[^0-9]/', '', $siteSettings['whatsapp_number'] ?? '');
-                            $defaultTemplate = 'Hi! I am interested in: {product_name} (SKU: {sku} | Price: ${price}) — {url}';
+                            $defaultTemplate = 'Hi! I am interested in: {product_name} (SKU: {sku} | Price: ${price}) â€” {url}';
                             $waTemplate = !empty($siteSettings['whatsapp_message_template'])
                                 ? $siteSettings['whatsapp_message_template']
                                 : $defaultTemplate;
@@ -197,7 +203,7 @@
                         @endphp
                         <div class="flex gap-3">
                             <button @click="open = !open"
-                                class="flex-1 bg-cream border-2 border-green-premium text-green-premium font-bold py-3 rounded-full hover:bg-green-premium hover:text-white transition">
+                                class="flex-1 bg-green-premium text-white text-lg font-bold py-4 rounded-full shadow-lg hover:bg-green-800 transition transform hover:-translate-y-1">
                                 Make an Inquiry
                             </button>
 
@@ -222,26 +228,26 @@
                                 <input type="hidden" name="product_id" value="{{ $product->id }}">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <input type="text" name="name" placeholder="Full Name" required
-                                        class="w-full p-3 bg-gray-50 border rounded-lg focus:ring-green-premium focus:border-green-premium">
+                                        class="w-full p-3 bg-[#F5F2EA] border rounded-lg focus:ring-green-premium focus:border-green-premium">
                                     <input type="email" name="email" placeholder="Email Address" required
-                                        class="w-full p-3 bg-gray-50 border rounded-lg focus:ring-green-premium focus:border-green-premium">
+                                        class="w-full p-3 bg-[#F5F2EA] border rounded-lg focus:ring-green-premium focus:border-green-premium">
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <input type="text" name="phone" placeholder="Phone Number" required
-                                        class="w-full p-3 bg-gray-50 border rounded-lg focus:ring-green-premium focus:border-green-premium">
+                                        class="w-full p-3 bg-[#F5F2EA] border rounded-lg focus:ring-green-premium focus:border-green-premium">
                                     <input type="text" name="country" placeholder="Country" required
-                                        class="w-full p-3 bg-gray-50 border rounded-lg focus:ring-green-premium focus:border-green-premium">
+                                        class="w-full p-3 bg-[#F5F2EA] border rounded-lg focus:ring-green-premium focus:border-green-premium">
                                 </div>
                                 <input type="text" name="address_line" placeholder="Address Line" required
-                                    class="w-full p-3 bg-gray-50 border rounded-lg focus:ring-green-premium focus:border-green-premium">
+                                    class="w-full p-3 bg-[#F5F2EA] border rounded-lg focus:ring-green-premium focus:border-green-premium">
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <input type="text" name="city" placeholder="City"
-                                        class="w-full p-3 bg-gray-50 border rounded-lg focus:ring-green-premium focus:border-green-premium">
+                                        class="w-full p-3 bg-[#F5F2EA] border rounded-lg focus:ring-green-premium focus:border-green-premium">
                                     <input type="text" name="zip_code" placeholder="Zip Code"
-                                        class="w-full p-3 bg-gray-50 border rounded-lg focus:ring-green-premium focus:border-green-premium">
+                                        class="w-full p-3 bg-[#F5F2EA] border rounded-lg focus:ring-green-premium focus:border-green-premium">
                                 </div>
                                 <textarea name="message" rows="3" placeholder="I am interested in this product..."
-                                    class="w-full p-3 bg-gray-50 border rounded-lg focus:ring-green-premium focus:border-green-premium"></textarea>
+                                    class="w-full p-3 bg-[#F5F2EA] border rounded-lg focus:ring-green-premium focus:border-green-premium"></textarea>
 
                                 <button type="submit"
                                     class="w-full bg-gray-800 text-white font-bold py-3 rounded-lg hover:bg-black transition">Send
@@ -256,9 +262,9 @@
 
         <!-- Long Description Section -->
         @if($product->long_description)
-            <div class="mt-12 bg-white p-8 rounded-2xl shadow-sm">
-                <h2 class="text-3xl font-serif font-bold text-gray-900 mb-6 border-b pb-4">Product Details</h2>
-                <div class="prose prose-lg max-w-none text-gray-700">
+            <div class="mt-12 bg-cream p-8 rounded-2xl shadow-sm">
+                <h2 class="text-3xl font-serif font-bold text-truffle-extra-dark mb-6 border-b pb-4">Product Details</h2>
+                <div class="prose prose-lg max-w-none text-truffle-extra-dark">
                     {!! nl2br(e($product->long_description)) !!}
                 </div>
             </div>
@@ -267,18 +273,26 @@
         <!-- Related Products -->
         @if($relatedProducts->count() > 0)
             <div class="mt-20">
-                <h2 class="text-3xl font-serif font-bold text-gray-900 mb-8 border-b pb-4">You May Also Like</h2>
+                <h2 class="text-3xl font-serif font-bold text-truffle-extra-dark mb-8 border-b pb-4">You May Also Like</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     @foreach($relatedProducts as $relProduct)
                         <!-- Simple Card -->
                         <a href="{{ route('products.show', $relProduct->slug ?? $relProduct->id) }}" class="group block">
-                            <div class="bg-gray-100 aspect-[3/4] rounded-lg overflow-hidden mb-4">
-                                <img src="{{ $relProduct->main_image }}" alt="" class="w-full h-full object-cover">
+                            <div class="bg-[#F5F2EA] aspect-[3/4] rounded-lg overflow-hidden mb-4">
+                                @if($relProduct->main_image)
+                                    <img src="{{ $relProduct->main_image }}" alt="{{ $relProduct->name }}" class="w-full h-full object-cover">
+                                @else
+                                    <div class="w-full h-full flex items-center justify-center text-truffle-extra-dark/70">
+                                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                    </div>
+                                @endif
                             </div>
                             <h3 class="font-bold text-lg group-hover:text-green-premium">{{ $relProduct->name }}</h3>
                             <div class="text-green-premium font-bold">
                                 @if($relProduct->discount_price)
-                                    <span class="text-gray-400 line-through text-sm mr-2">${{ number_format($relProduct->price, 2) }}</span>
+                                    <span class="text-truffle-extra-dark/70 line-through text-sm mr-2">${{ number_format($relProduct->price, 2) }}</span>
                                     <span>${{ number_format($relProduct->discount_price, 2) }}</span>
                                 @else
                                     <span>${{ number_format($relProduct->price, 2) }}</span>

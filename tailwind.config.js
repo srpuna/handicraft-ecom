@@ -8,10 +8,14 @@ export default {
   theme: {
     extend: {
       colors: {
-          cream: '#FDFBF7',
-          beige: '#F5F5DC',
-          gold: '#D4AF37',
-          'green-premium': '#2E594A',
+          'truffle-dark': '#1A3326',
+          'truffle-medium': '#C5A059',
+          'truffle-light': '#E8E2D2',
+          'truffle-extra-dark': '#2D4B36',
+          cream: '#F5F5EA',
+          beige: '#E8E2D2',
+          gold: '#C5A059',
+          'green-premium': '#2D4B36',
       },
       fontFamily: {
           sans: ['Outfit', 'sans-serif'],

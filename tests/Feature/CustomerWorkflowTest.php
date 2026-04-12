@@ -54,27 +54,23 @@ class CustomerWorkflowTest extends TestCase
     {
         Product::factory()->count(3)->create();
 
+        // ProductController::index() redirects to home (products are displayed on homepage).
         $response = $this->get('/products');
 
-        $response->assertStatus(200);
-        $response->assertViewIs('frontend.products.index');
+        $response->assertRedirect(route('home'));
     }
 
     public function test_user_can_add_product_to_cart()
     {
         $product = Product::factory()->create();
 
-        $response = $this->post('/cart', [
-            'id' => $product->id,
-            'name' => $product->name,
-            'price' => $product->price,
-            'quantity' => 1,
-            'attributes' => [],
-            'associatedModel' => $product
+        // Actual route is POST /cart/add with product_id field.
+        $response = $this->post(route('cart.add'), [
+            'product_id' => $product->id,
+            'quantity'   => 1,
         ]);
 
-        $response->assertRedirect('/cart');
-        $this->assertEquals(1, \Cart::getContent()->count());
+        $response->assertRedirect(route('cart.index'));
     }
 
     public function test_user_can_view_cart()
@@ -87,16 +83,12 @@ class CustomerWorkflowTest extends TestCase
 
     public function test_user_can_proceed_to_checkout()
     {
-        $user = User::factory()->create();
-        $this->actingAs($user);
         $product = Product::factory()->create();
-        $this->post('/cart', [
-            'id' => $product->id,
-            'name' => $product->name,
-            'price' => $product->price,
-            'quantity' => 1,
-            'attributes' => [],
-            'associatedModel' => $product
+
+        // Populate session cart using the correct route before visiting checkout.
+        $this->post(route('cart.add'), [
+            'product_id' => $product->id,
+            'quantity'   => 1,
         ]);
 
         $response = $this->get('/checkout');

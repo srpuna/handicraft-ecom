@@ -1,0 +1,359 @@
+================================================================================
+  BUG REPORT — Handicraft E-Commerce Platform
+  Project   : handicraft-ecom (wateeez/handicraft-ecom)
+  Branch    : main
+  Date      : 2026-04-12
+  Reviewed by: GitHub Copilot (automated code audit)
+  Status    : All bugs FIXED in same session
+================================================================================
+
+
+------------------------------------------------------------------------
+BUG #1 — Phantom Volumetric Weight on Products Missing Dimensions
+------------------------------------------------------------------------
+Severity  : HIGH
+Status    : FIXED
+File      : app/Services/ShippingService.php
+
+Description:
+  When calculating volumetric shipping weight, the service added
+  packing buffers of +4 cm to each dimension (length, width, height)
+  before computing volume. If any dimension was NULL or zero (not filled
+  in on the product), PHP cast it to 0, so the calculation became:
+    (0 + 4) × (0 + 4) × (0 + 4) = 64 cm³
+
+  This phantom volume was added to the total volumetric weight even
+  though the product had no real dimensions, causing incorrect (higher)
+  shipping quotes.
+
+Steps to Reproduce:
+  1. Create a product with no dimensions set (length/width/height empty).
+  2. Add it to cart and proceed to checkout.
+  3. Calculate shipping — the quote will be inflated vs. a product
+     that has correct dimensions entered.
+
+Root Cause:
+  No guard checking that all three dimensions are present and non-zero
+  before including the item in volumetric weight calculation.
+
+Fix Applied:
+  Added a condition: only compute and accumulate volumetric weight for
+  an item when length > 0 AND width > 0 AND height > 0. Products with
+  missing dimensions now fall back to actual weight only with zero
+  volumetric contribution.
+
+Expected Behavior After Fix:
+  A product with no dimensions set contributes only its actual weight
+  to the shipping calculation. No phantom 64 cm³ volume.
+
+
+------------------------------------------------------------------------
+BUG #2 — Race Condition: Duplicate Invoice / Order Numbers
+------------------------------------------------------------------------
+Severity  : CRITICAL
+Status    : FIXED
+Files     : app/Models/Invoice.php
+            app/Models/Order.php
+            app/Services/InvoiceService.php
+
+Description:
+  Both generateInvoiceNumber() and generateOrderNumber() used a
+  read-then-compute pattern:
+
+    SELECT last row WHERE number LIKE 'INV-2026-%' ORDER BY id DESC
+    → compute next = last + 1
+    → INSERT new row with computed number
+
+  Under concurrent requests (two customers checking out simultaneously,
+  or two admins generating invoices at the same time), both reads can
+  return the same "last" row, both compute the same "next" number, and
+  both insert — resulting in two rows with identical numbers such as
+  INV-2026-00042 or ORD-2026-00017.
+
+  Invoice numbers have legal significance in many jurisdictions. A
+  duplicate is a compliance failure.
+
+Steps to Reproduce:
+  1. Send two simultaneous POST requests to initiate checkout.
+  2. Inspect generated order numbers — both will be identical.
+     (Easiest to reproduce under load testing or with two browser tabs
+     clicking "Pay" at the exact same moment.)
+
+Root Cause:
+  No database-level row lock between the SELECT and the INSERT.
+  InvoiceService::generateInvoice() was also outside any transaction,
+  so adding a lock without a transaction would have been a no-op.
+
+Fix Applied:
+  - Added ->lockForUpdate() to both generateInvoiceNumber() and
+    generateOrderNumber() queries to acquire an InnoDB gap/row lock.
+  - Wrapped InvoiceService::generateInvoice() in DB::transaction() so
+    the lock is held inside an active transaction (required for
+    lockForUpdate() to be effective). OrderService::createOrder() was
+    already in a transaction.
+
+Expected Behavior After Fix:
+  Concurrent number generation is serialized at the database level.
+  Each generated number is guaranteed unique.
+
+
+------------------------------------------------------------------------
+BUG #3 — Double PayPal Capture / Duplicate Invoice on Retry
+------------------------------------------------------------------------
+Severity  : CRITICAL
+Status    : FIXED
+File      : app/Http/Controllers/Api/PayPalController.php
+
+Description:
+  The capturePayment endpoint checked is_paid = false, called the
+  PayPal capture API, then updated is_paid = true. This was not atomic.
+
+  Under two conditions this causes a double-capture:
+    a) PayPal retries its own webhook delivery (at-least-once guarantee).
+    b) A customer's browser double-submits the payment confirmation
+       request (slow connection, impatient click).
+
+  Both concurrent requests read is_paid = false, both proceed to call
+  PayPal's capture endpoint, both mark the order paid, and both
+  auto-generate an invoice — resulting in duplicate charges or at
+  minimum duplicate invoices for the same order.
+
+Steps to Reproduce:
+  1. Intercept the capture request using a proxy.
+  2. Replay it immediately after the original fires.
+  3. Both will succeed and a second invoice is generated.
+
+Root Cause:
+  No pessimistic lock around the is_paid read-then-write. Non-atomic
+  check-then-act pattern.
+
+Fix Applied:
+  Re-fetch the order inside DB::transaction() + lockForUpdate() before
+  updating is_paid. If the lock is acquired and is_paid is already true
+  (set by a concurrent request that committed first), the handler returns
+  an idempotent success response without re-processing anything.
+
+Expected Behavior After Fix:
+  Only one capture is processed per order. Duplicate webhook deliveries
+  return a 200 success without re-charging or re-generating invoices.
+
+
+------------------------------------------------------------------------
+BUG #4 — Maintenance Mode Blocks PayPal Callbacks & Order Confirmation
+------------------------------------------------------------------------
+Severity  : HIGH
+Status    : FIXED
+File      : app/Http/Middleware/CheckMaintenanceMode.php
+
+Description:
+  When an admin enables maintenance mode, the middleware allows through:
+    - admin/* routes
+    - login / logout
+    - sanctum/*
+  
+  Two critical paths were NOT bypassed:
+  
+  a) /api/* routes — PayPal calls back to /api/paypal/orders/{id}/capture
+     during payment. In maintenance mode this returns a 503 HTML page,
+     which PayPal interprets as a failure. The payment is captured by
+     PayPal but the local order is never marked as paid. Customer is
+     charged but gets no confirmation, admin sees no paid order.
+
+  b) /checkout/success/* — After PayPal completes, the browser is
+     redirected to this URL. In maintenance mode the customer sees
+     "We'll be back soon" instead of their order confirmation, even
+     though their money was taken.
+
+Steps to Reproduce:
+  1. Enable maintenance mode from admin dashboard.
+  2. Have a customer complete a PayPal payment in another browser/tab.
+  3. The payment callback hits /api/paypal/... and gets 503.
+  4. Customer's redirect lands on the maintenance page.
+  5. Order remains unpaid in the database; customer has no confirmation.
+
+Root Cause:
+  API routes and checkout success route were not included in the
+  maintenance bypass whitelist.
+
+Fix Applied:
+  Added two bypass conditions:
+    - $request->is('api/*')               → PayPal callbacks always work
+    - $request->is('checkout/success/*')  → Customers see confirmation
+
+Expected Behavior After Fix:
+  Maintenance mode affects only the public storefront. Payment
+  processing and order confirmation are unaffected.
+
+
+------------------------------------------------------------------------
+BUG #5 — Checkout Token Reusable After Payment (No Invalidation)
+------------------------------------------------------------------------
+Severity  : HIGH
+Status    : FIXED
+File      : app/Http/Controllers/Frontend/CartController.php
+
+Description:
+  The admin can send a customer a checkout token link (e.g.
+  /checkout/abc123token) linked to a quotation/inquiry order.
+  The customer uses it to place and pay for an order.
+
+  The token was NEVER cleared from the inquiry order after use.
+  A customer could:
+    - Bookmark the URL and return weeks later to place a duplicate order
+      (potentially getting the old quoted price on items whose price
+       has since changed)
+    - Share the link with someone else
+
+Steps to Reproduce:
+  1. Admin sends checkout token link to a customer.
+  2. Customer completes checkout and pays.
+  3. Customer visits the same token URL again.
+  4. The checkout page loads with the original items and prices.
+  5. Customer can check out again, creating a duplicate order.
+
+Root Cause:
+  initOrder() built the new order from the OMS inquiry token data but
+  did not null out or invalidate the checkout_token field on the source
+  inquiry order.
+
+Fix Applied:
+  After consuming the token to build the items list in initOrder(),
+  the source OMS order's checkout_token is set to null and saved.
+  Subsequent requests to the same token URL find no matching order
+  and reject with an error.
+
+Expected Behavior After Fix:
+  Each checkout token is single-use. Once an order is placed via a
+  token, the link becomes invalid.
+
+
+------------------------------------------------------------------------
+BUG #6 — mergeOrders() Bypasses Financial Lock on Target Order
+------------------------------------------------------------------------
+Severity  : HIGH
+Status    : FIXED
+File      : app/Services/OrderService.php
+
+Description:
+  Order merging validates canBeMerged() on source orders (checks for
+  issued invoices, cancelled/delivered status, etc.) but did NOT
+  validate the target order.
+
+  A paid, financially-locked order could be selected as the merge
+  target. Items from source orders would be moved into it and
+  recalculateTotals() would silently rewrite subtotal, grand_total,
+  order_discount_amount, etc. — all fields that are supposed to be
+  immutable once is_paid = true.
+
+  This completely bypasses isFinanciallyLocked(), the core financial
+  integrity guard.
+
+Steps to Reproduce:
+  1. Create two orders. Mark order A as paid.
+  2. Use the admin merge UI to merge order B into order A (as target).
+  3. Order A's financial totals are recalculated and changed.
+
+Root Cause:
+  canBeMerged() was only called on source orders. The target order had
+  no equivalent check in mergeOrders().
+
+Fix Applied:
+  Added isFinanciallyLocked() check on targetOrder at the start of the
+  DB transaction in mergeOrders(). Throws an exception immediately if
+  the target is locked, preventing any items from being moved.
+
+Expected Behavior After Fix:
+  Attempting to merge into a paid order throws:
+  "Order #ORD-2026-XXXXX is financially locked and cannot be used as
+  a merge target."
+
+
+------------------------------------------------------------------------
+BUG #7 — MarkOrderDeliveredJob: Duplicate Notifications & No Retry Limit
+------------------------------------------------------------------------
+Severity  : MEDIUM
+Status    : FIXED
+File      : app/Jobs/MarkOrderDeliveredJob.php
+
+Description:
+  The auto-delivery job had no $tries limit (Laravel default = 3 retries
+  on failure). It also had no row-level lock.
+
+  Two scenarios cause duplicate "delivered" notifications:
+    a) Queue delivers the job twice (at-least-once delivery is normal
+       behavior in most queue drivers including database and SQS).
+    b) The job fails after saving status but before the notification
+       fires — on retry, the status guard (STATUS_DISPATCHED check)
+       may already be bypassed in a race window.
+
+  Customers would receive multiple "Your order has been delivered"
+  emails/notifications. Audit logs would show duplicate auto_delivered
+  entries.
+
+Steps to Reproduce:
+  1. Dispatch an order to trigger MarkOrderDeliveredJob.
+  2. Force a duplicate job dispatch (simulate queue duplicate delivery).
+  3. Two "delivered" notifications are sent to the customer.
+
+Root Cause:
+  No $tries = 1 constraint. No DB lock around the status check-and-set,
+  so two concurrent executions can both pass the STATUS_DISPATCHED
+  guard in the same millisecond window.
+
+Fix Applied:
+  - Set $tries = 1 (no retries for this job — delivery marking is
+    not a retriable operation).
+  - Moved the status check + update inside DB::transaction() +
+    lockForUpdate(). Only the execution that acquires the lock and
+    finds STATUS_DISPATCHED will commit the change and trigger
+    the notification. All others exit silently.
+
+Expected Behavior After Fix:
+  Order is marked delivered exactly once. Customer receives exactly
+  one notification. Duplicate job deliveries are safely ignored.
+
+
+================================================================================
+  SUMMARY TABLE
+================================================================================
+
+  #  | Severity | Area                        | Status
+  ---+----------+-----------------------------+--------
+  1  | HIGH     | Shipping calculation        | FIXED
+  2  | CRITICAL | Invoice/Order number gen.   | FIXED
+  3  | CRITICAL | PayPal payment capture      | FIXED
+  4  | HIGH     | Maintenance mode middleware  | FIXED
+  5  | HIGH     | Checkout token security     | FIXED
+  6  | HIGH     | Order merge / financial lock| FIXED
+  7  | MEDIUM   | Auto-delivery job           | FIXED
+
+================================================================================
+  ITEMS INVESTIGATED — NO BUG FOUND
+================================================================================
+
+  - Stock oversell race condition:
+    No stock quantity field on Product model. Products are made-to-order
+    handicrafts; oversell does not apply.
+
+  - Shipping zone country matching (UK vs GB vs United Kingdom):
+    ShippingService already performs bidirectional code↔name lookup
+    using config('countries.map'). Correctly handles common variants.
+
+  - Financial re-lock after invoice voiding:
+    isFinanciallyLocked() checks is_paid, not invoice status. Voiding
+    an invoice intentionally does NOT re-unlock the order financials.
+    This is correct behavior for an auditable system.
+
+  - MarkOrderDeliveredJob grace period / tracking confirmation:
+    No tracking API integration exists. The delivery grace period is
+    the admin-configured delivery_period_days field. This is an
+    operational/process concern, not a code defect.
+
+  - Concurrent cart quantity (two-tab problem):
+    Session-based cart is per-browser-session. Two tabs share the same
+    session, so last-write-wins is expected and the "conflict" resolves
+    to whichever update the customer intended last. Not a bug.
+
+================================================================================
+  END OF REPORT
+================================================================================

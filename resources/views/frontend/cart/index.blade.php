@@ -1,28 +1,28 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
     <div class="container mx-auto px-4 sm:px-6 py-12">
-        <h1 class="text-3xl font-serif font-bold text-gray-900 mb-8">Shopping Cart</h1>
+        <h1 class="text-3xl font-serif font-bold text-truffle-extra-dark mb-8">Shopping Cart</h1>
 
         @if(count($cartItems) > 0)
-            <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="bg-cream rounded-lg shadow overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                        <thead class="bg-[#F5F2EA]">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product
+                                <th class="px-6 py-3 text-left text-xs font-medium text-truffle-extra-dark uppercase tracking-wider">Product
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price
+                                <th class="px-6 py-3 text-left text-xs font-medium text-truffle-extra-dark uppercase tracking-wider">Price
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity
+                                <th class="px-6 py-3 text-left text-xs font-medium text-truffle-extra-dark uppercase tracking-wider">Quantity
                                 </th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total
+                                <th class="px-6 py-3 text-right text-xs font-medium text-truffle-extra-dark uppercase tracking-wider">Total
                                 </th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions
+                                <th class="px-6 py-3 text-right text-xs font-medium text-truffle-extra-dark uppercase tracking-wider">Actions
                                 </th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tbody class="bg-cream divide-y divide-gray-200">
                             @foreach($cartItems as $item)
                                 <tr>
                                     <td class="px-6 py-4 whitespace-nowrap">
@@ -32,17 +32,17 @@
                                                     <img class="h-10 w-10 rounded-full object-cover"
                                                         src="{{ $item['product']->main_image }}" alt="">
                                                 @else
-                                                    <div class="h-10 w-10 rounded-full bg-gray-200"></div>
+                                                    <div class="h-10 w-10 rounded-full bg-[#E8E2D2]"></div>
                                                 @endif
                                             </div>
                                             <div class="ml-4">
-                                                <div class="text-sm font-medium text-gray-900">{{ $item['product']->name }}</div>
-                                                <div class="text-xs text-gray-500 mt-1">
+                                                <div class="text-sm font-medium text-truffle-extra-dark">{{ $item['product']->name }}</div>
+                                                <div class="text-xs text-truffle-extra-dark mt-1">
                                                     <span class="inline-flex items-center">
                                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
                                                         </svg>
-                                                        {{ $item['product']->formatted_length }} × {{ $item['product']->formatted_width }} × {{ $item['product']->formatted_height }} cm
+                                                        {{ $item['product']->formatted_length }} Ã— {{ $item['product']->formatted_width }} Ã— {{ $item['product']->formatted_height }} cm
                                                     </span>
                                                     <span class="mx-2">|</span>
                                                     <span class="inline-flex items-center">
@@ -55,15 +55,15 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-truffle-extra-dark">
                                         @if($item['product']->discount_price)
-                                            <span class="text-gray-400 line-through mr-1">${{ number_format($item['product']->price, 2) }}</span>
+                                            <span class="text-truffle-extra-dark/70 line-through mr-1">${{ number_format($item['product']->price, 2) }}</span>
                                             <span class="text-green-premium font-bold">${{ number_format($item['product']->discount_price, 2) }}</span>
                                         @else
                                             ${{ number_format($item['product']->price, 2) }}
                                         @endif
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-truffle-extra-dark">
                                         <form action="{{ route('cart.update') }}" method="POST" class="flex items-center gap-2">
                                             @csrf
                                             <input type="hidden" name="product_id" value="{{ $item['product']->id }}">
@@ -95,12 +95,12 @@
             </div>
 
             <div class="flex justify-end mt-8">
-                <div class="w-full md:w-1/3 bg-white p-6 rounded-lg shadow">
+                <div class="w-full md:w-1/3 bg-cream p-6 rounded-lg shadow">
                     <div class="flex justify-between mb-4">
-                        <span class="text-gray-600">Subtotal</span>
-                        <span class="font-bold text-gray-900">${{ number_format($subtotal, 2) }}</span>
+                        <span class="text-truffle-extra-dark">Subtotal</span>
+                        <span class="font-bold text-truffle-extra-dark">${{ number_format($subtotal, 2) }}</span>
                     </div>
-                    <p class="text-xs text-gray-500 mb-6">Shipping & taxes calculated at checkout.</p>
+                    <p class="text-xs text-truffle-extra-dark mb-6">Shipping & taxes calculated at checkout.</p>
                     <a href="{{ route('checkout') }}"
                         class="block w-full bg-green-premium text-white text-center py-3 rounded-lg font-bold hover:bg-green-800 transition">Proceed
                         to Checkout</a>
@@ -108,7 +108,7 @@
             </div>
         @else
             <div class="text-center py-12">
-                <p class="text-gray-500 text-lg mb-6">Your cart is empty.</p>
+                <p class="text-truffle-extra-dark text-lg mb-6">Your cart is empty.</p>
                 <a href="{{ route('home') }}" class="text-green-premium hover:underline">Continue Shopping</a>
             </div>
         @endif

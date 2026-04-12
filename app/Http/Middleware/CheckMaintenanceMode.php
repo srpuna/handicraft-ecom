@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -23,8 +24,18 @@ class CheckMaintenanceMode
                 return $next($request);
             }
 
+            // Allow all API routes (PayPal callbacks, order cancellation, etc. MUST work during maintenance)
+            if ($request->is('api/*')) {
+                return $next($request);
+            }
+
+            // Allow checkout success page so customers who paid can see their confirmation
+            if ($request->is('checkout/success/*')) {
+                return $next($request);
+            }
+
             // Allow authenticated users who are admins (double check for safety)
-            if (auth()->check() && auth()->user()->is_admin) {
+            if (Auth::check() && Auth::user()?->is_admin) {
                 return $next($request);
             }
 

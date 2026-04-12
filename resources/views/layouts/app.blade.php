@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -13,26 +13,26 @@
     @stack('head')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Playfair+Display:wght@400;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Noto+Serif:wght@400;600;700&display=swap"
         rel="stylesheet">
     <style>
         body {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Manrope', sans-serif;
         }
 
         h1,
         h2,
         h3,
         .serif {
-            font-family: 'Playfair Display', serif;
+            font-family: 'Noto Serif', serif;
         }
     </style>
 </head>
 
-<body class="bg-cream text-gray-800 flex flex-col min-h-screen">
+<body class="bg-truffle-light text-truffle-extra-dark flex flex-col min-h-screen">
 
     <!-- Header -->
-    <header class="bg-cream sticky top-0 z-50 border-b border-gray-100">
+    <header class="bg-[#F5F2EA] sticky top-0 z-50 border-b-2 border-truffle-extra-dark/20 shadow-sm">
         <div
             class="container mx-auto px-4 sm:px-6 py-4 flex flex-col gap-3 md:gap-6 md:flex-row md:justify-between md:items-center">
             <div class="flex items-center justify-between w-full md:w-auto">
@@ -42,7 +42,7 @@
                         <img src="{{ $siteSettings['navbar_logo_url'] }}"
                             alt="{{ $siteSettings['site_name'] }}" class="h-12 w-auto object-contain">
                     @else
-                        <span class="text-2xl font-bold font-serif text-green-premium tracking-wide">
+                        <span class="text-2xl font-bold font-serif text-truffle-extra-dark tracking-wide">
                             {{ $siteSettings['site_name'] }}
                         </span>
                     @endif
@@ -50,7 +50,7 @@
                 <!-- Mobile quick actions -->
                 <div class="flex items-center gap-4 md:hidden">
                     <a href="{{ route('cart.index') }}"
-                        class="relative text-gray-600 hover:text-green-premium flex items-center gap-1.5 transition-colors duration-200"
+                        class="relative text-truffle-extra-dark hover:text-truffle-medium flex items-center gap-1.5 transition-colors duration-200"
                         aria-label="Cart">
                         <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -59,7 +59,7 @@
                         <span class="text-sm font-serif font-medium">My Cart</span>
                     </a>
 
-                    <a href="{{ route('admin.dashboard') }}" class="text-gray-500 hover:text-green-premium"
+                    <a href="{{ route('admin.dashboard') }}" class="text-truffle-extra-dark/60 hover:text-truffle-medium"
                         title="Admin Dashboard" aria-label="Admin">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -76,9 +76,9 @@
                     <form action="{{ route('home') }}" method="GET" class="relative">
                         <input type="text" name="search" placeholder="Search products..."
                             value="{{ request('search') }}"
-                            class="w-full bg-white border-2 border-gray-200 rounded-full py-2.5 sm:py-3 pl-5 pr-12 text-sm sm:text-base focus:outline-none focus:border-green-premium focus:ring-2 focus:ring-green-100 shadow-sm transition-all duration-200 placeholder-gray-400">
+                            class="w-full bg-cream border-2 border-truffle-extra-dark/20 rounded-full py-2.5 sm:py-3 pl-5 pr-12 text-sm sm:text-base text-truffle-extra-dark placeholder-truffle-extra-dark/40 focus:outline-none focus:border-truffle-medium transition-all duration-200">
                         <button type="submit"
-                            class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-green-premium transition-colors">
+                            class="absolute right-4 top-1/2 transform -translate-y-1/2 text-truffle-extra-dark/40 hover:text-truffle-medium transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -92,18 +92,17 @@
             <div class="hidden md:flex items-center justify-end space-x-6 w-full md:w-auto">
                 <!-- Cart -->
                 <a href="{{ route('cart.index') }}"
-                    class="relative text-gray-600 hover:text-green-premium flex items-center gap-2 transition-colors duration-200 group">
+                    class="relative text-truffle-extra-dark hover:text-truffle-medium flex items-center gap-2 transition-colors duration-200 group">
                     <svg class="w-6 h-6 transform group-hover:scale-110 transition-transform duration-200" fill="none"
                         stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                             d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                     </svg>
                     <span class="text-[15px] font-serif font-semibold tracking-tight">My Cart</span>
-                    <!-- Badge would go here -->
                 </a>
 
                 <!-- Admin Link -->
-                <a href="{{ route('admin.dashboard') }}" class="text-gray-500 hover:text-green-premium"
+                <a href="{{ route('admin.dashboard') }}" class="text-truffle-extra-dark/60 hover:text-truffle-medium"
                     title="Admin Dashboard">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -117,7 +116,7 @@
     <!-- Main Content -->
     <main class="flex-grow">
         @if(session('success'))
-            <div class="bg-green-100 border-l-4 border-green-premium text-green-700 p-4 container mx-auto mt-4 px-4 sm:px-6"
+            <div class="bg-green-premium/20 border-l-4 border-green-premium text-green-premium p-4 container mx-auto mt-4 px-4 sm:px-6"
                 role="alert">
                 <p class="font-bold">Success</p>
                 <p>{{ session('success') }}</p>
@@ -127,7 +126,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-green-premium text-white py-12">
+    <footer class="bg-truffle-extra-dark text-white py-12">
         <div class="container mx-auto px-4 sm:px-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
@@ -217,14 +216,14 @@
                                 title="Chat on WhatsApp">
                                 <img src="{{ $siteSettings['footer_qr_code_url'] }}"
                                     alt="WhatsApp QR Code"
-                                    class="w-32 h-32 object-contain bg-white p-2 rounded hover:shadow-lg transition cursor-pointer">
+                                    class="w-32 h-32 object-contain bg-cream p-2 rounded hover:shadow-lg transition cursor-pointer">
                             </a>
-                            <p class="text-xs text-gray-400 mt-2">Tap to chat on WhatsApp</p>
+                            <p class="text-xs text-truffle-extra-dark/70 mt-2">Tap to chat on WhatsApp</p>
                         </div>
                     @endif
                 </div>
             </div>
-            <div class="mt-8 border-t border-gray-700 pt-8 text-center text-gray-400 text-sm">
+            <div class="mt-8 border-t border-gray-700 pt-8 text-center text-truffle-extra-dark/70 text-sm">
                 &copy; 2026 {{ $siteSettings['site_name'] }}. All rights reserved.
             </div>
         </div>

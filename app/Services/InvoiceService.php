@@ -6,6 +6,7 @@ use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class InvoiceService
@@ -15,15 +16,19 @@ class InvoiceService
      */
     public function generateInvoice(Order $order, ?User $user, string $status = 'draft'): Invoice
     {
-        $invoice = Invoice::create([
-            'invoice_number' => Invoice::generateInvoiceNumber(),
-            'order_id' => $order->id,
-            'generated_by' => $user?->id,
-            'status' => $status,
-            'client_snapshot' => $order->client_snapshot ?? ($order->client ? app(OrderService::class)->buildClientSnapshot($order->client) : null),
-            'financial_snapshot' => $this->buildFinancialSnapshot($order),
-            'issued_at' => $status === 'issued' ? now() : null,
-        ]);
+        // Wrap in a transaction so that generateInvoiceNumber()'s lockForUpdate()
+        // actually serialises concurrent requests and prevents duplicate numbers.
+        $invoice = DB::transaction(function () use ($order, $user, $status) {
+            return Invoice::create([
+                'invoice_number' => Invoice::generateInvoiceNumber(),
+                'order_id' => $order->id,
+                'generated_by' => $user?->id,
+                'status' => $status,
+                'client_snapshot' => $order->client_snapshot ?? ($order->client ? app(OrderService::class)->buildClientSnapshot($order->client) : null),
+                'financial_snapshot' => $this->buildFinancialSnapshot($order),
+                'issued_at' => $status === 'issued' ? now() : null,
+            ]);
+        });
 
         // Generate PDF immediately
         $pdfPath = $this->generatePdf($invoice);

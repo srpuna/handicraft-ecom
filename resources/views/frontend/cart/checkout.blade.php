@@ -1,8 +1,8 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('content')
     <div class="container mx-auto px-4 sm:px-6 py-12" x-data="checkout()">
-        <h1 class="text-3xl font-serif font-bold text-gray-900 mb-8">Checkout</h1>
+        <h1 class="text-3xl font-serif font-bold text-truffle-extra-dark mb-8">Checkout</h1>
 
         <div class="flex flex-col md:flex-row gap-12">
             <!-- Form Section -->
@@ -11,40 +11,40 @@
                     @csrf
 
                     <!-- Contact Info -->
-                    <div class="bg-white p-6 rounded-lg shadow mb-6">
+                    <div class="bg-cream p-6 rounded-lg shadow mb-6">
                         <h2 class="text-xl font-bold mb-4">Contact Information</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <input type="text" name="name" value="{{ $inquiry->name ?? '' }}" placeholder="Full Name"
-                                class="w-full p-3 bg-gray-50 border rounded-lg" required>
+                                class="w-full p-3 bg-[#F5F2EA] border rounded-lg" required>
                             <input type="email" name="email" value="{{ $inquiry->email ?? '' }}" placeholder="Email Address"
-                                class="w-full p-3 bg-gray-50 border rounded-lg" required>
+                                class="w-full p-3 bg-[#F5F2EA] border rounded-lg" required>
                             <input type="text" name="phone" value="{{ $inquiry->phone ?? '' }}" placeholder="Phone Number"
-                                class="w-full p-3 bg-gray-50 border rounded-lg" required>
+                                class="w-full p-3 bg-[#F5F2EA] border rounded-lg" required>
                         </div>
                     </div>
 
                     <!-- Shipping Address -->
-                    <div class="bg-white p-6 rounded-lg shadow mb-6">
+                    <div class="bg-cream p-6 rounded-lg shadow mb-6">
                         <h2 class="text-xl font-bold mb-4">Shipping Address</h2>
                         <div class="space-y-4">
                             <input type="text" name="address" value="{{ $inquiry->address_line ?? '' }}"
-                                placeholder="Address" class="w-full p-3 bg-gray-50 border rounded-lg" required>
+                                placeholder="Address" class="w-full p-3 bg-[#F5F2EA] border rounded-lg" required>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <input type="text" name="city" value="{{ $inquiry->city ?? '' }}" placeholder="City"
-                                    class="w-full p-3 bg-gray-50 border rounded-lg" required>
+                                    class="w-full p-3 bg-[#F5F2EA] border rounded-lg" required>
                                 <input type="text" name="zip_code" value="{{ $inquiry->zip_code ?? '' }}"
-                                    placeholder="Zip Code" class="w-full p-3 bg-gray-50 border rounded-lg" required>
+                                    placeholder="Zip Code" class="w-full p-3 bg-[#F5F2EA] border rounded-lg" required>
                             </div>
                             <div>
-                                <label class="block text-sm text-gray-600 mb-1">Shipping Destination</label>
+                                <label class="block text-sm text-truffle-extra-dark mb-1">Shipping Destination</label>
                                 @if(isset($inquiry) && $inquiry->country)
-                                    <div class="p-3 bg-gray-100 border rounded-lg font-medium text-gray-800">
+                                    <div class="p-3 bg-[#F5F2EA] border rounded-lg font-medium text-truffle-extra-dark">
                                         {{ $availableCountriesOptions[array_search($inquiry->country, array_column($availableCountriesOptions, 'value'))]['label'] ?? $inquiry->country }}
                                     </div>
                                     <input type="hidden" name="country" x-model="country">
                                 @else
                                     <select name="country" x-model="country" @change="fetchShippingRates"
-                                        class="w-full p-3 bg-gray-50 border rounded-lg" required>
+                                        class="w-full p-3 bg-[#F5F2EA] border rounded-lg" required>
                                         <option value="">Select Country</option>
                                         @foreach($availableCountriesOptions as $opt)
                                             <option value="{{ $opt['value'] }}" {{ ($inquiry->country ?? '') == $opt['value'] ? 'selected' : '' }}>{{ $opt['label'] }}</option>
@@ -57,37 +57,37 @@
                     </div>
 
                     <!-- Shipping Method -->
-                    <div class="bg-white p-6 rounded-lg shadow mb-6" x-show="rates.length > 0">
+                    <div class="bg-cream p-6 rounded-lg shadow mb-6" x-show="rates.length > 0">
                         <h2 class="text-xl font-bold mb-4">Shipping Method</h2>
                         <div class="space-y-3">
                             <template x-for="rate in rates" :key="rate.provider_name + rate.price">
                                 <label
-                                    class="flex items-center justify-between p-4 border rounded cursor-pointer hover:bg-gray-50">
+                                    class="flex items-center justify-between p-4 border rounded cursor-pointer hover:bg-[#F5F2EA]">
                                     <div class="flex items-center">
                                         <input type="radio" name="shipping_rate" :value="rate.price"
                                             @change="selectShipping(rate)"
-                                            class="h-4 w-4 text-green-600 focus:ring-green-500">
+                                            class="h-4 w-4 text-green-premium focus:ring-green-500">
                                         <div class="ml-3">
-                                            <span class="block text-sm font-medium text-gray-900"
+                                            <span class="block text-sm font-medium text-truffle-extra-dark"
                                                 x-text="rate.provider_name"></span>
-                                            <span class="block text-xs text-gray-500"
+                                            <span class="block text-xs text-truffle-extra-dark"
                                                 x-text="'Zone: ' + rate.details.zone"></span>
                                         </div>
                                     </div>
-                                    <span class="text-sm font-bold text-gray-900" x-text="'$' + rate.price"></span>
+                                    <span class="text-sm font-bold text-truffle-extra-dark" x-text="'$' + rate.price"></span>
                                 </label>
                             </template>
                         </div>
                     </div>
 
                     <!-- Payment (PayPal integration) -->
-                    <div class="bg-white p-6 rounded-lg shadow mb-6">
+                    <div class="bg-cream p-6 rounded-lg shadow mb-6">
                         <h2 class="text-xl font-bold mb-4">Payment</h2>
-                        <p class="text-gray-500 text-sm mb-4">Please complete the form and select shipping before paying.</p>
+                        <p class="text-truffle-extra-dark text-sm mb-4">Please complete the form and select shipping before paying.</p>
                         
                         <!-- The PayPal buttons will render securely inside this container -->
                         <div id="paypal-button-container" class="mt-4" style="min-height:50px"></div>
-                        <div id="paypal-feedback" class="text-sm text-green-600 hidden my-2 font-bold">Processing payment... Please wait.</div>
+                        <div id="paypal-feedback" class="text-sm text-green-premium hidden my-2 font-bold">Processing payment... Please wait.</div>
                     </div>
 
                     <button type="submit" id="native-submit"
@@ -98,23 +98,23 @@
 
             <!-- Summary Section -->
             <div class="w-full md:w-1/3">
-                <div class="bg-white p-6 rounded-lg shadow sticky top-24">
+                <div class="bg-cream p-6 rounded-lg shadow sticky top-24">
                     <h3 class="text-lg font-bold mb-4 border-b pb-2">Order Summary</h3>
                     <div class="space-y-4 mb-4">
                         @foreach($items as $item)
                             <div class="border-b border-gray-100 pb-3">
                                 <div class="flex justify-between text-sm">
-                                    <span class="text-gray-600 font-medium">{{ $item['product']->name }}
+                                    <span class="text-truffle-extra-dark font-medium">{{ $item['product']->name }}
                                         (x{{ $item['quantity'] }})</span>
                                     <span class="font-medium">${{ number_format($item['subtotal'], 2) }}</span>
                                 </div>
-                                <div class="text-xs text-gray-400 mt-1 flex items-center gap-3">
+                                <div class="text-xs text-truffle-extra-dark/70 mt-1 flex items-center gap-3">
                                     <span class="inline-flex items-center">
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                                         </svg>
-                                        {{ $item['product']->formatted_length }} × {{ $item['product']->formatted_width }} ×
+                                        {{ $item['product']->formatted_length }} Ã— {{ $item['product']->formatted_width }} Ã—
                                         {{ $item['product']->formatted_height }} cm
                                     </span>
                                     <span class="inline-flex items-center">
@@ -131,11 +131,11 @@
 
                     <div class="border-t pt-4 space-y-2">
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Subtotal</span>
+                            <span class="text-truffle-extra-dark">Subtotal</span>
                             <span class="font-medium">${{ number_format($subtotal, 2) }}</span>
                         </div>
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Shipping</span>
+                            <span class="text-truffle-extra-dark">Shipping</span>
                             <span class="font-medium" x-text="shippingCost > 0 ? '$' + shippingCost : '--'">--</span>
                         </div>
                         <div class="flex justify-between text-lg font-bold border-t pt-2 mt-2">
@@ -204,7 +204,7 @@
     <script src="//unpkg.com/alpinejs" defer></script>
 
     @php
-        // Always use config() — env() returns null when config is cached in production
+        // Always use config() â€” env() returns null when config is cached in production
         $clientId = config('services.paypal.client_id');
     @endphp
     <!-- PayPal JavaScript SDK -->
@@ -215,14 +215,14 @@
         let orderInitialised = false;
 
         /**
-         * Step 1 – Validate form, POST customer + cart data to Laravel.
+         * Step 1 â€“ Validate form, POST customer + cart data to Laravel.
          * Laravel creates a pending Order and returns { order_id, grand_total }.
          * Returns the local order ID on success, throws on failure.
          */
         function showPayPalError(msg) {
             const el = document.getElementById('paypal-feedback');
             el.innerText = msg;
-            el.classList.remove('hidden', 'text-green-600', 'text-green-700');
+            el.classList.remove('hidden', 'text-green-premium', 'text-green-premium');
             el.classList.add('text-red-600');
         }
 
@@ -269,7 +269,7 @@
 
             try {
                 paypal.Buttons({
-                    // Force the standard PayPal button — always shown, including in sandbox
+                    // Force the standard PayPal button â€” always shown, including in sandbox
                     fundingSource: paypal.FUNDING.PAYPAL,
 
                     style: {
@@ -281,8 +281,8 @@
                     },
 
                     /**
-                     * Step 1 – Validate form + shipping.
-                     * Step 2 – Create pending DB order, then create PayPal order from server amount.
+                     * Step 1 â€“ Validate form + shipping.
+                     * Step 2 â€“ Create pending DB order, then create PayPal order from server amount.
                      */
                     createOrder: async function (data, actions) {
                         const feedbackEl = document.getElementById('paypal-feedback');
@@ -301,9 +301,9 @@
                             throw new Error('Please select a shipping method before paying.');
                         }
 
-                        feedbackEl.innerText = 'Preparing your order…';
+                        feedbackEl.innerText = 'Preparing your orderâ€¦';
                         feedbackEl.classList.remove('hidden', 'text-red-600');
-                        feedbackEl.classList.add('text-green-600');
+                        feedbackEl.classList.add('text-green-premium');
 
                         // 3. Create pending order in DB
                         const orderId = await initOrder();
@@ -329,14 +329,14 @@
                     },
 
                     /**
-                     * Step 3 – Capture PayPal payment, then mark local order as paid.
+                     * Step 3 â€“ Capture PayPal payment, then mark local order as paid.
                      */
                     onApprove: async function (data, actions) {
                         const feedbackEl = document.getElementById('paypal-feedback');
                         document.getElementById('paypal-button-container').classList.add('hidden');
-                        feedbackEl.innerText = 'Processing payment… Please wait.';
+                        feedbackEl.innerText = 'Processing paymentâ€¦ Please wait.';
                         feedbackEl.classList.remove('hidden', 'text-red-600');
-                        feedbackEl.classList.add('text-green-600');
+                        feedbackEl.classList.add('text-green-premium');
 
                         try {
                             const response = await fetch('/api/paypal/orders/' + data.orderID + '/capture', {
@@ -354,8 +354,8 @@
                                 throw new Error(result.error || 'Payment capture failed.');
                             }
 
-                            feedbackEl.innerText = '✓ Payment successful! Redirecting…';
-                            feedbackEl.classList.add('text-green-700');
+                            feedbackEl.innerText = 'âœ“ Payment successful! Redirectingâ€¦';
+                            feedbackEl.classList.add('text-green-premium');
 
                             // Redirect to the order confirmation page
                             window.location.href = result.redirect_url;
@@ -368,7 +368,7 @@
                     },
 
                     onCancel: async function () {
-                        // User closed the PayPal popup — cancel the pending DB order to avoid orphans
+                        // User closed the PayPal popup â€” cancel the pending DB order to avoid orphans
                         const cancelledId = localOrderId;
                         localOrderId = null;
 

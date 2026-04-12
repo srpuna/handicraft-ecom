@@ -254,6 +254,10 @@ class CartController extends Controller
                         'item_discount_value' => $item->item_discount_value ?? 0,
                     ];
                 }
+
+                // Invalidate the token so it cannot be reused to place duplicate orders.
+                $omsOrder->checkout_token = null;
+                $omsOrder->save();
             } else {
                 // Legacy Inquiry flow (single product)
                 $inquiry = Inquiry::where('checkout_token', $token)->first();

@@ -1,20 +1,20 @@
-@extends('admin.layout')
+﻿@extends('admin.layout')
 
 @section('header')
     <div class="flex items-center gap-3">
-        <a href="{{ route('admin.orders.index') }}" class="text-gray-400 hover:text-green-600 transition-colors">
+        <a href="{{ route('admin.orders.index') }}" class="text-truffle-extra-dark/70 hover:text-green-premium transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
         </a>
         <div>
             <h2 class="text-xl font-bold flex items-center gap-2">
-                Order <span class="font-mono text-green-700">{{ $order->order_number }}</span>
+                Order <span class="font-mono text-green-premium">{{ $order->order_number }}</span>
                 @if($order->is_paid)
                     <span class="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-medium">PAID</span>
                 @endif
             </h2>
-            <p class="text-sm text-gray-500">
+            <p class="text-sm text-truffle-extra-dark">
                 Created {{ $order->created_at->format('M d, Y H:i') }} by {{ $order->creator?->name ?? 'System' }}
             </p>
         </div>
@@ -29,17 +29,17 @@
 
             {{-- Status and Quick Actions --}}
             <div
-                class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                class="bg-cream rounded-xl shadow-sm border border-truffle-medium/30 p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <p class="text-sm text-gray-500 mb-1">Current Status</p>
+                    <p class="text-sm text-truffle-extra-dark mb-1">Current Status</p>
                     <div class="flex items-center gap-2">
                         <span
                             class="px-3 py-1 rounded-full text-sm font-semibold 
-                                                {{ $statusColors[$order->status] === 'gray' ? 'bg-gray-100 text-gray-700' : '' }}
+                                                {{ $statusColors[$order->status] === 'gray' ? 'bg-[#F5F2EA] text-truffle-extra-dark' : '' }}
                                                 {{ $statusColors[$order->status] === 'blue' ? 'bg-blue-100 text-blue-700' : '' }}
                                                 {{ $statusColors[$order->status] === 'yellow' ? 'bg-yellow-100 text-yellow-700' : '' }}
                                                 {{ $statusColors[$order->status] === 'purple' ? 'bg-purple-100 text-purple-700' : '' }}
-                                                {{ $statusColors[$order->status] === 'green' ? 'bg-green-100 text-green-700' : '' }}
+                                                {{ $statusColors[$order->status] === 'green' ? 'bg-green-premium/20 text-green-premium' : '' }}
                                                 {{ $statusColors[$order->status] === 'red' ? 'bg-red-100 text-red-700' : '' }}">
                             {{ $order->status_label }}
                         </span>
@@ -59,7 +59,7 @@
                 <div class="flex gap-2 flex-wrap">
                     @if(!$order->isFinanciallyLocked() && !$order->is_merged && !in_array($order->status, ['cancelled', 'delivered']))
                         <a href="{{ route('admin.orders.edit', $order) }}"
-                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium">Edit
+                            class="px-4 py-2 border border-truffle-medium/30 text-truffle-extra-dark rounded-lg hover:bg-[#F5F2EA] transition-colors text-sm font-medium">Edit
                             Details</a>
                     @endif
 
@@ -94,15 +94,15 @@
             </div>
 
             {{-- Line Items --}}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                    <h3 class="font-bold text-gray-800">Order Items</h3>
-                    <span class="text-sm text-gray-500">{{ $order->items->sum('quantity') }} items</span>
+            <div class="bg-cream rounded-xl shadow-sm border border-truffle-medium/30 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-[#F5F2EA]">
+                    <h3 class="font-bold text-truffle-extra-dark">Order Items</h3>
+                    <span class="text-sm text-truffle-extra-dark">{{ $order->items->sum('quantity') }} items</span>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm">
                         <thead>
-                            <tr class="bg-gray-50 text-gray-500 border-b">
+                            <tr class="bg-[#F5F2EA] text-truffle-extra-dark border-b">
                                 <th class="px-6 py-3 font-medium">Product</th>
                                 <th class="px-6 py-3 font-medium text-right">Price</th>
                                 <th class="px-6 py-3 font-medium text-center">Qty</th>
@@ -110,12 +110,12 @@
                                 <th class="px-6 py-3 font-medium text-right">Total</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100 text-gray-700">
+                        <tbody class="divide-y divide-gray-100 text-truffle-extra-dark">
                             @foreach($order->items as $item)
                                 <tr>
                                     <td class="px-6 py-4">
-                                        <div class="font-medium text-gray-900">{{ $item->product_name }}</div>
-                                        <div class="text-xs text-gray-500">SKU: {{ $item->product_sku }} | Wt:
+                                        <div class="font-medium text-truffle-extra-dark">{{ $item->product_name }}</div>
+                                        <div class="text-xs text-truffle-extra-dark">SKU: {{ $item->product_sku }} | Wt:
                                             {{ $item->weight_kg }}kg
                                             @if(isset($item->product_snapshot['length']) && $item->product_snapshot['length'])
                                                 | Dim:
@@ -131,14 +131,14 @@
                                     <td class="px-6 py-4 text-right">
                                         @if($item->item_discount_amount > 0)
                                             <div class="text-red-500">Ref: -${{ number_format($item->item_discount_amount, 2) }}</div>
-                                            <div class="text-[10px] text-gray-400">
+                                            <div class="text-[10px] text-truffle-extra-dark/70">
                                                 orig: ${{ number_format($item->unit_price, 2) }}
                                             </div>
                                         @else
                                             <span class="text-gray-300">-</span>
                                         @endif
                                     </td>
-                                    <td class="px-6 py-4 text-right font-semibold text-gray-900">
+                                    <td class="px-6 py-4 text-right font-semibold text-truffle-extra-dark">
                                         ${{ number_format($item->line_total, 2) }}</td>
                                 </tr>
                             @endforeach
@@ -147,9 +147,9 @@
                 </div>
 
                 {{-- Financial Totals Summary --}}
-                <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end">
+                <div class="px-6 py-4 border-t border-gray-100 bg-[#F5F2EA] flex justify-end">
                     <div class="w-full max-w-sm space-y-2 text-sm">
-                        <div class="flex justify-between text-gray-700 font-medium">
+                        <div class="flex justify-between text-truffle-extra-dark font-medium">
                             <span>Subtotal (Net)</span>
                             <span>${{ number_format($order->subtotal, 2) }}</span>
                         </div>
@@ -160,11 +160,11 @@
                                 <span>-${{ number_format($order->order_discount_amount, 2) }}</span>
                             </div>
                         @endif
-                        <div class="flex justify-between text-gray-600 pb-2 border-b border-gray-200">
+                        <div class="flex justify-between text-truffle-extra-dark pb-2 border-b border-truffle-medium/30">
                             <span>Shipping Cost</span>
                             <span>+${{ number_format($order->shipping_cost, 2) }}</span>
                         </div>
-                        <div class="flex justify-between text-lg font-bold text-gray-900">
+                        <div class="flex justify-between text-lg font-bold text-truffle-extra-dark">
                             <span>Grand Total</span>
                             <span>${{ number_format($order->grand_total, 2) }}</span>
                         </div>
@@ -173,9 +173,9 @@
             </div>
 
             {{-- Client Details --}}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h3 class="font-bold text-gray-800 mb-4 border-b pb-2">Client Information
-                    @if($order->client_snapshot) <span class="text-xs font-normal text-gray-400 ml-2">(Snapshot at order
+            <div class="bg-cream rounded-xl shadow-sm border border-truffle-medium/30 p-6">
+                <h3 class="font-bold text-truffle-extra-dark mb-4 border-b pb-2">Client Information
+                    @if($order->client_snapshot) <span class="text-xs font-normal text-truffle-extra-dark/70 ml-2">(Snapshot at order
                     creation)</span> @endif
                 </h3>
                 @php $c = $order->client_snapshot ?? ($order->client ? app(\App\Services\OrderService::class)->buildClientSnapshot($order->client) : null); @endphp
@@ -183,22 +183,22 @@
                 @if($c)
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-6">
                         <div>
-                            <p class="text-xs text-gray-500 mb-1">Name</p>
-                            <p class="font-medium text-gray-900">{{ $c['name'] }} <span
-                                    class="text-gray-400 text-sm ml-1">{{ $c['buyer_id'] ?? '' }}</span></p>
+                            <p class="text-xs text-truffle-extra-dark mb-1">Name</p>
+                            <p class="font-medium text-truffle-extra-dark">{{ $c['name'] }} <span
+                                    class="text-truffle-extra-dark/70 text-sm ml-1">{{ $c['buyer_id'] ?? '' }}</span></p>
                         </div>
                         <div>
-                            <p class="text-xs text-gray-500 mb-1">Company</p>
-                            <p class="text-gray-900">{{ $c['company'] ?? '-' }}</p>
+                            <p class="text-xs text-truffle-extra-dark mb-1">Company</p>
+                            <p class="text-truffle-extra-dark">{{ $c['company'] ?? '-' }}</p>
                         </div>
                         <div>
-                            <p class="text-xs text-gray-500 mb-1">Contact Details</p>
-                            <p class="text-gray-900">{{ $c['email'] ?? 'No email' }}</p>
-                            <p class="text-gray-900">{{ $c['phone'] ?? 'No phone' }}</p>
+                            <p class="text-xs text-truffle-extra-dark mb-1">Contact Details</p>
+                            <p class="text-truffle-extra-dark">{{ $c['email'] ?? 'No email' }}</p>
+                            <p class="text-truffle-extra-dark">{{ $c['phone'] ?? 'No phone' }}</p>
                         </div>
                         <div>
-                            <p class="text-xs text-gray-500 mb-1">Shipping Address</p>
-                            <address class="text-gray-900 not-italic">
+                            <p class="text-xs text-truffle-extra-dark mb-1">Shipping Address</p>
+                            <address class="text-truffle-extra-dark not-italic">
                                 {{ $c['address'] }}<br>
                                 {{ $c['city'] }} {{ $c['state'] ? ', ' . $c['state'] : '' }} {{ $c['zip_code'] }}<br>
                                 {{ $c['country'] }}
@@ -206,20 +206,20 @@
                         </div>
                     </div>
                 @else
-                    <p class="text-gray-500 italic">No client associated with this order.</p>
+                    <p class="text-truffle-extra-dark italic">No client associated with this order.</p>
                 @endif
                 {{-- Notes / Inquiry Message --}}
                 @if($order->notes)
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-                        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
-                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="bg-cream rounded-xl shadow-sm border border-truffle-medium/30">
+                        <div class="px-6 py-4 border-b border-gray-100 bg-[#F5F2EA] flex items-center gap-2">
+                            <svg class="w-5 h-5 text-truffle-extra-dark/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                             </svg>
-                            <h3 class="font-bold text-gray-800">Notes / Inquiry Message</h3>
+                            <h3 class="font-bold text-truffle-extra-dark">Notes / Inquiry Message</h3>
                         </div>
                         <div class="px-6 py-4">
-                            <p class="text-gray-700 whitespace-pre-wrap text-sm leading-relaxed">{{ $order->notes }}</p>
+                            <p class="text-truffle-extra-dark whitespace-pre-wrap text-sm leading-relaxed">{{ $order->notes }}</p>
                         </div>
                     </div>
                 @endif
@@ -229,8 +229,8 @@
             <div class="space-y-6">
 
                 {{-- Invoices Panel --}}
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="font-bold text-gray-800 mb-4 border-b pb-2 flex justify-between items-center">
+                <div class="bg-cream rounded-xl shadow-sm border border-truffle-medium/30 p-6">
+                    <h3 class="font-bold text-truffle-extra-dark mb-4 border-b pb-2 flex justify-between items-center">
                         Invoices
                         @if(!$order->hasActiveInvoice() && auth()->user()->hasPermission('manage_invoices'))
                             <form action="{{ route('admin.invoices.store', $order) }}" method="POST">
@@ -243,24 +243,24 @@
                     </h3>
 
                     @if($order->invoices->isEmpty())
-                        <p class="text-sm text-gray-500 italic">No invoices generated yet.</p>
+                        <p class="text-sm text-truffle-extra-dark italic">No invoices generated yet.</p>
                     @else
                         <ul class="space-y-3">
                             @foreach($order->invoices as $inv)
-                                <li class="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
+                                <li class="flex items-center justify-between p-3 border rounded-lg hover:bg-[#F5F2EA]">
                                     <div>
                                         <a href="{{ route('admin.invoices.show', $inv) }}"
                                             class="font-mono text-sm text-indigo-600 hover:underline font-semibold">{{ $inv->invoice_number }}</a>
                                         <div class="flex items-center gap-2 mt-1">
                                             <span
-                                                class="text-xs font-medium {{ $inv->status === 'issued' ? 'text-green-600' : ($inv->status === 'voided' ? 'text-red-500' : 'text-yellow-600') }}">
+                                                class="text-xs font-medium {{ $inv->status === 'issued' ? 'text-green-premium' : ($inv->status === 'voided' ? 'text-red-500' : 'text-yellow-600') }}">
                                                 {{ strtoupper($inv->status) }}
                                             </span>
-                                            <span class="text-xs text-gray-400">{{ $inv->created_at->format('M d') }}</span>
+                                            <span class="text-xs text-truffle-extra-dark/70">{{ $inv->created_at->format('M d') }}</span>
                                         </div>
                                     </div>
                                     <a href="{{ route('admin.invoices.download', $inv) }}"
-                                        class="text-gray-400 hover:text-indigo-600" title="Download PDF">
+                                        class="text-truffle-extra-dark/70 hover:text-indigo-600" title="Download PDF">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
@@ -273,15 +273,15 @@
                 </div>
 
                 {{-- Workflow / Status Transition Panel --}}
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="font-bold text-gray-800 mb-2 border-b pb-2">Update Status</h3>
+                <div class="bg-cream rounded-xl shadow-sm border border-truffle-medium/30 p-6">
+                    <h3 class="font-bold text-truffle-extra-dark mb-2 border-b pb-2">Update Status</h3>
 
                     <form action="{{ route('admin.orders.update-status', $order) }}" method="POST"
                         x-data="{ nextStatus: '{{ empty($allowedTransitions) ? '' : $allowedTransitions[0] }}' }">
                         @csrf
                         <div class="space-y-3 pt-2">
                             <select name="status" x-model="nextStatus"
-                                class="w-full text-sm border-gray-300 rounded-lg focus:border-green-500 focus:ring-green-500">
+                                class="w-full text-sm border-truffle-medium/30 rounded-lg focus:border-green-500 focus:ring-green-500">
                                 <option value="">-- Manual Override --</option>
                                 @foreach($allowedTransitions as $statusKey)
                                     <option value="{{ $statusKey }}">{{ \App\Models\Order::STATUS_LABELS[$statusKey] }}</option>
@@ -349,30 +349,30 @@
                 </div>
 
                 {{-- Audit Timeline --}}
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <h3 class="font-bold text-gray-800 p-4 border-b bg-gray-50 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="bg-cream rounded-xl shadow-sm border border-truffle-medium/30 overflow-hidden">
+                    <h3 class="font-bold text-truffle-extra-dark p-4 border-b bg-[#F5F2EA] flex items-center gap-2">
+                        <svg class="w-5 h-5 text-truffle-extra-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         Activity Timeline
                     </h3>
                     <div class="p-4 max-h-[400px] overflow-y-auto">
-                        <div class="relative border-l-2 border-gray-200 ml-3 space-y-6 pb-4">
+                        <div class="relative border-l-2 border-truffle-medium/30 ml-3 space-y-6 pb-4">
                             @foreach($order->auditLogs as $log)
                                 <div class="relative pl-6">
                                     <span
-                                        class="absolute -left-[14px] bg-white rounded-full text-lg shadow-sm border border-gray-100 w-6 h-6 flex items-center justify-center">
+                                        class="absolute -left-[14px] bg-cream rounded-full text-lg shadow-sm border border-gray-100 w-6 h-6 flex items-center justify-center">
                                         {!! $log->action_icon !!}
                                     </span>
                                     <div class="flex justify-between items-start">
-                                        <p class="text-sm font-semibold text-gray-800">{{ $log->action_label }}</p>
+                                        <p class="text-sm font-semibold text-truffle-extra-dark">{{ $log->action_label }}</p>
                                         <span
-                                            class="text-[10px] text-gray-400 font-mono">{{ $log->created_at->format('M d, H:i') }}</span>
+                                            class="text-[10px] text-truffle-extra-dark/70 font-mono">{{ $log->created_at->format('M d, H:i') }}</span>
                                     </div>
-                                    <p class="text-xs text-gray-500 mt-0.5">by {{ $log->user?->name ?? 'System' }}</p>
+                                    <p class="text-xs text-truffle-extra-dark mt-0.5">by {{ $log->user?->name ?? 'System' }}</p>
                                     @if($log->description)
-                                        <p class="text-sm text-gray-700 mt-1.5 bg-gray-50 p-2 rounded border border-gray-100">
+                                        <p class="text-sm text-truffle-extra-dark mt-1.5 bg-[#F5F2EA] p-2 rounded border border-gray-100">
                                             {{ $log->description }}
                                         </p>
                                     @endif

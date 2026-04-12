@@ -302,6 +302,12 @@ class OrderService
     public function mergeOrders(array $sourceOrderIds, Order $targetOrder, User $user): Order
     {
         return DB::transaction(function () use ($sourceOrderIds, $targetOrder, $user) {
+            // Prevent merging into a financially locked (paid) order — that would mutate
+            // locked totals and bypass the financial guard.
+            if ($targetOrder->isFinanciallyLocked()) {
+                throw new \Exception("Order #{$targetOrder->order_number} is financially locked and cannot be used as a merge target.");
+            }
+
             $sourceOrders = Order::whereIn('id', $sourceOrderIds)
                 ->where('id', '!=', $targetOrder->id)
                 ->get();

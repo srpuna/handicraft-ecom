@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Services\InvoiceService;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -27,6 +28,7 @@ class PayPalController extends Controller
             ? 'https://api-m.paypal.com/v1/oauth2/token'
             : 'https://api-m.sandbox.paypal.com/v1/oauth2/token';
 
+        /** @var \Illuminate\Http\Client\Response $response */
         $response = Http::withBasicAuth($clientId, $secret)
             ->asForm()
             ->post($url, ['grant_type' => 'client_credentials']);
@@ -75,6 +77,7 @@ class PayPalController extends Controller
             ],
         ];
 
+        /** @var \Illuminate\Http\Client\Response $response */
         $response = Http::withToken($token)->post($url, $payload);
 
         if ($response->successful()) {
@@ -112,6 +115,7 @@ class PayPalController extends Controller
             ? "https://api-m.paypal.com/v2/checkout/orders/{$paypalOrderId}/capture"
             : "https://api-m.sandbox.paypal.com/v2/checkout/orders/{$paypalOrderId}/capture";
 
+        /** @var \Illuminate\Http\Client\Response $response */
         $response = Http::withToken($token)
             ->contentType('application/json')
             ->post($url);
@@ -134,10 +138,31 @@ class PayPalController extends Controller
             return response()->json(['error' => 'Payment was not completed by PayPal.'], 422);
         }
 
-        // Mark order as paid and lock financials
-        $order->is_paid = true;
-        $order->financial_locked_at = now();
-        $order->save();
+        // Mark order as paid and lock financials — wrapped in a transaction with a
+        // row-level lock so concurrent duplicate PayPal callbacks cannot double-capture.
+        $alreadyPaid = DB::transaction(function () use ($order) {
+            // Re-fetch with a write lock; if another request already committed, bail out.
+            $fresh = Order::lockForUpdate()->find($order->id);
+            if (!$fresh || $fresh->is_paid) {
+                return true; // already handled by a concurrent request
+            }
+            $fresh->is_paid = true;
+            $fresh->financial_locked_at = now();
+            $fresh->save();
+            $order->setRawAttributes($fresh->getAttributes()); // sync in-memory instance
+            return false;
+        });
+
+        if ($alreadyPaid) {
+            // Idempotent: payment was already processed; just return success
+            $order->refresh();
+            return response()->json([
+                'success'      => true,
+                'order_number' => $order->order_number,
+                'message'      => 'Payment successful. Your order has been placed.',
+                'redirect_url' => route('checkout.success', ['orderNumber' => $order->order_number]),
+            ]);
+        }
 
         // Transition status → processed (payment received online)
         try {

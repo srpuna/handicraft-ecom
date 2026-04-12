@@ -1,24 +1,24 @@
-@extends('admin.layout')
+﻿@extends('admin.layout')
 
 @section('content')
 <div class="p-6">
     <!-- Header -->
     <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">Edit Admin User</h1>
-        <p class="text-gray-600 mt-1">Update admin user information and roles</p>
+        <h1 class="text-3xl font-bold text-truffle-extra-dark">Edit Admin User</h1>
+        <p class="text-truffle-extra-dark mt-1">Update admin user information and roles</p>
     </div>
 
     <!-- Form -->
-    <div class="bg-white rounded-lg shadow-sm p-6 max-w-2xl">
+    <div class="bg-cream rounded-lg shadow-sm p-6 max-w-2xl">
         <form action="{{ route('admin.users.update', $user) }}" method="POST">
             @csrf
             @method('PUT')
 
             <!-- Name -->
             <div class="mb-4">
-                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                <label for="name" class="block text-sm font-medium text-truffle-extra-dark mb-2">Name</label>
                 <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('name') border-red-500 @enderror">
+                    class="w-full px-4 py-2 border border-truffle-medium/30 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('name') border-red-500 @enderror">
                 @error('name')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
@@ -26,9 +26,9 @@
 
             <!-- Email -->
             <div class="mb-4">
-                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                <label for="email" class="block text-sm font-medium text-truffle-extra-dark mb-2">Email</label>
                 <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('email') border-red-500 @enderror">
+                    class="w-full px-4 py-2 border border-truffle-medium/30 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent @error('email') border-red-500 @enderror">
                 @error('email')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
@@ -36,17 +36,17 @@
 
             <!-- Roles -->
             <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Roles</label>
+                <label class="block text-sm font-medium text-truffle-extra-dark mb-2">Roles</label>
                 <div class="space-y-2">
                     @foreach($roles as $role)
                     <div class="flex items-center">
                         <input type="checkbox" name="roles[]" id="role_{{ $role->id }}" value="{{ $role->id }}"
                             {{ in_array($role->id, old('roles', $user->roles->pluck('id')->toArray())) ? 'checked' : '' }}
-                            class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
-                        <label for="role_{{ $role->id }}" class="ml-2 block text-sm text-gray-900">
+                            class="h-4 w-4 text-green-premium focus:ring-green-500 border-truffle-medium/30 rounded">
+                        <label for="role_{{ $role->id }}" class="ml-2 block text-sm text-truffle-extra-dark">
                             {{ $role->display_name }}
                             @if($role->description)
-                            <span class="text-gray-500 text-xs ml-1">({{ $role->description }})</span>
+                            <span class="text-truffle-extra-dark text-xs ml-1">({{ $role->description }})</span>
                             @endif
                         </label>
                     </div>
@@ -62,8 +62,8 @@
                 <div class="flex items-center">
                     <input type="checkbox" name="is_active" id="is_active" value="1" 
                         {{ old('is_active', $user->is_active) ? 'checked' : '' }}
-                        class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
-                    <label for="is_active" class="ml-2 block text-sm text-gray-900">
+                        class="h-4 w-4 text-green-premium focus:ring-green-500 border-truffle-medium/30 rounded">
+                    <label for="is_active" class="ml-2 block text-sm text-truffle-extra-dark">
                         Active (User can login)
                     </label>
                 </div>
@@ -72,11 +72,11 @@
             <!-- Buttons -->
             <div class="flex gap-3">
                 <button type="submit" 
-                    class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                    class="bg-green-premium text-white px-6 py-2 rounded-lg hover:bg-green-800 transition-colors">
                     Update Admin User
                 </button>
                 <a href="{{ route('admin.users.index') }}" 
-                    class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors">
+                    class="bg-[#E8E2D2] text-truffle-extra-dark px-6 py-2 rounded-lg hover:bg-[#E8E2D2] transition-colors">
                     Cancel
                 </a>
             </div>

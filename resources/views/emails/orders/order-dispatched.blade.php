@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 
 <head>
@@ -46,7 +46,7 @@
 
 <body>
     <div class="header">
-        <h2>🚚 Your Order Has Been Dispatched!</h2>
+        <h2>ðŸšš Your Order Has Been Dispatched!</h2>
     </div>
     <div class="content">
         <p>Dear {{ $order->client_snapshot['name'] ?? $order->client?->name ?? 'Customer' }},</p>

@@ -10,10 +10,17 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 
 class MarkOrderDeliveredJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    /**
+     * Do not retry this job. Auto-delivery is idempotent only when tried once;
+     * retries risk sending duplicate "delivered" notifications.
+     */
+    public int $tries = 1;
 
     public function __construct(public int $orderId)
     {
@@ -21,33 +28,39 @@ class MarkOrderDeliveredJob implements ShouldQueue
 
     public function handle(NotificationService $notificationService): void
     {
-        $order = Order::find($this->orderId);
+        // Use a DB transaction with a row-level lock to ensure only one job
+        // instance can transition this order, even if the queue delivers it twice.
+        $shouldNotify = DB::transaction(function () {
+            $order = Order::lockForUpdate()->find($this->orderId);
 
-        if (!$order) {
-            return; // Order deleted
+            if (!$order) {
+                return null; // Order deleted
+            }
+
+            // Only auto-deliver if still dispatched
+            if ($order->status !== Order::STATUS_DISPATCHED) {
+                return null; // Already transitioned by another process
+            }
+
+            $order->status = Order::STATUS_DELIVERED;
+            $order->save();
+
+            AuditLogService::log(
+                'auto_delivered',
+                $order,
+                null,
+                ['status' => Order::STATUS_DISPATCHED],
+                ['status' => Order::STATUS_DELIVERED],
+                null,
+                "Order #{$order->order_number} automatically marked as Delivered after delivery period.",
+                null
+            );
+
+            return $order;
+        });
+
+        if ($shouldNotify) {
+            $notificationService->notify($shouldNotify, Order::STATUS_DELIVERED);
         }
-
-        // Only auto-deliver if still dispatched
-        if ($order->status !== Order::STATUS_DISPATCHED) {
-            return;
-        }
-
-        $order->status = Order::STATUS_DELIVERED;
-        $order->save();
-
-        // Log as system action (no user)
-        AuditLogService::log(
-            'auto_delivered',
-            $order,
-            null,
-            ['status' => Order::STATUS_DISPATCHED],
-            ['status' => Order::STATUS_DELIVERED],
-            null,
-            "Order #{$order->order_number} automatically marked as Delivered after delivery period.",
-            null
-        );
-
-        // Send notification
-        $notificationService->notify($order, Order::STATUS_DELIVERED);
     }
 }

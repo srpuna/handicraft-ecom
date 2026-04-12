@@ -1,9 +1,9 @@
-@extends('admin.layout')
+﻿@extends('admin.layout')
 
 @section('header')
     <div>
-        <h2 class="text-xl font-bold text-gray-800">Order Management</h2>
-        <p class="text-sm text-gray-500">Manage orders and inquiries</p>
+        <h2 class="text-xl font-bold text-truffle-extra-dark">Order Management</h2>
+        <p class="text-sm text-truffle-extra-dark">Manage orders and inquiries</p>
     </div>
 @endsection
 
@@ -14,20 +14,20 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div class="flex gap-2 flex-wrap">
                 <a href="{{ route('admin.orders.index') }}"
-                    class="px-3 py-1.5 rounded-lg text-sm font-medium {{ !request('type') ? 'bg-green-600 text-white' : 'bg-white border border-gray-300 text-gray-600 hover:bg-gray-50' }}">
+                    class="px-3 py-1.5 rounded-lg text-sm font-medium {{ !request('type') ? 'bg-green-premium text-white' : 'bg-cream border border-truffle-medium/30 text-truffle-extra-dark hover:bg-[#F5F2EA]' }}">
                     All
                 </a>
                 <a href="{{ route('admin.orders.index', ['type' => 'order']) }}"
-                    class="px-3 py-1.5 rounded-lg text-sm font-medium {{ request('type') === 'order' ? 'bg-green-600 text-white' : 'bg-white border border-gray-300 text-gray-600 hover:bg-gray-50' }}">
+                    class="px-3 py-1.5 rounded-lg text-sm font-medium {{ request('type') === 'order' ? 'bg-green-premium text-white' : 'bg-cream border border-truffle-medium/30 text-truffle-extra-dark hover:bg-[#F5F2EA]' }}">
                     Orders
                 </a>
                 <a href="{{ route('admin.orders.index', ['type' => 'inquiry']) }}"
-                    class="px-3 py-1.5 rounded-lg text-sm font-medium {{ request('type') === 'inquiry' ? 'bg-green-600 text-white' : 'bg-white border border-gray-300 text-gray-600 hover:bg-gray-50' }}">
+                    class="px-3 py-1.5 rounded-lg text-sm font-medium {{ request('type') === 'inquiry' ? 'bg-green-premium text-white' : 'bg-cream border border-truffle-medium/30 text-truffle-extra-dark hover:bg-[#F5F2EA]' }}">
                     Inquiries
                 </a>
             </div>
             <a href="{{ route('admin.orders.create') }}"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors">
+                class="inline-flex items-center gap-2 px-4 py-2 bg-green-premium hover:bg-green-800 text-white text-sm font-medium rounded-lg transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
@@ -37,20 +37,20 @@
 
         {{-- Filters --}}
         <form method="GET" action="{{ route('admin.orders.index') }}"
-            class="bg-white rounded-xl border border-gray-200 p-4 flex flex-wrap gap-3 items-end">
+            class="bg-cream rounded-xl border border-truffle-medium/30 p-4 flex flex-wrap gap-3 items-end">
             @if(request('type'))
                 <input type="hidden" name="type" value="{{ request('type') }}">
             @endif
             <div class="flex-1 min-w-[180px]">
-                <label class="block text-xs font-medium text-gray-500 mb-1">Search</label>
+                <label class="block text-xs font-medium text-truffle-extra-dark mb-1">Search</label>
                 <input type="text" name="search" value="{{ request('search') }}"
                     placeholder="Order #, client name, buyer ID..."
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                    class="w-full border border-truffle-medium/30 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
             </div>
             <div class="min-w-[140px]">
-                <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+                <label class="block text-xs font-medium text-truffle-extra-dark mb-1">Status</label>
                 <select name="status"
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                    class="w-full border border-truffle-medium/30 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
                     <option value="">All Statuses</option>
                     @foreach($statuses as $val => $label)
                         <option value="{{ $val }}" {{ request('status') === $val ? 'selected' : '' }}>{{ $label }}</option>
@@ -58,14 +58,14 @@
                 </select>
             </div>
             <div class="min-w-[130px]">
-                <label class="block text-xs font-medium text-gray-500 mb-1">From</label>
+                <label class="block text-xs font-medium text-truffle-extra-dark mb-1">From</label>
                 <input type="date" name="date_from" value="{{ request('date_from') }}"
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                    class="w-full border border-truffle-medium/30 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
             </div>
             <div class="min-w-[130px]">
-                <label class="block text-xs font-medium text-gray-500 mb-1">To</label>
+                <label class="block text-xs font-medium text-truffle-extra-dark mb-1">To</label>
                 <input type="date" name="date_to" value="{{ request('date_to') }}"
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                    class="w-full border border-truffle-medium/30 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
             </div>
             <button type="submit"
                 class="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm hover:bg-gray-700 transition-colors">
@@ -73,27 +73,27 @@
             </button>
             @if(request()->hasAny(['search', 'status', 'date_from', 'date_to']))
                 <a href="{{ route('admin.orders.index', array_filter(['type' => request('type')])) }}"
-                    class="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+                    class="px-4 py-2 bg-[#F5F2EA] text-truffle-extra-dark rounded-lg text-sm hover:bg-[#E8E2D2] transition-colors">
                     Clear
                 </a>
             @endif
         </form>
 
         {{-- Orders Table --}}
-        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="bg-cream rounded-xl border border-truffle-medium/30 overflow-hidden">
             @if($orders->count())
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                        <thead class="bg-[#F5F2EA]">
                             <tr>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Order #</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Type</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Client</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Status</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Total</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Invoice</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Date</th>
-                                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Actions</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-truffle-extra-dark uppercase">Order #</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-truffle-extra-dark uppercase">Type</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-truffle-extra-dark uppercase">Client</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-truffle-extra-dark uppercase">Status</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-truffle-extra-dark uppercase">Total</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-truffle-extra-dark uppercase">Invoice</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-truffle-extra-dark uppercase">Date</th>
+                                <th class="px-4 py-3 text-right text-xs font-semibold text-truffle-extra-dark uppercase">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
@@ -101,19 +101,19 @@
                                 @php
                                     $color = $statusColors[$order->status] ?? 'gray';
                                     $colorMap = [
-                                        'gray' => 'bg-gray-100 text-gray-700',
+                                        'gray' => 'bg-[#F5F2EA] text-truffle-extra-dark',
                                         'blue' => 'bg-blue-100 text-blue-700',
                                         'yellow' => 'bg-yellow-100 text-yellow-700',
                                         'purple' => 'bg-purple-100 text-purple-700',
-                                        'green' => 'bg-green-100 text-green-700',
+                                        'green' => 'bg-green-premium/20 text-green-premium',
                                         'red' => 'bg-red-100 text-red-700',
                                     ];
-                                    $badgeClass = $colorMap[$color] ?? 'bg-gray-100 text-gray-700';
+                                    $badgeClass = $colorMap[$color] ?? 'bg-[#F5F2EA] text-truffle-extra-dark';
                                 @endphp
-                                <tr class="hover:bg-gray-50 transition-colors">
+                                <tr class="hover:bg-[#F5F2EA] transition-colors">
                                     <td class="px-4 py-3">
                                         <a href="{{ route('admin.orders.show', $order) }}"
-                                            class="font-mono font-semibold text-green-700 hover:underline text-sm">
+                                            class="font-mono font-semibold text-green-premium hover:underline text-sm">
                                             {{ $order->order_number }}
                                         </a>
                                         @if($order->is_paid)
@@ -130,12 +130,12 @@
                                     <td class="px-4 py-3">
                                         @if($order->client)
                                             <a href="{{ route('admin.clients.show', $order->client) }}"
-                                                class="text-sm font-medium text-gray-800 hover:text-green-600">
+                                                class="text-sm font-medium text-truffle-extra-dark hover:text-green-premium">
                                                 {{ $order->client->name }}
                                             </a>
-                                            <div class="text-xs text-gray-400">{{ $order->client->buyer_id }}</div>
+                                            <div class="text-xs text-truffle-extra-dark/70">{{ $order->client->buyer_id }}</div>
                                         @else
-                                            <span class="text-sm text-gray-400 italic">No client</span>
+                                            <span class="text-sm text-truffle-extra-dark/70 italic">No client</span>
                                         @endif
                                     </td>
                                     <td class="px-4 py-3">
@@ -143,7 +143,7 @@
                                             {{ $order->status_label }}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-3 text-sm font-medium text-gray-800">
+                                    <td class="px-4 py-3 text-sm font-medium text-truffle-extra-dark">
                                         ${{ number_format($order->grand_total, 2) }}</td>
                                     <td class="px-4 py-3">
                                         @if($order->latestInvoice)
@@ -153,14 +153,14 @@
                                                 {{ $inv->invoice_number }}
                                             </a>
                                             <div
-                                                class="text-xs {{ $inv->status === 'issued' ? 'text-green-600' : ($inv->status === 'voided' ? 'text-red-500' : 'text-yellow-600') }}">
+                                                class="text-xs {{ $inv->status === 'issued' ? 'text-green-premium' : ($inv->status === 'voided' ? 'text-red-500' : 'text-yellow-600') }}">
                                                 {{ ucfirst($inv->status) }}
                                             </div>
                                         @else
-                                            <span class="text-xs text-gray-300">—</span>
+                                            <span class="text-xs text-gray-300">â€”</span>
                                         @endif
                                     </td>
-                                    <td class="px-4 py-3 text-xs text-gray-500">{{ $order->created_at->format('d M Y') }}</td>
+                                    <td class="px-4 py-3 text-xs text-truffle-extra-dark">{{ $order->created_at->format('d M Y') }}</td>
                                     <td class="px-4 py-3 text-right flex items-center justify-end gap-2">
                                         @if($order->type === 'inquiry' && $order->checkout_token && !$order->is_paid)
                                             <button onclick="copyCheckoutLink('{{ url('/checkout/' . $order->checkout_token) }}', this)"
@@ -175,7 +175,7 @@
                                             </button>
                                         @endif
                                         <a href="{{ route('admin.orders.show', $order) }}"
-                                            class="inline-flex items-center gap-1 px-3 py-1.5 bg-green-50 text-green-700 rounded-lg text-xs font-medium hover:bg-green-100 transition-colors">
+                                            class="inline-flex items-center gap-1 px-3 py-1.5 bg-green-premium/10 text-green-premium rounded-lg text-xs font-medium hover:bg-green-premium/20 transition-colors">
                                             View
                                         </a>
                                     </td>
@@ -192,7 +192,7 @@
                 @endif
 
             @else
-                <div class="text-center py-16 text-gray-400">
+                <div class="text-center py-16 text-truffle-extra-dark/70">
                     <svg class="w-12 h-12 mx-auto mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -200,7 +200,7 @@
                     <p class="font-medium">No orders found</p>
                     <p class="text-sm mt-1">Create a new order or adjust filters</p>
                     <a href="{{ route('admin.orders.create') }}"
-                        class="mt-4 inline-block px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700">
+                        class="mt-4 inline-block px-4 py-2 bg-green-premium text-white text-sm rounded-lg hover:bg-green-800">
                         Create First Order
                     </a>
                 </div>

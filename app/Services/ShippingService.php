@@ -65,23 +65,22 @@ class ShippingService
 
             // Dimensions logic as per README:
             // "Actual dimension of breath is multiplied by the number of quantity"
-            $l = $product->length;       // Length
-            $w = $product->width * $qty; // Breath (Width) * Qty
-            $h = $product->height;       // Height
+            // Only contribute volumetric weight when ALL three dimensions are present and non-zero.
+            // A product with any missing dimension falls back to actual weight only (no volumetric addition).
+            $l = $product->length ?? 0;
+            $w = $product->width  ?? 0;
+            $h = $product->height ?? 0;
 
-            // "Add 4 cm to each side L, B, H from actual dimension for packing material / boxes(buffer)"
-            $l_packed = $l + 4;
-            $w_packed = $w + 4;
-            $h_packed = $h + 4;
+            if ($l > 0 && $w > 0 && $h > 0) {
+                $w_packed = ($w * $qty) + 4; // Width * Qty, then add packing buffer
+                $l_packed = $l + 4;
+                $h_packed = $h + 4;
 
-            // Calculate volume for this "packed" line item
-            // Note: If multiple DIFFERENT products are in cart, we sum their weights.
-            // But for volume? The readme says "if different products are added to the same cart total weight should be added".
-            // It doesn't explicitly say how to handle volume for mixed carts, but "total weight should be added" 
-            // implies we treat them as accumulation. 
-            // We will sum the volumes of each line-item packing calculation.
-            $volume = $l_packed * $w_packed * $h_packed;
-            $totalVolume += $volume;
+                // "Add 4 cm to each side L, B, H from actual dimension for packing material / boxes(buffer)"
+                $volume = $l_packed * $w_packed * $h_packed;
+                $totalVolume += $volume;
+            }
+            // If dimensions are missing, volumetric contribution is zero for this item.
         }
 
         // Divisor logic

@@ -1,15 +1,15 @@
-@extends('admin.layout')
+﻿@extends('admin.layout')
 
 @section('content')
 <div>
     <!-- Header -->
     <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-6">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800">Admin Users</h1>
-            <p class="text-gray-600 mt-1">Manage admin users, roles, and permissions</p>
+            <h1 class="text-3xl font-bold text-truffle-extra-dark">Admin Users</h1>
+            <p class="text-truffle-extra-dark mt-1">Manage admin users, roles, and permissions</p>
         </div>
         <a href="{{ route('admin.users.create') }}"
-            class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center w-full sm:w-auto">
+            class="bg-green-premium text-white px-6 py-3 rounded-lg hover:bg-green-800 transition-colors flex items-center justify-center w-full sm:w-auto">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
@@ -19,7 +19,7 @@
 
     <!-- Success/Error Messages -->
     @if(session('success'))
-    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+    <div class="bg-green-premium/20 border border-green-400 text-green-premium px-4 py-3 rounded mb-4">
         {{ session('success') }}
     </div>
     @endif
@@ -31,15 +31,15 @@
     @endif
 
     <!-- Filters -->
-    <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+    <div class="bg-cream rounded-lg shadow-sm p-4 mb-6">
         <form method="GET" action="{{ route('admin.users.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
                 <input type="text" name="search" value="{{ request('search') }}"
                     placeholder="Search by name or email..."
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                    class="w-full px-4 py-2 border border-truffle-medium/30 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
             </div>
             <div>
-                <select name="role" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                <select name="role" class="w-full px-4 py-2 border border-truffle-medium/30 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
                     <option value="">All Roles</option>
                     @foreach(\App\Models\Role::all() as $role)
                     <option value="{{ $role->name }}" {{ request('role') == $role->name ? 'selected' : '' }}>
@@ -49,17 +49,17 @@
                 </select>
             </div>
             <div>
-                <select name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                <select name="status" class="w-full px-4 py-2 border border-truffle-medium/30 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
                     <option value="">All Status</option>
                     <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
                     <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
                 </select>
             </div>
             <div class="flex gap-2">
-                <button type="submit" class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                <button type="submit" class="flex-1 bg-green-premium text-white px-4 py-2 rounded-lg hover:bg-green-800 transition-colors">
                     Filter
                 </button>
-                <a href="{{ route('admin.users.index') }}" class="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors text-center">
+                <a href="{{ route('admin.users.index') }}" class="flex-1 bg-[#E8E2D2] text-truffle-extra-dark px-4 py-2 rounded-lg hover:bg-[#E8E2D2] transition-colors text-center">
                     Clear
                 </a>
             </div>
@@ -67,29 +67,29 @@
     </div>
 
     <!-- Admin Users Table -->
-    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+    <div class="bg-cream rounded-lg shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+                <thead class="bg-[#F5F2EA]">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Roles</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Login</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-truffle-extra-dark uppercase tracking-wider">User</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-truffle-extra-dark uppercase tracking-wider">Roles</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-truffle-extra-dark uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-truffle-extra-dark uppercase tracking-wider">Last Login</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-truffle-extra-dark uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-cream divide-y divide-gray-200">
                     @forelse($admins as $admin)
                     <tr>
                         <td class="px-6 py-4">
                             <div class="flex items-center">
-                                <div class="flex-shrink-0 h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
-                                    <span class="text-green-600 font-semibold">{{ strtoupper(substr($admin->name, 0, 1)) }}</span>
+                                <div class="flex-shrink-0 h-10 w-10 bg-green-premium/20 rounded-full flex items-center justify-center">
+                                    <span class="text-green-premium font-semibold">{{ strtoupper(substr($admin->name, 0, 1)) }}</span>
                                 </div>
                                 <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">{{ $admin->name }}</div>
-                                    <div class="text-sm text-gray-500">{{ $admin->email }}</div>
+                                    <div class="text-sm font-medium text-truffle-extra-dark">{{ $admin->name }}</div>
+                                    <div class="text-sm text-truffle-extra-dark">{{ $admin->email }}</div>
                                 </div>
                             </div>
                         </td>
@@ -105,7 +105,7 @@
                         </td>
                         <td class="px-6 py-4">
                             @if($admin->is_active)
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-premium/20 text-green-800">
                                 Active
                             </span>
                             @else
@@ -114,7 +114,7 @@
                             </span>
                             @endif
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-500">
+                        <td class="px-6 py-4 text-sm text-truffle-extra-dark">
                             {{ $admin->last_login_at ? $admin->last_login_at->format('M d, Y H:i') : 'Never' }}
                         </td>
                         <td class="px-6 py-4 text-sm font-medium">
@@ -129,7 +129,7 @@
 
                                 @if($admin->id !== auth()->id() || !$admin->isSuperAdmin())
                                 <a href="{{ route('admin.users.edit', $admin) }}" 
-                                    class="text-green-600 hover:text-green-900" title="Edit">
+                                    class="text-green-premium hover:text-green-900" title="Edit">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
@@ -173,7 +173,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                        <td colspan="5" class="px-6 py-4 text-center text-truffle-extra-dark">
                             No admin users found.
                         </td>
                     </tr>
