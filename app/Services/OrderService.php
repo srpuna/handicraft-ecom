@@ -15,7 +15,8 @@ use Illuminate\Support\Str;
 class OrderService
 {
     public function __construct(
-        protected NotificationService $notificationService
+        protected NotificationService $notificationService,
+        protected ResendNotificationService $resendNotificationService
     ) {
     }
 
@@ -60,6 +61,23 @@ class OrderService
                 "Order #{$order->order_number} created as " . ucfirst($order->type) . '.',
                 $creator
             );
+
+            DB::afterCommit(function () use ($order) {
+                $freshOrder = $order->fresh(['client', 'items']);
+
+                if (!$freshOrder) {
+                    return;
+                }
+
+                if ($freshOrder->type === Order::TYPE_INQUIRY) {
+                    $this->resendNotificationService->sendAdminInquiryAlert($freshOrder);
+                    return;
+                }
+
+                if ($freshOrder->type === Order::TYPE_ORDER) {
+                    $this->resendNotificationService->sendAdminOrderAlert($freshOrder);
+                }
+            });
 
             return $order;
         });

@@ -19,7 +19,9 @@ return [
     ],
 
     'resend' => [
-        'key' => env('RESEND_API_KEY'),
+        'key' => env('RESEND_KEY', env('RESEND_API_KEY')),
+        'from' => env('RESEND_FROM', env('MAIL_FROM_ADDRESS')),
+        'admin_alert_email' => env('RESEND_ADMIN_ALERT_EMAIL', env('MAIL_FROM_ADDRESS')),
     ],
 
     'ses' => [

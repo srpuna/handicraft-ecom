@@ -10,6 +10,7 @@ use App\Models\ShippingProvider;
 use App\Services\OrderService;
 use App\Services\ShippingService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class OrderController extends Controller
 {
@@ -334,6 +335,30 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
+    }
+
+    public function generateCheckoutLink(Order $order)
+    {
+        if ($order->type !== Order::TYPE_INQUIRY) {
+            return back()->with('error', 'Checkout links can only be generated for inquiry-type orders.');
+        }
+
+        if ($order->is_paid) {
+            return back()->with('error', 'This order is already paid. No link needed.');
+        }
+
+        if ($order->status === Order::STATUS_CANCELLED) {
+            return back()->with('error', 'Cannot generate a link for a cancelled order.');
+        }
+
+        $token = Str::random(48);
+        $order->update(['checkout_token' => $token]);
+
+        $link = url('/checkout/' . $token);
+
+        return back()
+            ->with('checkout_link', $link)
+            ->with('success', 'Payment link generated. Copy it and share with the customer.');
     }
 
     public function destroy(Order $order)

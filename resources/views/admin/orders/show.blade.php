@@ -76,6 +76,21 @@
                         </button>
                     @endif
 
+                    @if($order->type === 'inquiry' && !$order->is_paid && !in_array($order->status, ['cancelled']))
+                        <form action="{{ route('admin.orders.generate-checkout-link', $order) }}" method="POST">
+                            @csrf
+                            <button type="submit"
+                                class="px-4 py-2 bg-violet-50 border border-violet-200 text-violet-700 rounded-lg text-sm font-medium hover:bg-violet-100 transition-colors flex items-center gap-2"
+                                onclick="return {{ $order->checkout_token ? "confirm('This will invalidate the previous link. Continue?')" : 'true' }}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                </svg>
+                                {{ $order->checkout_token ? 'Regenerate Link' : 'Generate Payment Link' }}
+                            </button>
+                        </form>
+                    @endif
+
                     @if(!$order->is_paid && auth()->user()->hasAnyRole(['super_admin', 'admin']))
                         <form action="{{ route('admin.orders.mark-paid', $order) }}" method="POST">
                             @csrf

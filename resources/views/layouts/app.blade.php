@@ -29,7 +29,7 @@
     </style>
 </head>
 
-<body class="bg-truffle-light text-truffle-extra-dark flex flex-col min-h-screen">
+<body class="bg-truffle-light text-truffle-extra-dark flex flex-col min-h-screen m-0 p-0">
 
     <!-- Header -->
     <header class="bg-[#F5F2EA] sticky top-0 z-50 border-b-2 border-truffle-extra-dark/20 shadow-sm">

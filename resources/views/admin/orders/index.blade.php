@@ -157,7 +157,7 @@
                                                 {{ ucfirst($inv->status) }}
                                             </div>
                                         @else
-                                            <span class="text-xs text-gray-300">â€”</span>
+                                            <span class="text-xs text-gray-300">&mdash;</span>
                                         @endif
                                     </td>
                                     <td class="px-4 py-3 text-xs text-truffle-extra-dark">{{ $order->created_at->format('d M Y') }}</td>

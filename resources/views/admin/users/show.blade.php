@@ -127,16 +127,16 @@
                 @if($user->roles->count() > 0)
                 <div class="space-y-2">
                     @foreach($user->roles as $role)
-                    <div class="p-3 rounded-lg {{ $role->name === 'super_admin' ? 'bg-purple-50 border border-purple-200' : 'bg-blue-50 border border-blue-200' }}">
-                        <div class="font-medium {{ $role->name === 'super_admin' ? 'text-purple-800' : 'text-blue-800' }}">
+                    <div class="p-3 rounded-lg {{ $role->name === 'super_admin' ? 'bg-truffle-medium/20 border border-truffle-medium' : 'bg-truffle-light border border-[#1A3326]/20' }}">
+                        <div class="font-medium {{ $role->name === 'super_admin' ? 'text-truffle-dark' : 'text-truffle-extra-dark' }}">
                             {{ $role->display_name }}
                         </div>
                         @if($role->description)
-                        <div class="text-xs {{ $role->name === 'super_admin' ? 'text-purple-600' : 'text-blue-600' }} mt-1">
+                        <div class="text-xs {{ $role->name === 'super_admin' ? 'text-truffle-dark' : 'text-truffle-extra-dark' }} mt-1 opacity-80">
                             {{ $role->description }}
                         </div>
                         @endif
-                        <div class="text-xs {{ $role->name === 'super_admin' ? 'text-purple-500' : 'text-blue-500' }} mt-1">
+                        <div class="text-xs {{ $role->name === 'super_admin' ? 'text-truffle-dark' : 'text-truffle-extra-dark' }} mt-1 opacity-60">
                             {{ $role->permissions->count() }} permissions
                         </div>
                     </div>

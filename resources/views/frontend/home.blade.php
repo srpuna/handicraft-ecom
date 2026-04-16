@@ -174,10 +174,10 @@
                                         <option value="" {{ request('sort') ? '' : 'selected' }}>Newest</option>
                                         <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }}>Newest</option>
                                         <option value="oldest" {{ request('sort') === 'oldest' ? 'selected' : '' }}>Oldest</option>
-                                        <option value="price-asc" {{ request('sort') === 'price-asc' ? 'selected' : '' }}>Price: Low â†’ High</option>
-                                        <option value="price-desc" {{ request('sort') === 'price-desc' ? 'selected' : '' }}>Price: High â†’ Low</option>
-                                        <option value="name-asc" {{ request('sort') === 'name-asc' ? 'selected' : '' }}>Name: A â†’ Z</option>
-                                        <option value="name-desc" {{ request('sort') === 'name-desc' ? 'selected' : '' }}>Name: Z â†’ A</option>
+                                        <option value="price-asc" {{ request('sort') === 'price-asc' ? 'selected' : '' }}>Price: Low &rarr; High</option>
+                                        <option value="price-desc" {{ request('sort') === 'price-desc' ? 'selected' : '' }}>Price: High &rarr; Low</option>
+                                        <option value="name-asc" {{ request('sort') === 'name-asc' ? 'selected' : '' }}>Name: A &rarr; Z</option>
+                                        <option value="name-desc" {{ request('sort') === 'name-desc' ? 'selected' : '' }}>Name: Z &rarr; A</option>
                                     </select>
                                     <svg class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-truffle-extra-dark/70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>

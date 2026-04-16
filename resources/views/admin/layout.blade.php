@@ -286,6 +286,18 @@
                         <span class="block sm:inline">{{ session('success') }}</span>
                     </div>
                 @endif
+                @if(session('checkout_link'))
+                    <div class="mb-4 bg-violet-50 border border-violet-200 text-violet-800 px-4 py-3 rounded relative" role="alert">
+                        <p class="font-semibold text-sm mb-1">Payment link ready — share this with the customer:</p>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <code class="text-xs bg-white border border-violet-200 px-3 py-1.5 rounded select-all break-all">{{ session('checkout_link') }}</code>
+                            <button onclick="navigator.clipboard.writeText('{{ session('checkout_link') }}').then(()=>this.textContent='Copied!')"
+                                class="text-xs px-3 py-1.5 bg-violet-600 text-white rounded hover:bg-violet-700 transition-colors whitespace-nowrap">
+                                Copy
+                            </button>
+                        </div>
+                    </div>
+                @endif
                 @if(session('error'))
                     <div class="mb-4 bg-red-100 text-red-700 px-4 py-3 rounded relative" role="alert">
                         <span class="block sm:inline">{{ session('error') }}</span>

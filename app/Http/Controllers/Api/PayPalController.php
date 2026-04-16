@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Services\InvoiceService;
 use App\Services\OrderService;
+use App\Services\ResendNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -16,6 +17,7 @@ class PayPalController extends Controller
     public function __construct(
         protected OrderService $orderService,
         protected InvoiceService $invoiceService,
+        protected ResendNotificationService $resendNotificationService,
     ) {
     }
 
@@ -117,8 +119,8 @@ class PayPalController extends Controller
 
         /** @var \Illuminate\Http\Client\Response $response */
         $response = Http::withToken($token)
-            ->contentType('application/json')
-            ->post($url);
+            ->withHeader('Content-Type', 'application/json')
+            ->send('POST', $url);
 
         if (!$response->successful()) {
             Log::error('PayPal capturePayment failed', [
@@ -192,6 +194,9 @@ class PayPalController extends Controller
 
         // Clear the session cart
         session()->forget('cart');
+
+        // Send customer confirmation email after successful payment capture.
+        $this->resendNotificationService->sendCustomerPurchaseConfirmation($order->fresh(['client', 'items']));
 
         return response()->json([
             'success'      => true,

@@ -94,6 +94,7 @@ Route::middleware(['auth', 'viewer.readonly'])->prefix('admin')->name('admin.')-
     Route::post('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.update-status');
     Route::post('orders/{order}/mark-paid', [OrderController::class, 'markPaid'])->name('orders.mark-paid');
     Route::post('orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+    Route::post('orders/{order}/generate-checkout-link', [OrderController::class, 'generateCheckoutLink'])->name('orders.generate-checkout-link');
 
     // Invoices
     Route::post('orders/{order}/invoices', [InvoiceController::class, 'store'])->name('invoices.store');
@@ -156,4 +157,16 @@ Route::middleware(['auth', 'viewer.readonly'])->prefix('admin')->name('admin.')-
     Route::middleware('permission:manage_roles')->group(function () {
         Route::resource('roles', RoleController::class);
     });
+});
+  
+// Resend mail server
+Route::get('/test-resend', function () {
+    $resend = \Resend::client(env('RESEND_API_KEY'));
+
+    return $resend->emails->send([
+        'from' => env('MAIL_FROM_NAME') . ' <' . env('MAIL_FROM_ADDRESS') . '>',
+        'to' => ['delivered@resend.dev'],
+        'subject' => 'Test Email',
+        'html' => '<strong>It works!</strong>'
+    ]);
 });

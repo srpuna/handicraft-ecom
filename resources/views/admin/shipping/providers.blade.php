@@ -3,7 +3,7 @@
 @section('header')
     <nav class="text-sm text-truffle-extra-dark">
         <a href="{{ route('admin.shipping.index') }}" class="hover:text-truffle-extra-dark">Shipping</a>
-        <span class="mx-2">â†’</span>
+        <span class="mx-2">&gt;</span>
         <span class="font-medium text-truffle-extra-dark">Provider Settings</span>
     </nav>
 @endsection

@@ -49,7 +49,7 @@
                             <code class="bg-[#F5F2EA] px-1 rounded">{url}</code>
                         </p>
                         <textarea name="whatsapp_message_template" rows="3"
-                            placeholder="Hi! I am interested in: {product_name} (SKU: {sku} | Price: ${price}) â€” {url}"
+                            placeholder="Hi! I am interested in: {product_name} (SKU: {sku} | Price: ${price}) - {url}"
                             class="w-full px-4 py-2 border border-truffle-medium/30 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">{{ old('whatsapp_message_template', $whatsappMessageTemplate->value ?? '') }}</textarea>
                         @error('whatsapp_message_template')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

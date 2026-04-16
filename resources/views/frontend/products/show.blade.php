@@ -166,7 +166,7 @@
                                 <label class="font-medium text-truffle-extra-dark">Quantity:</label>
                                 <div class="flex items-center border border-truffle-medium/30 rounded-full overflow-hidden" x-data="{ qty: {{ $product->min_quantity }}, min: {{ $product->min_quantity }} }">
                                     <button type="button" @click="qty = Math.max(min, qty - 1)"
-                                        class="w-9 h-9 flex items-center justify-center text-truffle-extra-dark hover:text-truffle-extra-dark hover:bg-[#F5F2EA] transition text-lg leading-none select-none">âˆ’</button>
+                                        class="w-9 h-9 flex items-center justify-center text-truffle-extra-dark hover:text-truffle-extra-dark hover:bg-[#F5F2EA] transition text-lg leading-none select-none">-</button>
                                     <input type="number" name="quantity" x-model="qty" :min="min"
                                         class="w-10 text-center text-sm font-medium bg-transparent border-none focus:outline-none">
                                     <button type="button" @click="qty++"
@@ -185,7 +185,7 @@
                     <div x-data="{ open: false }" class="mt-4">
                         @php
                             $waNumber = preg_replace('/[^0-9]/', '', $siteSettings['whatsapp_number'] ?? '');
-                            $defaultTemplate = 'Hi! I am interested in: {product_name} (SKU: {sku} | Price: ${price}) â€” {url}';
+                            $defaultTemplate = 'Hi! I am interested in: {product_name} (SKU: {sku} | Price: ${price}) - {url}';
                             $waTemplate = !empty($siteSettings['whatsapp_message_template'])
                                 ? $siteSettings['whatsapp_message_template']
                                 : $defaultTemplate;

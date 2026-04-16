@@ -97,7 +97,7 @@
                             <div class="flex flex-wrap gap-1">
                                 @foreach($admin->roles as $role)
                                 <span class="px-2 py-1 text-xs font-semibold rounded-full
-                                    {{ $role->name === 'super_admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' }}">
+                                    {{ $role->name === 'super_admin' ? 'bg-truffle-medium/20 text-truffle-dark border border-truffle-medium' : 'bg-truffle-light text-truffle-dark' }}">
                                     {{ $role->display_name }}
                                 </span>
                                 @endforeach

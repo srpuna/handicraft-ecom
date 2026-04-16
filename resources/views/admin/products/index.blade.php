@@ -51,13 +51,13 @@
                     <!-- Download Template -->
                     <a href="{{ route('admin.products.template') }}" 
                         class="block w-full bg-cream text-blue-600 border-2 border-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors text-center font-medium">
-                        ðŸ“„ Download Template CSV
+                        Download Template CSV
                     </a>
 
                     <!-- Export Products -->
                     <a href="{{ route('admin.products.export') }}" 
                         class="block w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-center font-medium">
-                        ðŸ“¤ Export Current Products
+                        Export Current Products
                     </a>
 
                     <!-- Import Products -->
@@ -70,7 +70,7 @@
                         </label>
                         <button type="submit" 
                             class="w-full bg-green-premium text-white px-4 py-2 rounded-lg hover:bg-green-800 transition-colors font-medium">
-                            ðŸ“¥ Import Products
+                            Import Products
                         </button>
                     </form>
                 </div>
@@ -101,16 +101,16 @@
                     </label>
                     <button type="submit" 
                         class="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium">
-                        ðŸ–¼ï¸ Upload Product Images
+                        Upload Product Images
                     </button>
                 </form>
 
                 <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-xs text-truffle-extra-dark space-y-1">
                     <strong>Image Naming Convention:</strong>
                     <ul class="list-disc list-inside ml-2 space-y-1">
-                        <li><code class="bg-cream px-1 rounded">SKU.jpg</code> â†’ Main image</li>
-                        <li><code class="bg-cream px-1 rounded">SKU_0.jpg</code> â†’ Secondary image</li>
-                        <li><code class="bg-cream px-1 rounded">SKU_1.jpg</code>, <code class="bg-cream px-1 rounded">SKU_2.jpg</code> â†’ Additional images (3rd, 4th, etc.)</li>
+                        <li><code class="bg-cream px-1 rounded">SKU.jpg</code> -> Main image</li>
+                        <li><code class="bg-cream px-1 rounded">SKU_0.jpg</code> -> Secondary image</li>
+                        <li><code class="bg-cream px-1 rounded">SKU_1.jpg</code>, <code class="bg-cream px-1 rounded">SKU_2.jpg</code> -> Additional images (3rd, 4th, etc.)</li>
                     </ul>
                     <p class="mt-2"><strong>Example:</strong> CH001.jpg, CH001_0.jpg, CH001_1.png, CH001_2.jpg</p>
                 </div>

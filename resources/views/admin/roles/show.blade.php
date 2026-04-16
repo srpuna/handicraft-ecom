@@ -31,10 +31,10 @@
                 <div class="space-y-4">
                     <div>
                         <dt class="text-sm font-medium text-truffle-extra-dark">Display Name</dt>
-                        <dd class="mt-1 text-lg font-semibold {{ $role->name === 'super_admin' ? 'text-purple-700' : 'text-truffle-extra-dark' }}">
+                        <dd class="mt-1 text-lg font-semibold {{ $role->name === 'super_admin' ? 'text-truffle-dark' : 'text-truffle-extra-dark' }}">
                             {{ $role->display_name }}
                             @if($role->name === 'super_admin')
-                            <span class="ml-2 px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
+                            <span class="ml-2 px-2 py-1 text-xs font-semibold rounded-full bg-truffle-medium/20 text-truffle-dark border border-truffle-medium">
                                 System Role
                             </span>
                             @endif

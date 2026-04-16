@@ -38,7 +38,7 @@
 
 <body>
     <div class="header">
-        <h2>âœ… Your Order Has Been Delivered!</h2>
+        <h2>Your Order Has Been Delivered!</h2>
     </div>
     <div class="content">
         <p>Dear {{ $order->client_snapshot['name'] ?? $order->client?->name ?? 'Customer' }},</p>

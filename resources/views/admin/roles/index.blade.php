@@ -33,11 +33,11 @@
     <!-- Roles Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @foreach($roles as $role)
-        <div class="bg-cream rounded-lg shadow-sm p-6 {{ $role->name === 'super_admin' ? 'border-2 border-purple-200' : '' }}">
+        <div class="bg-cream rounded-lg shadow-sm p-6 {{ $role->name === 'super_admin' ? 'border-2 border-truffle-medium/50' : '' }}">
             <!-- Role Header -->
             <div class="flex justify-between items-start mb-4">
                 <div>
-                    <h3 class="text-xl font-semibold {{ $role->name === 'super_admin' ? 'text-purple-700' : 'text-truffle-extra-dark' }}">
+                    <h3 class="text-xl font-semibold {{ $role->name === 'super_admin' ? 'text-truffle-dark' : 'text-truffle-extra-dark' }}">
                         {{ $role->display_name }}
                     </h3>
                     @if($role->description)
@@ -45,7 +45,7 @@
                     @endif
                 </div>
                 @if($role->name === 'super_admin')
-                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
+                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-truffle-medium/20 text-truffle-dark border border-truffle-medium">
                     System
                 </span>
                 @endif

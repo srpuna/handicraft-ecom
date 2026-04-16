@@ -23,7 +23,7 @@
 
             <div class="mt-8 text-center">
                 <a href="{{ route('home') }}" class="text-green-premium hover:underline">
-                    â† Back to Home
+                    &larr; Back to Home
                 </a>
             </div>
         </div>

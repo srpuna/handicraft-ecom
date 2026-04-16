@@ -114,7 +114,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                                         </svg>
-                                        {{ $item['product']->formatted_length }} Ã— {{ $item['product']->formatted_width }} Ã—
+                                        {{ $item['product']->formatted_length }} &times; {{ $item['product']->formatted_width }} &times;
                                         {{ $item['product']->formatted_height }} cm
                                     </span>
                                     <span class="inline-flex items-center">
@@ -204,7 +204,7 @@
     <script src="//unpkg.com/alpinejs" defer></script>
 
     @php
-        // Always use config() â€” env() returns null when config is cached in production
+        // Always use config() - env() returns null when config is cached in production
         $clientId = config('services.paypal.client_id');
     @endphp
     <!-- PayPal JavaScript SDK -->
@@ -215,7 +215,7 @@
         let orderInitialised = false;
 
         /**
-         * Step 1 â€“ Validate form, POST customer + cart data to Laravel.
+         * Step 1 - Validate form, POST customer + cart data to Laravel.
          * Laravel creates a pending Order and returns { order_id, grand_total }.
          * Returns the local order ID on success, throws on failure.
          */
@@ -269,7 +269,7 @@
 
             try {
                 paypal.Buttons({
-                    // Force the standard PayPal button â€” always shown, including in sandbox
+                    // Force the standard PayPal button - always shown, including in sandbox
                     fundingSource: paypal.FUNDING.PAYPAL,
 
                     style: {
@@ -281,8 +281,8 @@
                     },
 
                     /**
-                     * Step 1 â€“ Validate form + shipping.
-                     * Step 2 â€“ Create pending DB order, then create PayPal order from server amount.
+                     * Step 1 - Validate form + shipping.
+                     * Step 2 - Create pending DB order, then create PayPal order from server amount.
                      */
                     createOrder: async function (data, actions) {
                         const feedbackEl = document.getElementById('paypal-feedback');
@@ -301,7 +301,7 @@
                             throw new Error('Please select a shipping method before paying.');
                         }
 
-                        feedbackEl.innerText = 'Preparing your orderâ€¦';
+                        feedbackEl.innerText = 'Preparing your order...';
                         feedbackEl.classList.remove('hidden', 'text-red-600');
                         feedbackEl.classList.add('text-green-premium');
 
@@ -329,12 +329,12 @@
                     },
 
                     /**
-                     * Step 3 â€“ Capture PayPal payment, then mark local order as paid.
+                     * Step 3 - Capture PayPal payment, then mark local order as paid.
                      */
                     onApprove: async function (data, actions) {
                         const feedbackEl = document.getElementById('paypal-feedback');
                         document.getElementById('paypal-button-container').classList.add('hidden');
-                        feedbackEl.innerText = 'Processing paymentâ€¦ Please wait.';
+                        feedbackEl.innerText = 'Processing payment... Please wait.';
                         feedbackEl.classList.remove('hidden', 'text-red-600');
                         feedbackEl.classList.add('text-green-premium');
 
@@ -354,7 +354,7 @@
                                 throw new Error(result.error || 'Payment capture failed.');
                             }
 
-                            feedbackEl.innerText = 'âœ“ Payment successful! Redirectingâ€¦';
+                            feedbackEl.innerText = 'Payment successful! Redirecting...';
                             feedbackEl.classList.add('text-green-premium');
 
                             // Redirect to the order confirmation page
@@ -368,7 +368,7 @@
                     },
 
                     onCancel: async function () {
-                        // User closed the PayPal popup â€” cancel the pending DB order to avoid orphans
+                        // User closed the PayPal popup - cancel the pending DB order to avoid orphans
                         const cancelledId = localOrderId;
                         localOrderId = null;
 

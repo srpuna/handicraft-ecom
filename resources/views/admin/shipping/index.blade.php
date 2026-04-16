@@ -3,7 +3,7 @@
 @section('header')
     <nav class="text-sm text-truffle-extra-dark">
         <a href="{{ route('admin.shipping.index') }}" class="hover:text-truffle-extra-dark">Shipping</a>
-        <span class="mx-2">â†’</span>
+        <span class="mx-2">&gt;</span>
         @php
             $tabLabel = 'Settings';
             if (($defaultTab ?? null) === 'zones') $tabLabel = 'Zone Settings';
@@ -125,7 +125,7 @@
                         <svg class="w-6 h-6 text-green-premium mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                         </svg>
-                        <h2 class="text-xl font-semibold text-truffle-extra-dark">Bulk Country â†’ Zone Mapping</h2>
+                        <h2 class="text-xl font-semibold text-truffle-extra-dark">Bulk Country -> Zone Mapping</h2>
                     </div>
                     <span class="text-xs text-truffle-extra-dark">CSV columns: country, zone</span>
                 </div>
@@ -137,7 +137,7 @@
                             <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                             </svg>
-                            Export Country â†’ Zone CSV
+                            Export Country -> Zone CSV
                         </h3>
                         <p class="text-xs text-truffle-extra-dark mb-3">Downloads all current country assignments by zone.</p>
                         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">Export CSV</button>
@@ -150,7 +150,7 @@
                             <svg class="w-4 h-4 mr-2 text-green-premium" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0l-4 4m4-4v12"></path>
                             </svg>
-                            Import Country â†’ Zone CSV
+                            Import Country -> Zone CSV
                         </h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
                             <div class="md:col-span-2">
@@ -469,7 +469,7 @@
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path>
                                                             </svg>
                                                             <span class="font-medium">{{ $rate->min_weight }} kg</span>
-                                                            <span class="mx-2 text-truffle-extra-dark/70">â†’</span>
+                                                            <span class="mx-2 text-truffle-extra-dark/70">-&gt;</span>
                                                             <span class="font-medium">{{ $rate->max_weight }} kg</span>
                                                         </div>
                                                     </td>

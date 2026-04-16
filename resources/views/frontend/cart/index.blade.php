@@ -42,7 +42,7 @@
                                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
                                                         </svg>
-                                                        {{ $item['product']->formatted_length }} Ã— {{ $item['product']->formatted_width }} Ã— {{ $item['product']->formatted_height }} cm
+                                                        {{ $item['product']->formatted_length }} &times; {{ $item['product']->formatted_width }} &times; {{ $item['product']->formatted_height }} cm
                                                     </span>
                                                     <span class="mx-2">|</span>
                                                     <span class="inline-flex items-center">

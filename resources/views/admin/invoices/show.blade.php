@@ -35,7 +35,7 @@
                     <br><strong>Issued on:</strong> {{ $invoice->issued_at->format('d M Y, H:i') }}
                 @elseif($invoice->status === 'voided')
                     <br><strong>Voided on:</strong> {{ $invoice->voided_at->format('d M Y, H:i') }}
-                    by {{ $invoice->voidedBy?->name ?? 'System' }} â€” <span class="italic text-red-600">Reason:
+                    by {{ $invoice->voidedBy?->name ?? 'System' }} &mdash; <span class="italic text-red-600">Reason:
                         {{ $invoice->void_reason }}</span>
                 @endif
             </div>
