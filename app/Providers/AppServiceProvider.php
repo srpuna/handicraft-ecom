@@ -50,6 +50,12 @@ class AppServiceProvider extends ServiceProvider
                         'footer_phone'       => rescue(fn() => SiteSetting::get('footer_phone', ''), ''),
                         'footer_email'       => rescue(fn() => SiteSetting::get('footer_email', ''), ''),
                         'footer_hours'       => rescue(fn() => SiteSetting::get('footer_hours', ''), ''),
+                        // Theme Colors
+                        'color_primary'      => rescue(fn() => SiteSetting::get('color_primary', '#2D4B36'), '#2D4B36'),
+                        'color_secondary'    => rescue(fn() => SiteSetting::get('color_secondary', '#C5A059'), '#C5A059'),
+                        'color_accent'       => rescue(fn() => SiteSetting::get('color_accent', '#1A3326'), '#1A3326'),
+                        'color_background'   => rescue(fn() => SiteSetting::get('color_background', '#E8E2D2'), '#E8E2D2'),
+                        'color_text'         => rescue(fn() => SiteSetting::get('color_text', '#2D4B36'), '#2D4B36'),
                     ]);
                 } else {
                     throw new \Exception('Table not ready');

@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('content')
     <div class="container mx-auto px-4 sm:px-6 py-12">
@@ -37,6 +37,16 @@
                                             </div>
                                             <div class="ml-4">
                                                 <div class="text-sm font-medium text-truffle-extra-dark">{{ $item['product']->name }}</div>
+                                                <div class="mt-1 flex flex-wrap gap-2 text-[11px]">
+                                                    <span class="inline-flex items-center rounded-full bg-[#F5F2EA] px-2 py-0.5 font-medium text-truffle-extra-dark">
+                                                        Purchase: {{ $item['purchase_type_label'] }}
+                                                    </span>
+                                                    @if($item['spiritual_option_label'])
+                                                        <span class="inline-flex items-center rounded-full bg-[#F5F2EA] px-2 py-0.5 font-medium text-truffle-extra-dark">
+                                                            {{ $item['spiritual_option_label'] }}
+                                                        </span>
+                                                    @endif
+                                                </div>
                                                 <div class="text-xs text-truffle-extra-dark mt-1">
                                                     <span class="inline-flex items-center">
                                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,17 +66,23 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-truffle-extra-dark">
-                                        @if($item['product']->discount_price)
-                                            <span class="text-truffle-extra-dark/70 line-through mr-1">${{ number_format($item['product']->price, 2) }}</span>
-                                            <span class="text-green-premium font-bold">${{ number_format($item['product']->discount_price, 2) }}</span>
-                                        @else
-                                            ${{ number_format($item['product']->price, 2) }}
+                                        <div class="font-semibold text-primary">${{ number_format($item['unit_price'], 2) }}</div>
+                                        <div class="mt-1 text-xs text-truffle-extra-dark/70">
+                                            Base: ${{ number_format($item['base_unit_price'], 2) }}
+                                            @if($item['option_price'] > 0)
+                                                + Option: ${{ number_format($item['option_price'], 2) }}
+                                            @endif
+                                        </div>
+                                        @if($item['purchase_type'] === 'sale' && $item['product']->discount_price)
+                                            <div class="text-[11px] text-truffle-extra-dark/60">
+                                                Normal price: ${{ number_format($item['product']->price, 2) }}
+                                            </div>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-truffle-extra-dark">
                                         <form action="{{ route('cart.update') }}" method="POST" class="flex items-center gap-2">
                                             @csrf
-                                            <input type="hidden" name="product_id" value="{{ $item['product']->id }}">
+                                            <input type="hidden" name="line_key" value="{{ $item['line_key'] }}">
                                             <input type="number" name="quantity" value="{{ $item['quantity'] }}" 
                                                 min="{{ $item['product']->min_quantity }}" 
                                                 class="w-20 border rounded p-1 text-center"
@@ -79,7 +95,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <form action="{{ route('cart.remove') }}" method="POST" class="inline-block">
                                             @csrf
-                                            <input type="hidden" name="product_id" value="{{ $item['product']->id }}">
+                                            <input type="hidden" name="line_key" value="{{ $item['line_key'] }}">
                                             <button type="submit" class="text-red-600 hover:text-red-900">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -102,14 +118,14 @@
                     </div>
                     <p class="text-xs text-truffle-extra-dark mb-6">Shipping & taxes calculated at checkout.</p>
                     <a href="{{ route('checkout') }}"
-                        class="block w-full bg-green-premium text-white text-center py-3 rounded-lg font-bold hover:bg-green-800 transition">Proceed
+                        class="block w-full bg-primary text-white text-center py-3 rounded-lg font-bold hover:opacity-90 transition">Proceed
                         to Checkout</a>
                 </div>
             </div>
         @else
             <div class="text-center py-12">
                 <p class="text-truffle-extra-dark text-lg mb-6">Your cart is empty.</p>
-                <a href="{{ route('home') }}" class="text-green-premium hover:underline">Continue Shopping</a>
+                <a href="{{ route('home') }}" class="text-primary hover:underline">Continue Shopping</a>
             </div>
         @endif
     </div>

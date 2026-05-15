@@ -152,6 +152,9 @@ class OrderService
         $item = new OrderItem([
             'order_id' => $order->id,
             'product_id' => $itemData['product_id'] ?? null,
+            'purchase_type' => $itemData['purchase_type'] ?? \App\Models\Product::PURCHASE_TYPE_NORMAL,
+            'spiritual_option' => $itemData['spiritual_option'] ?? null,
+            'option_price' => $itemData['option_price'] ?? 0,
             'quantity' => $itemData['quantity'] ?? 1,
             'unit_price' => $itemData['unit_price'],
             'weight_kg' => $itemData['weight_kg'] ?? 0,
@@ -172,6 +175,7 @@ class OrderService
                     'width' => $product->width,
                     'height' => $product->height,
                     'price' => $product->price,
+                    'discount_price' => $product->discount_price,
                 ];
             }
         } elseif (!empty($itemData['product_name'])) {

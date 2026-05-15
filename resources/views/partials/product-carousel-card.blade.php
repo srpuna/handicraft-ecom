@@ -1,4 +1,4 @@
-﻿<div class="flex-shrink-0 w-64 snap-start">
+<div class="flex-shrink-0 w-64 snap-start">
     <a href="{{ route('products.show', $product->slug ?? $product->id) }}" class="group bg-cream rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 h-full block">
         <!-- Image -->
         <div class="relative aspect-[3/4] overflow-hidden bg-[#F5F2EA]">
@@ -13,12 +13,12 @@
             @if(isset($badge))
                 @php
                     $colorClasses = [
-                        'green' => 'bg-green-premium',
-                        'blue' => 'bg-blue-500',
-                        'purple' => 'bg-purple-500',
-                        'red' => 'bg-red-500',
+                        'green' => 'bg-primary',
+                        'blue' => 'bg-secondary',
+                        'purple' => 'bg-accent',
+                        'red' => 'bg-red-600',
                     ];
-                    $bgClass = $colorClasses[$badgeColor ?? 'green'] ?? 'bg-gray-500';
+                    $bgClass = $colorClasses[$badgeColor ?? 'green'] ?? 'bg-primary';
                 @endphp
                 <div class="absolute top-3 left-3">
                     <span class="{{ $bgClass }} text-white text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider shadow-lg">

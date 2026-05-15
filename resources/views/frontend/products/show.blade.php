@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('content')
     <div class="container mx-auto px-4 sm:px-6 py-12">
@@ -92,21 +92,21 @@
                             @if($product->main_image)
                                 <img src="{{ $product->main_image }}" 
                                     onclick="document.getElementById('mainProductImage').src='{{ $product->main_image }}'"
-                                    class="h-20 w-20 object-cover rounded-lg border-2 border-green-premium cursor-pointer hover:opacity-75 transition flex-shrink-0"
+                                    class="h-20 w-20 object-cover rounded-lg border-2 border-primary cursor-pointer hover:opacity-75 transition flex-shrink-0"
                                     alt="Main">
                             @endif
                             <!-- Secondary image thumbnail -->
                             @if($product->secondary_image)
                                 <img src="{{ $product->secondary_image }}" 
                                     onclick="document.getElementById('mainProductImage').src='{{ $product->secondary_image }}'"
-                                    class="h-20 w-20 object-cover rounded-lg border-2 border-truffle-medium/30 cursor-pointer hover:border-green-premium hover:opacity-75 transition flex-shrink-0"
+                                    class="h-20 w-20 object-cover rounded-lg border-2 border-truffle-medium/30 cursor-pointer hover:border-primary hover:opacity-75 transition flex-shrink-0"
                                     alt="Secondary">
                             @endif
                             <!-- Additional images -->
                             @foreach($product->images ?? [] as $image)
                                 <img src="{{ $image }}" 
                                     onclick="document.getElementById('mainProductImage').src='{{ $image }}'"
-                                    class="h-20 w-20 object-cover rounded-lg border-2 border-truffle-medium/30 cursor-pointer hover:border-green-premium hover:opacity-75 transition flex-shrink-0"
+                                    class="h-20 w-20 object-cover rounded-lg border-2 border-truffle-medium/30 cursor-pointer hover:border-primary hover:opacity-75 transition flex-shrink-0"
                                     alt="Product image">
                             @endforeach
                         </div>
@@ -116,21 +116,20 @@
 
             <!-- Details Section -->
             <div class="md:w-1/2">
+                @if($errors->any())
+                    <div class="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                        @foreach($errors->all() as $error)
+                            <div>{{ $error }}</div>
+                        @endforeach
+                    </div>
+                @endif
+
                 <div class="mb-4">
                     <span
                         class="text-truffle-extra-dark uppercase tracking-widest text-sm font-semibold">{{ $product->category->name ?? 'Uncategorized' }}</span>
                 </div>
 
                 <h1 class="text-4xl font-serif font-bold text-truffle-extra-dark mb-4">{{ $product->name }}</h1>
-
-                <div class="text-3xl font-bold text-green-premium mb-6">
-                    @if($product->discount_price)
-                        <span class="text-truffle-extra-dark/70 line-through text-xl mr-2">${{ number_format($product->price, 2) }}</span>
-                        <span>${{ number_format($product->discount_price, 2) }}</span>
-                    @else
-                        <span>${{ number_format($product->price, 2) }}</span>
-                    @endif
-                </div>
 
                 @if($product->description)
                     <div class="prose text-truffle-extra-dark mb-8 max-w-none">
@@ -159,22 +158,114 @@
                 <div class="flex flex-col gap-4">
                     {{-- Order Now Button --}}
                     @if($product->is_order_now_enabled)
-                        <form action="{{ route('cart.add') }}" method="POST">
+                        <form action="{{ route('cart.add') }}" method="POST"
+                            x-data="productPurchaseForm({
+                                minQuantity: {{ (int) $product->min_quantity }},
+                                basePrices: { normal: {{ number_format((float) $product->price, 2, '.', '') }}, sale: {{ number_format((float) ($product->discount_price ?? $product->price), 2, '.', '') }} },
+                                saleAvailable: {{ $product->hasSalePrice() ? 'true' : 'false' }},
+                                hasSpiritualOptions: {{ $product->has_spiritual_options ? 'true' : 'false' }},
+                                initialPurchaseType: '{{ old('purchase_type', $product->hasSalePrice() ? 'sale' : 'normal') }}',
+                                initialSpiritualOption: '{{ old('spiritual_option', '') }}',
+                                spiritualPrices: {
+                                    filling_only: {{ number_format((float) ($product->price_filling_only ?? 0), 2, '.', '') }},
+                                    blessing_only: {{ number_format((float) ($product->price_blessing_only ?? 0), 2, '.', '') }},
+                                    both: {{ number_format((float) ($product->price_both ?? 0), 2, '.', '') }}
+                                }
+                            })"
+                            class="space-y-5">
                             @csrf
                             <input type="hidden" name="product_id" value="{{ $product->id }}">
-                            <div class="flex items-center gap-4 mb-4">
+                            <input type="hidden" name="purchase_type" :value="purchaseType">
+                            <input type="hidden" name="spiritual_option" :value="selectedSpiritualOption || ''">
+
+                            <div class="rounded-2xl border border-truffle-medium/30 bg-[#F5F2EA] p-5">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div>
+                                        <p class="text-sm font-semibold uppercase tracking-wide text-truffle-extra-dark/70">Live Total</p>
+                                        <div class="mt-2 text-3xl font-bold text-primary">
+                                            $<span x-text="formatMoney(totalUnitPrice)"></span>
+                                        </div>
+                                        <p class="mt-2 text-sm text-truffle-extra-dark/80">
+                                            Base $<span x-text="formatMoney(basePrice)"></span>
+                                            <span x-show="optionPrice > 0"> + Option $<span x-text="formatMoney(optionPrice)"></span></span>
+                                        </p>
+                                    </div>
+                                    @if($product->discount_price)
+                                        <div class="text-right text-sm text-truffle-extra-dark/70">
+                                            <div>Normal: ${{ number_format($product->price, 2) }}</div>
+                                            <div>Sale: ${{ number_format($product->discount_price, 2) }}</div>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="mb-3 block font-medium text-truffle-extra-dark">Purchase Type</label>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <label class="rounded-xl border border-truffle-medium/30 bg-[#F5F2EA] p-4 transition"
+                                        :class="purchaseType === 'normal' ? 'ring-2 ring-green-premium border-green-premium' : ''">
+                                        <input type="radio" name="purchase_type_visible" value="normal" x-model="purchaseType" class="sr-only">
+                                        <div class="flex items-center justify-between gap-3">
+                                            <span class="font-semibold text-truffle-extra-dark">Normal</span>
+                                            <span class="text-sm font-bold text-truffle-extra-dark">$<span x-text="formatMoney(basePrices.normal)"></span></span>
+                                        </div>
+                                    </label>
+                                    <label class="rounded-xl border border-truffle-medium/30 bg-[#F5F2EA] p-4 transition"
+                                        :class="purchaseType === 'sale' ? 'ring-2 ring-green-premium border-green-premium' : ''"
+                                        :style="!saleAvailable ? 'opacity: 0.55;' : ''">
+                                        <input type="radio" name="purchase_type_visible" value="sale" x-model="purchaseType" class="sr-only"
+                                            :disabled="!saleAvailable">
+                                        <div class="flex items-center justify-between gap-3">
+                                            <span class="font-semibold text-truffle-extra-dark">Sale</span>
+                                            <span class="text-sm font-bold text-truffle-extra-dark">
+                                                <template x-if="saleAvailable">
+                                                    <span>$<span x-text="formatMoney(basePrices.sale)"></span></span>
+                                                </template>
+                                                <template x-if="!saleAvailable">
+                                                    <span>Not Available</span>
+                                                </template>
+                                            </span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            @if($product->has_spiritual_options)
+                                <div>
+                                    <label class="mb-3 block font-medium text-truffle-extra-dark">Spiritual Options</label>
+                                    <div class="space-y-3">
+                                        <template x-for="option in spiritualOptionChoices" :key="option.value">
+                                            <label class="block rounded-xl border border-truffle-medium/30 bg-[#F5F2EA] p-4 transition"
+                                                :class="selectedSpiritualOption === option.value ? 'ring-2 ring-green-premium border-green-premium' : ''">
+                                                <input type="radio" name="spiritual_option_visible" :value="option.value" x-model="selectedSpiritualOption" class="sr-only">
+                                                <div class="flex items-center justify-between gap-3">
+                                                    <div>
+                                                        <div class="font-semibold text-truffle-extra-dark" x-text="option.label"></div>
+                                                        <div class="mt-1 text-xs text-truffle-extra-dark/70" x-show="option.value === ''">No additional spiritual service</div>
+                                                    </div>
+                                                    <span class="text-sm font-bold text-truffle-extra-dark">
+                                                        <span x-text="option.price > 0 ? '+ $' + formatMoney(option.price) : '+ $0.00'"></span>
+                                                    </span>
+                                                </div>
+                                            </label>
+                                        </template>
+                                    </div>
+                                </div>
+                            @endif
+
+                            <div class="flex items-center gap-4">
                                 <label class="font-medium text-truffle-extra-dark">Quantity:</label>
-                                <div class="flex items-center border border-truffle-medium/30 rounded-full overflow-hidden" x-data="{ qty: {{ $product->min_quantity }}, min: {{ $product->min_quantity }} }">
-                                    <button type="button" @click="qty = Math.max(min, qty - 1)"
+                                <div class="flex items-center border border-truffle-medium/30 rounded-full overflow-hidden">
+                                    <button type="button" @click="qty = Math.max(minQuantity, qty - 1)"
                                         class="w-9 h-9 flex items-center justify-center text-truffle-extra-dark hover:text-truffle-extra-dark hover:bg-[#F5F2EA] transition text-lg leading-none select-none">-</button>
-                                    <input type="number" name="quantity" x-model="qty" :min="min"
+                                    <input type="number" name="quantity" x-model="qty" :min="minQuantity"
                                         class="w-10 text-center text-sm font-medium bg-transparent border-none focus:outline-none">
                                     <button type="button" @click="qty++"
                                         class="w-9 h-9 flex items-center justify-center text-truffle-extra-dark hover:text-truffle-extra-dark hover:bg-[#F5F2EA] transition text-lg leading-none select-none">+</button>
                                 </div>
                             </div>
                             <button type="submit"
-                                class="w-full bg-green-premium text-white text-lg font-bold py-4 rounded-full shadow-lg hover:bg-green-800 transition transform hover:-translate-y-1">
+                                class="w-full bg-primary text-white text-lg font-bold py-4 rounded-full shadow-lg hover:opacity-90 transition transform hover:-translate-y-1">
                                 Add to Cart
                             </button>
                             <p class="text-xs text-center text-truffle-extra-dark mt-2">Free shipping calculation at checkout.</p>
@@ -203,7 +294,7 @@
                         @endphp
                         <div class="flex gap-3">
                             <button @click="open = !open"
-                                class="flex-1 bg-green-premium text-white text-lg font-bold py-4 rounded-full shadow-lg hover:bg-green-800 transition transform hover:-translate-y-1">
+                                class="flex-1 bg-primary text-white text-lg font-bold py-4 rounded-full shadow-lg hover:opacity-90 transition transform hover:-translate-y-1">
                                 Make an Inquiry
                             </button>
 
@@ -228,29 +319,29 @@
                                 <input type="hidden" name="product_id" value="{{ $product->id }}">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <input type="text" name="name" placeholder="Full Name" required
-                                        class="w-full p-3 bg-[#F5F2EA] border rounded-lg focus:ring-green-premium focus:border-green-premium">
+                                        class="w-full p-3 bg-[#F5F2EA] border rounded-lg focus:ring-primary focus:border-primary">
                                     <input type="email" name="email" placeholder="Email Address" required
-                                        class="w-full p-3 bg-[#F5F2EA] border rounded-lg focus:ring-green-premium focus:border-green-premium">
+                                        class="w-full p-3 bg-[#F5F2EA] border rounded-lg focus:ring-primary focus:border-primary">
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <input type="text" name="phone" placeholder="Phone Number" required
-                                        class="w-full p-3 bg-[#F5F2EA] border rounded-lg focus:ring-green-premium focus:border-green-premium">
+                                        class="w-full p-3 bg-[#F5F2EA] border rounded-lg focus:ring-primary focus:border-primary">
                                     <input type="text" name="country" placeholder="Country" required
-                                        class="w-full p-3 bg-[#F5F2EA] border rounded-lg focus:ring-green-premium focus:border-green-premium">
+                                        class="w-full p-3 bg-[#F5F2EA] border rounded-lg focus:ring-primary focus:border-primary">
                                 </div>
                                 <input type="text" name="address_line" placeholder="Address Line" required
                                     class="w-full p-3 bg-[#F5F2EA] border rounded-lg focus:ring-green-premium focus:border-green-premium">
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <input type="text" name="city" placeholder="City"
-                                        class="w-full p-3 bg-[#F5F2EA] border rounded-lg focus:ring-green-premium focus:border-green-premium">
+                                        class="w-full p-3 bg-[#F5F2EA] border rounded-lg focus:ring-primary focus:border-primary">
                                     <input type="text" name="zip_code" placeholder="Zip Code"
-                                        class="w-full p-3 bg-[#F5F2EA] border rounded-lg focus:ring-green-premium focus:border-green-premium">
+                                        class="w-full p-3 bg-[#F5F2EA] border rounded-lg focus:ring-primary focus:border-primary">
                                 </div>
                                 <textarea name="message" rows="3" placeholder="I am interested in this product..."
                                     class="w-full p-3 bg-[#F5F2EA] border rounded-lg focus:ring-green-premium focus:border-green-premium"></textarea>
 
                                 <button type="submit"
-                                    class="w-full bg-gray-800 text-white font-bold py-3 rounded-lg hover:bg-black transition">Send
+                                    class="w-full bg-secondary text-white font-bold py-3 rounded-lg hover:opacity-90 transition">Send
                                     Inquiry</button>
                             </form>
                         </div>
@@ -306,5 +397,45 @@
 
     </div>
     {{-- Alpine JS for interaction --}}
+    <script>
+        function productPurchaseForm(config) {
+            return {
+                minQuantity: config.minQuantity,
+                qty: config.minQuantity,
+                purchaseType: config.saleAvailable ? (config.initialPurchaseType || 'sale') : 'normal',
+                basePrices: config.basePrices,
+                saleAvailable: config.saleAvailable,
+                hasSpiritualOptions: config.hasSpiritualOptions,
+                selectedSpiritualOption: config.hasSpiritualOptions ? (config.initialSpiritualOption || '') : '',
+                spiritualPrices: config.spiritualPrices,
+                get basePrice() {
+                    return this.purchaseType === 'sale' && this.saleAvailable
+                        ? Number(this.basePrices.sale || 0)
+                        : Number(this.basePrices.normal || 0);
+                },
+                get optionPrice() {
+                    if (!this.hasSpiritualOptions || !this.selectedSpiritualOption) {
+                        return 0;
+                    }
+
+                    return Number(this.spiritualPrices[this.selectedSpiritualOption] || 0);
+                },
+                get totalUnitPrice() {
+                    return this.basePrice + this.optionPrice;
+                },
+                get spiritualOptionChoices() {
+                    return [
+                        { value: '', label: 'No Spiritual Option', price: 0 },
+                        { value: 'filling_only', label: 'Filling Only', price: Number(this.spiritualPrices.filling_only || 0) },
+                        { value: 'blessing_only', label: 'Blessing Only', price: Number(this.spiritualPrices.blessing_only || 0) },
+                        { value: 'both', label: 'Both Filling & Blessing', price: Number(this.spiritualPrices.both || 0) },
+                    ];
+                },
+                formatMoney(value) {
+                    return Number(value || 0).toFixed(2);
+                },
+            };
+        }
+    </script>
     <script src="//unpkg.com/alpinejs" defer></script>
 @endsection

@@ -38,6 +38,40 @@
             @endif
         </div>
 
+        <div class="mb-8 rounded-xl border border-truffle-medium/30 bg-[#F5F2EA] px-6 py-5 text-left">
+            <h2 class="mb-4 text-lg font-bold text-truffle-extra-dark">Order Summary</h2>
+            <div class="space-y-4">
+                @foreach($order->items as $item)
+                    <div class="border-b border-truffle-medium/20 pb-4 last:border-b-0 last:pb-0">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <div class="font-semibold text-truffle-extra-dark">{{ $item->product_name }}</div>
+                                <div class="mt-1 flex flex-wrap gap-2 text-[11px]">
+                                    <span class="inline-flex items-center rounded-full bg-cream px-2 py-0.5 font-medium text-truffle-extra-dark">
+                                        Purchase: {{ $item->purchase_type_label }}
+                                    </span>
+                                    @if($item->spiritual_option_label)
+                                        <span class="inline-flex items-center rounded-full bg-cream px-2 py-0.5 font-medium text-truffle-extra-dark">
+                                            {{ $item->spiritual_option_label }}
+                                            @if($item->option_price > 0)
+                                                (+${{ number_format($item->option_price, 2) }})
+                                            @endif
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="mt-1 text-xs text-truffle-extra-dark/70">
+                                    Qty {{ $item->quantity }} x ${{ number_format($item->unit_price, 2) }}
+                                </div>
+                            </div>
+                            <div class="font-semibold text-truffle-extra-dark">
+                                ${{ number_format($item->line_total, 2) }}
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
         <a href="{{ route('home') }}"
            class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-8 py-3 rounded-xl transition">
             Continue Shopping

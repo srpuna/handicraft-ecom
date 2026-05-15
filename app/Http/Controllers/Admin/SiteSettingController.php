@@ -28,6 +28,13 @@ class SiteSettingController extends Controller
         $footerEmail = SiteSetting::where('key', 'footer_email')->first();
         $footerHours = SiteSetting::where('key', 'footer_hours')->first();
         
+        // Theme Colors
+        $colorPrimary = SiteSetting::where('key', 'color_primary')->first();
+        $colorSecondary = SiteSetting::where('key', 'color_secondary')->first();
+        $colorAccent = SiteSetting::where('key', 'color_accent')->first();
+        $colorBackground = SiteSetting::where('key', 'color_background')->first();
+        $colorText = SiteSetting::where('key', 'color_text')->first();
+        
         return view('admin.settings.index', compact(
             'groupedSettings', 
             'siteName', 
@@ -41,7 +48,12 @@ class SiteSettingController extends Controller
             'footerAddress',
             'footerPhone',
             'footerEmail',
-            'footerHours'
+            'footerHours',
+            'colorPrimary',
+            'colorSecondary',
+            'colorAccent',
+            'colorBackground',
+            'colorText'
         ));
     }
 
@@ -56,6 +68,12 @@ class SiteSettingController extends Controller
             'footer_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'favicon' => 'nullable|image|mimes:ico,png,jpg,jpeg,gif,svg|max:1024',
             'footer_qr_code' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            // Use "sometimes" so regex runs only when a value is actually provided
+            'color_primary'   => ['sometimes', 'nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'color_secondary' => ['sometimes', 'nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'color_accent'    => ['sometimes', 'nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'color_background'=> ['sometimes', 'nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+            'color_text'      => ['sometimes', 'nullable', 'string', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
         ]);
 
         // Update site name
@@ -90,6 +108,23 @@ class SiteSettingController extends Controller
         }
         if ($request->has('footer_hours')) {
             SiteSetting::set('footer_hours', $request->footer_hours, 'text', 'contact');
+        }
+
+        // Update Theme Colors
+        if ($request->has('color_primary')) {
+            SiteSetting::set('color_primary', $request->color_primary, 'color', 'theme');
+        }
+        if ($request->has('color_secondary')) {
+            SiteSetting::set('color_secondary', $request->color_secondary, 'color', 'theme');
+        }
+        if ($request->has('color_accent')) {
+            SiteSetting::set('color_accent', $request->color_accent, 'color', 'theme');
+        }
+        if ($request->has('color_background')) {
+            SiteSetting::set('color_background', $request->color_background, 'color', 'theme');
+        }
+        if ($request->has('color_text')) {
+            SiteSetting::set('color_text', $request->color_text, 'color', 'theme');
         }
 
         // Handle navbar logo upload

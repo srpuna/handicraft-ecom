@@ -50,6 +50,11 @@ class ProductController extends Controller
             'name' => 'required',
             'sku' => 'required|unique:products,sku',
             'price' => 'required|numeric',
+            'discount_price' => 'nullable|numeric|min:0',
+            'has_spiritual_options' => 'nullable|boolean',
+            'price_filling_only' => 'nullable|numeric|min:0',
+            'price_blessing_only' => 'nullable|numeric|min:0',
+            'price_both' => 'nullable|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
             'weight' => 'required|numeric', // Important for shipping
             'length' => 'required|numeric',
@@ -63,13 +68,20 @@ class ProductController extends Controller
         $data['slug'] = $this->generateUniqueSlug($request->name);
         // Toggle handling
         $data['is_order_now_enabled'] = $request->has('is_order_now_enabled');
-        
+        $data['has_spiritual_options'] = $request->has('has_spiritual_options');
+
         // Carousel options handling
         $data['is_new_arrival'] = $request->has('is_new_arrival');
         $data['is_featured'] = $request->has('is_featured');
         $data['is_recommended'] = $request->has('is_recommended');
         $data['is_on_sale'] = $request->has('is_on_sale');
         $data['carousel_priority'] = $request->input('carousel_priority', 0);
+
+        if (!$data['has_spiritual_options']) {
+            $data['price_filling_only'] = null;
+            $data['price_blessing_only'] = null;
+            $data['price_both'] = null;
+        }
 
         // Main Image Upload
         if ($request->hasFile('main_image')) {
@@ -103,6 +115,11 @@ class ProductController extends Controller
             'name' => 'required',
             'sku' => 'required|unique:products,sku,' . $product->id,
             'price' => 'required|numeric',
+            'discount_price' => 'nullable|numeric|min:0',
+            'has_spiritual_options' => 'nullable|boolean',
+            'price_filling_only' => 'nullable|numeric|min:0',
+            'price_blessing_only' => 'nullable|numeric|min:0',
+            'price_both' => 'nullable|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
             'weight' => 'required|numeric',
             'length' => 'required|numeric',
@@ -117,13 +134,20 @@ class ProductController extends Controller
             $data['slug'] = $this->generateUniqueSlug($request->name, $product->id);
         }
         $data['is_order_now_enabled'] = $request->has('is_order_now_enabled');
-        
+        $data['has_spiritual_options'] = $request->has('has_spiritual_options');
+
         // Carousel options handling
         $data['is_new_arrival'] = $request->has('is_new_arrival');
         $data['is_featured'] = $request->has('is_featured');
         $data['is_recommended'] = $request->has('is_recommended');
         $data['is_on_sale'] = $request->has('is_on_sale');
         $data['carousel_priority'] = $request->input('carousel_priority', 0);
+
+        if (!$data['has_spiritual_options']) {
+            $data['price_filling_only'] = null;
+            $data['price_blessing_only'] = null;
+            $data['price_both'] = null;
+        }
 
         // Main Image Upload
         if ($request->hasFile('main_image')) {
@@ -197,6 +221,10 @@ class ProductController extends Controller
             'sub_category',
             'price',
             'discount_price',
+            'has_spiritual_options',
+            'price_filling_only',
+            'price_blessing_only',
+            'price_both',
             'min_quantity',
             'material',
             'weight',
@@ -221,6 +249,10 @@ class ProductController extends Controller
                 'Chairs',
                 '150.00',
                 '120.00',
+                'true',
+                '15.00',
+                '20.00',
+                '30.00',
                 '1',
                 'Oak Wood',
                 '5.5',
@@ -242,6 +274,10 @@ class ProductController extends Controller
                 'Furniture',
                 '',
                 '299.99',
+                '',
+                'false',
+                '',
+                '',
                 '',
                 '1',
                 'Walnut',
@@ -290,6 +326,10 @@ class ProductController extends Controller
                 'sub_category',
                 'price',
                 'discount_price',
+                'has_spiritual_options',
+                'price_filling_only',
+                'price_blessing_only',
+                'price_both',
                 'min_quantity',
                 'material',
                 'weight',
@@ -315,6 +355,10 @@ class ProductController extends Controller
                     $product->subCategory->name ?? '',
                     $product->price,
                     $product->discount_price ?? '',
+                    $product->has_spiritual_options ? 'true' : 'false',
+                    $product->price_filling_only ?? '',
+                    $product->price_blessing_only ?? '',
+                    $product->price_both ?? '',
                     $product->min_quantity,
                     $product->material ?? '',
                     $product->weight,
@@ -417,6 +461,10 @@ class ProductController extends Controller
                         'sub_category_id' => $subCategoryId,
                         'price' => $data['price'],
                         'discount_price' => !empty($data['discount_price']) ? $data['discount_price'] : null,
+                        'has_spiritual_options' => $this->parseBool($data['has_spiritual_options'] ?? 'false'),
+                        'price_filling_only' => !empty($data['price_filling_only']) ? $data['price_filling_only'] : null,
+                        'price_blessing_only' => !empty($data['price_blessing_only']) ? $data['price_blessing_only'] : null,
+                        'price_both' => !empty($data['price_both']) ? $data['price_both'] : null,
                         'min_quantity' => $data['min_quantity'] ?? 1,
                         'material' => $this->sanitizeText($data['material'] ?? null),
                         'weight' => $data['weight'] ?? 0,
@@ -432,6 +480,12 @@ class ProductController extends Controller
                         'is_on_sale' => $this->parseBool($data['is_on_sale'] ?? 'false'),
                         'carousel_priority' => $data['carousel_priority'] ?? 0,
                     ];
+
+                    if (!$productData['has_spiritual_options']) {
+                        $productData['price_filling_only'] = null;
+                        $productData['price_blessing_only'] = null;
+                        $productData['price_both'] = null;
+                    }
 
                     // Check if product exists by SKU
                     $existingProduct = Product::where('sku', $data['sku'])->first();

@@ -130,6 +130,19 @@
                                 <tr>
                                     <td class="px-6 py-4">
                                         <div class="font-medium text-truffle-extra-dark">{{ $item->product_name }}</div>
+                                        <div class="mt-1 flex flex-wrap gap-2 text-[11px]">
+                                            <span class="inline-flex items-center rounded-full bg-[#F5F2EA] px-2 py-0.5 font-medium text-truffle-extra-dark">
+                                                Purchase: {{ $item->purchase_type_label }}
+                                            </span>
+                                            @if($item->spiritual_option_label)
+                                                <span class="inline-flex items-center rounded-full bg-[#F5F2EA] px-2 py-0.5 font-medium text-truffle-extra-dark">
+                                                    {{ $item->spiritual_option_label }}
+                                                    @if($item->option_price > 0)
+                                                        (+${{ number_format($item->option_price, 2) }})
+                                                    @endif
+                                                </span>
+                                            @endif
+                                        </div>
                                         <div class="text-xs text-truffle-extra-dark">SKU: {{ $item->product_sku }} | Wt:
                                             {{ $item->weight_kg }}kg
                                             @if(isset($item->product_snapshot['length']) && $item->product_snapshot['length'])
@@ -141,6 +154,12 @@
                                     <td class="px-6 py-4 text-right">
                                         @php $netPrice = $item->quantity > 0 ? $item->line_total / $item->quantity : $item->unit_price; @endphp
                                         ${{ number_format($netPrice, 2) }}
+                                        @if($item->option_price > 0)
+                                            <div class="text-[10px] text-truffle-extra-dark/70">
+                                                base: ${{ number_format($item->base_unit_price, 2) }} + option:
+                                                ${{ number_format($item->option_price, 2) }}
+                                            </div>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 text-center font-medium">{{ $item->quantity }}</td>
                                     <td class="px-6 py-4 text-right">

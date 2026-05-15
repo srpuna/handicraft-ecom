@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -16,8 +16,45 @@
         href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Noto+Serif:wght@400;600;700&display=swap"
         rel="stylesheet">
     <style>
+        :root {
+            --color-primary: {{ $siteSettings['color_primary'] }};
+            --color-secondary: {{ $siteSettings['color_secondary'] }};
+            --color-accent: {{ $siteSettings['color_accent'] }};
+            --color-background: {{ $siteSettings['color_background'] }};
+            --color-text: {{ $siteSettings['color_text'] }};
+            
+            /* Map legacy names to new variables for compatibility */
+            --color-truffle-dark: var(--color-accent);
+            --color-truffle-medium: var(--color-secondary);
+            --color-truffle-light: var(--color-background);
+            --color-truffle-extra-dark: var(--color-primary);
+            --color-green-premium: var(--color-primary);
+            --color-gold: var(--color-secondary);
+            --color-cream: #F5F5EA; /* Keep cream stable unless needed */
+        }
+
         body {
             font-family: 'Manrope', sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text);
+        }
+
+        .site-header {
+            background-color: var(--color-background);
+            border-color: color-mix(in srgb, var(--color-primary) 20%, transparent);
+        }
+
+        .site-footer {
+            background-color: var(--color-accent);
+            color: #fff;
+        }
+
+        .site-footer-muted {
+            color: rgba(255, 255, 255, 0.78);
+        }
+
+        .site-footer-divider {
+            border-color: rgba(255, 255, 255, 0.16);
         }
 
         h1,
@@ -32,7 +69,7 @@
 <body class="bg-truffle-light text-truffle-extra-dark flex flex-col min-h-screen m-0 p-0">
 
     <!-- Header -->
-    <header class="bg-[#F5F2EA] sticky top-0 z-50 border-b-2 border-truffle-extra-dark/20 shadow-sm">
+    <header class="site-header sticky top-0 z-50 border-b-2 shadow-sm">
         <div
             class="container mx-auto px-4 sm:px-6 py-4 flex flex-col gap-3 md:gap-6 md:flex-row md:justify-between md:items-center">
             <div class="flex items-center justify-between w-full md:w-auto">
@@ -126,7 +163,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-truffle-extra-dark text-white py-12">
+    <footer class="site-footer py-12">
         <div class="container mx-auto px-4 sm:px-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
@@ -136,13 +173,13 @@
                     @else
                         <h3 class="text-xl font-serif mb-4">{{ $siteSettings['site_name'] }}</h3>
                     @endif
-                    <p class="text-gray-300 text-sm">Premium curated products for your lifestyle.</p>
+                    <p class="site-footer-muted text-sm">Premium curated products for your lifestyle.</p>
                 </div>
 
                 <!-- Contact Info Column -->
                 <div>
                     <h4 class="font-bold mb-4">Contact Us</h4>
-                    <ul class="space-y-3 text-gray-300 text-sm">
+                    <ul class="site-footer-muted space-y-3 text-sm">
                         @if($siteSettings['footer_address'])
                             <li class="flex items-start gap-2">
                                 <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor"
@@ -190,7 +227,7 @@
                 <!-- Quick Links Column -->
                 <div>
                     <h4 class="font-bold mb-4">Quick Links</h4>
-                    <ul class="space-y-2 text-gray-300 text-sm">
+                    <ul class="site-footer-muted space-y-2 text-sm">
                         <li><a href="{{ route('blog.index') }}" class="hover:text-gold">Blog</a></li>
                         <li><a href="{{ route('home', ['filter' => 'new-arrivals']) }}" class="hover:text-gold">New
                                 Arrivals</a></li>
@@ -218,12 +255,12 @@
                                     alt="WhatsApp QR Code"
                                     class="w-32 h-32 object-contain bg-cream p-2 rounded hover:shadow-lg transition cursor-pointer">
                             </a>
-                            <p class="text-xs text-truffle-extra-dark/70 mt-2">Tap to chat on WhatsApp</p>
+                            <p class="site-footer-muted text-xs mt-2">Tap to chat on WhatsApp</p>
                         </div>
                     @endif
                 </div>
             </div>
-            <div class="mt-8 border-t border-gray-700 pt-8 text-center text-truffle-extra-dark/70 text-sm">
+            <div class="site-footer-divider site-footer-muted mt-8 border-t pt-8 text-center text-sm">
                 &copy; 2026 {{ $siteSettings['site_name'] }}. All rights reserved.
             </div>
         </div>

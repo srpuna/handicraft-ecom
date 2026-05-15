@@ -18,6 +18,13 @@
     --color-beige: #E8E2D2;
     --color-gold: #C5A059;
     --color-green-premium: #2D4B36;
+
+    /* Logical Theme Colors */
+    --color-primary: #2D4B36;
+    --color-secondary: #C5A059;
+    --color-accent: #1A3326;
+    --color-background: #E8E2D2;
+    --color-text: #2D4B36;
 }
 
 /* Hide number input spinners */

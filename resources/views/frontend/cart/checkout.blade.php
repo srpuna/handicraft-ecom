@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('content')
     <div class="container mx-auto px-4 sm:px-6 py-12" x-data="checkout()">
@@ -66,7 +66,7 @@
                                     <div class="flex items-center">
                                         <input type="radio" name="shipping_rate" :value="rate.price"
                                             @change="selectShipping(rate)"
-                                            class="h-4 w-4 text-green-premium focus:ring-green-500">
+                                            class="h-4 w-4 text-primary focus:ring-primary">
                                         <div class="ml-3">
                                             <span class="block text-sm font-medium text-truffle-extra-dark"
                                                 x-text="rate.provider_name"></span>
@@ -87,7 +87,7 @@
                         
                         <!-- The PayPal buttons will render securely inside this container -->
                         <div id="paypal-button-container" class="mt-4" style="min-height:50px"></div>
-                        <div id="paypal-feedback" class="text-sm text-green-premium hidden my-2 font-bold">Processing payment... Please wait.</div>
+                        <div id="paypal-feedback" class="text-sm text-primary hidden my-2 font-bold">Processing payment... Please wait.</div>
                     </div>
 
                     <button type="submit" id="native-submit"
@@ -108,6 +108,19 @@
                                         (x{{ $item['quantity'] }})</span>
                                     <span class="font-medium">${{ number_format($item['subtotal'], 2) }}</span>
                                 </div>
+                                <div class="mt-1 flex flex-wrap gap-2 text-[11px]">
+                                    <span class="inline-flex items-center rounded-full bg-[#F5F2EA] px-2 py-0.5 font-medium text-truffle-extra-dark">
+                                        Purchase: {{ $item['purchase_type_label'] ?? 'Normal' }}
+                                    </span>
+                                    @if(!empty($item['spiritual_option_label']))
+                                        <span class="inline-flex items-center rounded-full bg-[#F5F2EA] px-2 py-0.5 font-medium text-truffle-extra-dark">
+                                            {{ $item['spiritual_option_label'] }}
+                                            @if(($item['option_price'] ?? 0) > 0)
+                                                (+${{ number_format($item['option_price'], 2) }})
+                                            @endif
+                                        </span>
+                                    @endif
+                                </div>
                                 <div class="text-xs text-truffle-extra-dark/70 mt-1 flex items-center gap-3">
                                     <span class="inline-flex items-center">
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -124,6 +137,9 @@
                                         </svg>
                                         {{ $item['product']->formatted_weight }} kg
                                     </span>
+                                </div>
+                                <div class="mt-1 text-xs text-truffle-extra-dark/70">
+                                    Unit price: ${{ number_format($item['unit_price'] ?? ($item['subtotal'] / max($item['quantity'], 1)), 2) }}
                                 </div>
                             </div>
                         @endforeach
@@ -222,7 +238,7 @@
         function showPayPalError(msg) {
             const el = document.getElementById('paypal-feedback');
             el.innerText = msg;
-            el.classList.remove('hidden', 'text-green-premium', 'text-green-premium');
+            el.classList.remove('hidden', 'text-primary', 'text-primary');
             el.classList.add('text-red-600');
         }
 
@@ -303,7 +319,7 @@
 
                         feedbackEl.innerText = 'Preparing your order...';
                         feedbackEl.classList.remove('hidden', 'text-red-600');
-                        feedbackEl.classList.add('text-green-premium');
+                        feedbackEl.classList.add('text-primary');
 
                         // 3. Create pending order in DB
                         const orderId = await initOrder();
@@ -336,7 +352,7 @@
                         document.getElementById('paypal-button-container').classList.add('hidden');
                         feedbackEl.innerText = 'Processing payment... Please wait.';
                         feedbackEl.classList.remove('hidden', 'text-red-600');
-                        feedbackEl.classList.add('text-green-premium');
+                        feedbackEl.classList.add('text-primary');
 
                         try {
                             const response = await fetch('/api/paypal/orders/' + data.orderID + '/capture', {
@@ -355,7 +371,7 @@
                             }
 
                             feedbackEl.innerText = 'Payment successful! Redirecting...';
-                            feedbackEl.classList.add('text-green-premium');
+                            feedbackEl.classList.add('text-primary');
 
                             // Redirect to the order confirmation page
                             window.location.href = result.redirect_url;
